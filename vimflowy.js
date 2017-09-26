@@ -1,72 +1,151 @@
-// TODO: support search functionality -- '/', type query, esc, n/N move you
-// between search terms?
-// TODO: add 'e', 'dd', others?
-//
+const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.key && event.key.toLowerCase()}`
 
-var normalKeybindings = {
-    "j": commands.moveDown,
-    "k": commands.moveUp,
-    "h": commands.moveLeft,
-    "l": commands.moveRight,
-
-    "w": commands.moveWordForward,
-    "b": commands.moveWordBackward,
-
-    "x": commands.doBackspace,
-
-    "shift+o": commands.createNewBefore,
-    "o": commands.createNewAfter,
-
-    "shift+i": commands.insertBeginning,
-    "shift+a": commands.insertEnd,
-
-    "u": commands.doUndo,
-    "ctrl+r": commands.doRedo,
-
-    "i": enterInsertMode,
-    "a": enterInsertMode
-};
-
-var insertKeybindings = {
-    "esc": enterNormalMode,
-
-    // TODO: this breaks tab closing (even more)!
-    "ctrl+w": commands.deleteWordBack,
-    "ctrl+u": commands.deleteItemBack
-};
-
-var alwaysKeybindings = {
-    "alt+l": commands.zoomInFold,
-    "alt+h": commands.zoomOutFold,
-
-    "alt+shift+l": commands.doIndent,
-    "alt+shift+h": commands.doDedent,
-
-    "alt+shift+k": commands.doProjectUp,
-    "alt+shift+j": commands.doProjectDown
-};
-
-// unbind and rebind so we can get esc key back
-$(".editor > textarea").unbind("keydown");
-$(".editor > textarea").addTextAreaEventHandlers();
-
-// add some "vimflowy" movement keybindings
-$(".editor > textarea").addModalKeyboardShortcuts(alwaysKeybindings);
-
-var blockAll = function (e) { e.preventDefault(); }
-
-function enterNormalMode () {
-    console.log('entering normal mode');
-    $(".editor > textarea").bind("keydown", blockAll);
-    $(".editor > textarea").addModalKeyboardShortcuts(normalKeybindings, insertKeybindings);
-};
-
-function enterInsertMode (e) {
-    e.preventDefault();
-    console.log('entering insert mode');
-    $(".editor > textarea").unbind("keydown", blockAll);
-    $(".editor > textarea").addModalKeyboardShortcuts(insertKeybindings, normalKeybindings);
+const Mode = {
+  NORMAL: 'NORMAL',
+  INSERT: 'INSERT'
 }
 
-// start 'er up
-enterNormalMode();
+const state = {
+  mode: Mode.NORMAL,
+  anchorOffset: 0,
+  debug: false
+}
+
+const debug = (...args) => state.debug && console.log(...args)
+
+const moveCursorHorizontally = offset => {
+  const {anchorOffset, baseNode} = document.getSelection()
+  const targetCursorPosition = anchorOffset + offset
+  if (targetCursorPosition < 0) {
+    return
+  }
+
+  if (targetCursorPosition > baseNode.length) {
+    return
+  }
+
+  const selection = window.getSelection()
+  state.anchorOffset = targetCursorPosition
+
+  const range = document.createRange()
+  range.setStart(baseNode, targetCursorPosition)
+  range.collapse(true)
+  selection.removeAllRanges()
+  selection.addRange(range)
+  baseNode.parentElement.focus()
+}
+
+const projectAncestor = project => {
+  const ancestor = project.closest(`.project:not([projectid='${project.getAttribute('projectid')}'])`)
+
+  return ancestor.className.includes('mainTreeRoot')
+    ? project
+    : ancestor
+} 
+
+const setCursorAfterVerticalMove = cursorTargetProject => {
+  const cursorTarget = cursorTargetProject.querySelector('.name>.content')
+  const selection = window.getSelection()
+  state.anchorOffset = Math.max(selection.anchorOffset, state.anchorOffset)
+  const textNode = cursorTarget.childNodes[0]
+  const range = document.createRange()
+  range.setStart(textNode, Math.min(state.anchorOffset, textNode.length))
+  range.collapse(true)
+  selection.removeAllRanges()
+  selection.addRange(range)
+  cursorTarget.focus()
+}
+
+$(() => {
+  window.toggleDebugging = () => {
+    state.debug = !state.debug
+  }
+  document.getElementById('searchBox').addEventListener('focus', event => {
+    if (event.sourceCapabilities) {
+      return
+    }
+
+    debug('dirty escape search hack')
+    setCursorAfterVerticalMove(projectAncestor(event.relatedTarget))
+  })
+  document.getElementById('pageContainer').addEventListener('keydown', event => {
+    const e = jQuery.Event('keydown')
+
+    const actionMap = {
+      [Mode.NORMAL]: {
+        j: t => {
+          const project = projectAncestor(t)
+          let cursorTargetProject = project.className.includes('open')
+            ? project.querySelector('.project')
+            : project.nextElementSibling
+
+          while(cursorTargetProject && cursorTargetProject.className.includes('childrenEnd')) {
+            const sibling = projectAncestor(cursorTargetProject).nextElementSibling
+            cursorTargetProject = (sibling.className.includes('childrenEnd') || sibling.className.includes('project')) && sibling
+          }
+
+          if (!cursorTargetProject) {
+            return
+          }
+
+          setCursorAfterVerticalMove(cursorTargetProject)
+        },
+        k: t => {
+          const project = projectAncestor(t) 
+          const previousProject = project.previousElementSibling || projectAncestor(project)
+
+          if (!previousProject) {
+            return
+          }
+
+          setCursorAfterVerticalMove(previousProject)
+        },
+        h: t => moveCursorHorizontally(-1),
+        l: t => moveCursorHorizontally(1),
+        'alt-l': t => {
+          state.anchorOffset = 0
+          e.which = 39
+          e.altKey = true
+          $(t).trigger(e)
+        },
+        'alt-h': t => {
+          state.anchorOffset = 0
+          e.which = 37
+          e.altKey = true
+          $(t).trigger(e)
+        },
+        i: t => {
+          console.log('INSERT MODE')
+          state.mode = Mode.INSERT
+        },
+        escape: t => {
+          state.mode = Mode.NORMAL
+          moveCursorHorizontally(0)
+        }
+      },
+      [Mode.INSERT]: {
+        escape: t => {
+          console.log('NORMAL MODE')
+          state.mode = Mode.NORMAL
+          moveCursorHorizontally(0)
+        }
+      }
+    }
+
+    if (actionMap[state.mode][keyFrom(event)]) {
+      event.preventDefault()
+
+      debug(state.mode, event)
+
+      actionMap[state.mode][keyFrom(event)](event.target)
+
+      return
+    }
+
+    if (state.mode === Mode.NORMAL) {
+      event.preventDefault()
+
+      debug('prevented because NORMAL mode', event)
+    }
+  })
+})
