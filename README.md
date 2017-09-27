@@ -42,6 +42,7 @@ Tested on
 ---------
 
 These are environment specs that this thing was used on and was usable. If you ever use it on a different environment, feel free to create a PR with your spec in this list :)
-Please add in format '<output of `lsb_release -a`>, Chrome <Version info from `chrome://settings/help`>'
+
+Please add items in this format: '<output of `lsb_release -a`>, Chrome <Version info from `chrome://settings/help`>'
 
 * Ubuntu 16.04.3 LTS, Chrome Version 61.0.3163.91 (Official Build) (64-bit)
