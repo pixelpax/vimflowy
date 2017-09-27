@@ -118,6 +118,13 @@ const moveUp = t => {
 }
 
 $(() => {
+  const search = t => {
+    const searchBox = document.getElementById('searchBox')
+    searchBox.className += ' evenDirtierSearchHack'
+
+    searchBox.focus()
+  }
+
   window.toggleDebugging = () => {
     state.debug = !state.debug
   }
@@ -126,8 +133,46 @@ $(() => {
       return
     }
 
+    if (event.target.className.includes('evenDirtierSearchHack')) {
+      event.target.className = event.target.className.replace('evenDirtierSearchHack', '').trim()
+
+      return
+    }
+
     debug('dirty escape search hack')
     setCursorAfterVerticalMove(projectAncestor(event.relatedTarget))
+  })
+  document.getElementById('searchBox').addEventListener('keydown', event => {
+    if (event.keyCode !== 13) {
+      window.clearTimeout(state.searchFocusRetryTimeout)
+
+      return
+    }
+
+    event.preventDefault()
+
+    const focusFirstSearchResult = () => {
+      const firstMatch = document.querySelector('.searching .mainTreeRoot .project')
+      if (firstMatch) {
+        setCursorAfterVerticalMove(firstMatch)
+      }
+
+      return Boolean(firstMatch)
+    }
+
+    const keepTrying = callback => {
+      debug('trying to focus first search result')
+      if (callback()) {
+        return
+      }
+
+      state.searchFocusRetryTimeout = window.setTimeout(() => {
+        state.searchFocusRetryTimeout = null
+        keepTrying(callback)
+      }, 200)
+    }
+
+    keepTrying(focusFirstSearchResult)
   })
   document.getElementById('pageContainer').addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
@@ -138,6 +183,8 @@ $(() => {
         k: moveUp,
         h: t => moveCursorHorizontally(-1),
         l: t => moveCursorHorizontally(1),
+        '/': search,
+        '?': search,
         'alt-l': t => {
           state.anchorOffset = 0
           e.which = 39
