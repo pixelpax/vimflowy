@@ -31,10 +31,10 @@ Installation
 ------------
 
 * for chrome
-  1. Clone this repo (or your fork) somewhere on yout filesystem. 
+  1. Clone this repo (or your fork) somewhere on your filesystem. 
   2. go to `chrome://extensions/`
   3. click 'Load unpacked extension...' button right below 'Extensions' header in the top left corner of the page
-  4. point at the repo
+  4. point at the vimflowy repo directory
   5. ...
   6. profit
 
