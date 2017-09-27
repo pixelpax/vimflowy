@@ -178,7 +178,7 @@ $(() => {
       return
     }
 
-    if (state.mode === Mode.NORMAL) {
+    if (state.mode === Mode.NORMAL && !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)) {
       event.preventDefault()
 
       debug('prevented because NORMAL mode', event)
