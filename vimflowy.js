@@ -47,6 +47,9 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
   const selection = window.getSelection()
   state.anchorOffset = Math.max(selection.anchorOffset, state.anchorOffset)
+  if (!cursorTarget.childNodes.length) {
+    cursorTarget.append('')
+  }
   const textNode = cursorTarget.childNodes[0]
   const range = document.createRange()
   range.setStart(textNode, Math.min(state.anchorOffset, textNode.length))
@@ -54,6 +57,42 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   selection.removeAllRanges()
   selection.addRange(range)
   cursorTarget.focus()
+}
+
+const moveDown = t => {
+  const project = projectAncestor(t)
+  let cursorTargetProject = project.className.includes('open')
+    ? project.querySelector('.project')
+    : project.nextElementSibling
+
+  while(cursorTargetProject && cursorTargetProject.className.includes('childrenEnd')) {
+    const sibling = projectAncestor(cursorTargetProject).nextElementSibling
+    cursorTargetProject = (sibling.className.includes('childrenEnd') || sibling.className.includes('project')) && sibling
+  }
+
+  if (!cursorTargetProject) {
+    return
+  }
+
+  setCursorAfterVerticalMove(cursorTargetProject)
+}
+
+const moveUp = t => {
+  const project = projectAncestor(t) 
+  let cursorTarget = null
+
+  if (project.previousElementSibling) {
+    cursorTarget = project.previousElementSibling
+    if (cursorTarget.className.includes('open')) {
+      cursorTarget = cursorTarget.querySelector('.open>.children>.childrenEnd').previousElementSibling
+    }
+  }
+
+  if (!cursorTarget) {
+    cursorTarget = projectAncestor(project) 
+  }
+
+  cursorTarget && setCursorAfterVerticalMove(cursorTarget)
 }
 
 $(() => {
@@ -73,33 +112,8 @@ $(() => {
 
     const actionMap = {
       [Mode.NORMAL]: {
-        j: t => {
-          const project = projectAncestor(t)
-          let cursorTargetProject = project.className.includes('open')
-            ? project.querySelector('.project')
-            : project.nextElementSibling
-
-          while(cursorTargetProject && cursorTargetProject.className.includes('childrenEnd')) {
-            const sibling = projectAncestor(cursorTargetProject).nextElementSibling
-            cursorTargetProject = (sibling.className.includes('childrenEnd') || sibling.className.includes('project')) && sibling
-          }
-
-          if (!cursorTargetProject) {
-            return
-          }
-
-          setCursorAfterVerticalMove(cursorTargetProject)
-        },
-        k: t => {
-          const project = projectAncestor(t) 
-          const previousProject = project.previousElementSibling || projectAncestor(project)
-
-          if (!previousProject) {
-            return
-          }
-
-          setCursorAfterVerticalMove(previousProject)
-        },
+        j: moveDown,
+        k: moveUp,
         h: t => moveCursorHorizontally(-1),
         l: t => moveCursorHorizontally(1),
         'alt-l': t => {
