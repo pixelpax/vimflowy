@@ -234,13 +234,11 @@ $(() => {
         },
         escape: t => {
           state.set(s => ({mode: Mode.NORMAL}))
-          moveCursorHorizontally(0)
         }
       },
       [Mode.INSERT]: {
         escape: t => {
           state.set(s => ({mode: Mode.NORMAL}))
-          moveCursorHorizontally(0)
         }
       }
     }
