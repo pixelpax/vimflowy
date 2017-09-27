@@ -5,13 +5,25 @@ const Mode = {
   INSERT: 'INSERT'
 }
 
-const state = {
-  mode: Mode.NORMAL,
-  anchorOffset: 0,
-  debug: false
+const stateFactory = (stateChanged = () => {}) => {
+  let s = {
+    mode: Mode.NORMAL,
+    anchorOffset: 0,
+    debug: false
+  }
+
+  return {
+    set: stateReducer => {
+      s = Object.assign({}, s, stateReducer(s))
+      stateChanged()
+    },
+    get: () => Object.assign({}, s)
+  }
 }
 
-const debug = (...args) => state.debug && console.log(...args)
+const state = stateFactory(() => document.getElementById('pageContainer').dispatchEvent(new Event('vimflowy.stateChanged')))
+
+const debug = (...args) => state.get().debug && console.log(...args)
 
 const moveCursorHorizontally = offset => {
   const {anchorOffset, baseNode} = document.getSelection()
@@ -25,7 +37,9 @@ const moveCursorHorizontally = offset => {
   }
 
   const selection = window.getSelection()
-  state.anchorOffset = targetCursorPosition
+  state.set(s => ({
+    anchorOffset: targetCursorPosition
+  }))
 
   const range = document.createRange()
   range.setStart(baseNode, targetCursorPosition)
@@ -65,13 +79,15 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
   const selection = window.getSelection()
-  state.anchorOffset = Math.max(selection.anchorOffset, state.anchorOffset)
+  state.set(s => ({
+    anchorOffset: Math.max(selection.anchorOffset, s.anchorOffset)
+  }))
   if (!cursorTarget.childNodes.length) {
     cursorTarget.append('')
   }
   const textNode = cursorTarget.childNodes[0]
   const range = document.createRange()
-  range.setStart(textNode, Math.min(state.anchorOffset, textNode.length))
+  range.setStart(textNode, Math.min(state.get().anchorOffset, textNode.length))
   range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
@@ -117,6 +133,18 @@ const moveUp = t => {
   cursorTarget && setCursorAfterVerticalMove(cursorTarget)
 }
 
+const modeIndicator = (mainContainer, getState) => {
+  const indicatorElement = document.createElement('div')
+  indicatorElement.setAttribute('style', 'position: fixed; bottom:0; left: 0; background-color: grey; color: white; padding: .3em; font-family: sans-serif;')
+  indicatorElement.innerHTML = 'NORMAL'
+  document.querySelector('body').append(indicatorElement)
+
+  mainContainer.addEventListener('vimflowy.stateChanged', () => {
+    const {mode} = getState()
+    indicatorElement.innerHTML = mode
+  })
+}
+
 $(() => {
   const search = t => {
     const searchBox = document.getElementById('searchBox')
@@ -125,9 +153,9 @@ $(() => {
     searchBox.focus()
   }
 
-  window.toggleDebugging = () => {
-    state.debug = !state.debug
-  }
+  window.toggleDebugging = () => state.set(s => ({
+    debug: !s.debug
+  }))
   document.getElementById('searchBox').addEventListener('focus', event => {
     if (event.sourceCapabilities) {
       return
@@ -144,7 +172,7 @@ $(() => {
   })
   document.getElementById('searchBox').addEventListener('keydown', event => {
     if (event.keyCode !== 13) {
-      window.clearTimeout(state.searchFocusRetryTimeout)
+      window.clearTimeout(state.get().searchFocusRetryTimeout)
 
       return
     }
@@ -166,14 +194,18 @@ $(() => {
         return
       }
 
-      state.searchFocusRetryTimeout = window.setTimeout(() => {
-        state.searchFocusRetryTimeout = null
+      const searchFocusRetryTimeout = window.setTimeout(() => {
+        state.set(s => ({searchFocusRetryTimeout: null}))
         keepTrying(callback)
       }, 200)
+      state.set(s => ({searchFocusRetryTimeout}))
     }
 
     keepTrying(focusFirstSearchResult)
   })
+
+  modeIndicator(document.getElementById('pageContainer'), state.get)
+
   document.getElementById('pageContainer').addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
 
@@ -186,46 +218,44 @@ $(() => {
         '/': search,
         '?': search,
         'alt-l': t => {
-          state.anchorOffset = 0
+          state.set(s => ({anchorOffset: 0}))
           e.which = 39
           e.altKey = true
           $(t).trigger(e)
         },
         'alt-h': t => {
-          state.anchorOffset = 0
+          state.set(s => ({anchorOffset: 0}))
           e.which = 37
           e.altKey = true
           $(t).trigger(e)
         },
         i: t => {
-          console.log('INSERT MODE')
-          state.mode = Mode.INSERT
+          state.set(s => ({mode: Mode.INSERT}))
         },
         escape: t => {
-          state.mode = Mode.NORMAL
+          state.set(s => ({mode: Mode.NORMAL}))
           moveCursorHorizontally(0)
         }
       },
       [Mode.INSERT]: {
         escape: t => {
-          console.log('NORMAL MODE')
-          state.mode = Mode.NORMAL
+          state.set(s => ({mode: Mode.NORMAL}))
           moveCursorHorizontally(0)
         }
       }
     }
 
-    if (actionMap[state.mode][keyFrom(event)]) {
+    if (actionMap[state.get().mode][keyFrom(event)]) {
       event.preventDefault()
 
-      debug(state.mode, event)
+      debug(state.get().mode, event)
 
-      actionMap[state.mode][keyFrom(event)](event.target)
+      actionMap[state.get().mode][keyFrom(event)](event.target)
 
       return
     }
 
-    if (state.mode === Mode.NORMAL && !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)) {
+    if (state.get().mode === Mode.NORMAL && !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)) {
       event.preventDefault()
 
       debug('prevented because NORMAL mode', event)
