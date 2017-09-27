@@ -43,8 +43,27 @@ const projectAncestor = project => {
     : ancestor
 } 
 
+const moveAboveFold = element => {
+  const rect = element.getBoundingClientRect()
+  const fold = window.innerHeight
+  const scrollPosition = window.scrollY
+  const beyondFold = rect.top >= fold || (rect.top < fold && rect.bottom > fold)
+  const floatingHeaderHeight = 30
+  const aboveViewport = rect.top < floatingHeaderHeight
+
+  if (!beyondFold && !aboveViewport) {
+    return
+  }
+
+  element.scrollIntoView()
+  if (aboveViewport) {
+    window.scrollBy(0, -floatingHeaderHeight)
+  }
+}
+
 const setCursorAfterVerticalMove = cursorTargetProject => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
+
   const selection = window.getSelection()
   state.anchorOffset = Math.max(selection.anchorOffset, state.anchorOffset)
   if (!cursorTarget.childNodes.length) {
@@ -57,6 +76,8 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   selection.removeAllRanges()
   selection.addRange(range)
   cursorTarget.focus()
+
+  moveAboveFold(cursorTarget)
 }
 
 const moveDown = t => {
@@ -84,7 +105,8 @@ const moveUp = t => {
   if (project.previousElementSibling) {
     cursorTarget = project.previousElementSibling
     if (cursorTarget.className.includes('open')) {
-      cursorTarget = cursorTarget.querySelector('.open>.children>.childrenEnd').previousElementSibling
+      const textContainers = cursorTarget.querySelectorAll('.project')
+      cursorTarget = textContainers[textContainers.length - 1]
     }
   }
 
