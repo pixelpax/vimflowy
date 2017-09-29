@@ -1,3 +1,12 @@
+const closest = (node, selector) => {
+  let element = node
+  while(element && !element.matches(selector)) {
+    element = node.parentNode
+  }
+
+  return element
+}
+
 const projectAncestor = project => {
   const ancestor = project.closest(`.project:not([projectid='${project.getAttribute('projectid')}'])`)
 
@@ -28,9 +37,7 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
   const selection = window.getSelection()
-  state.set(s => ({
-    anchorOffset: Math.max(selection.anchorOffset, s.anchorOffset)
-  }))
+
   if (!cursorTarget.childNodes.length) {
     cursorTarget.append('')
   }
@@ -45,8 +52,8 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   moveAboveFold(cursorTarget)
 }
 
-const moveCursorDown = t => {
-  const project = projectAncestor(t)
+const moveCursorDown = state => targetElement => {
+  const project = projectAncestor(targetElement)
   let cursorTargetProject = project.className.includes('open')
     ? project.querySelector('.project')
     : project.nextElementSibling
@@ -60,7 +67,7 @@ const moveCursorDown = t => {
     return
   }
 
-  setCursorAfterVerticalMove(cursorTargetProject)
+  state.set(s => ({cursorTarget: cursorTargetProject}))
 }
 
 const moveCursorUp = t => {
@@ -109,4 +116,13 @@ const moveCursorHorizontally = offset => {
 const moveCursorLeft = moveCursorHorizontally.bind(null, -1)
 
 const moveCursorRight = moveCursorHorizontally.bind(null, 1)
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    moveCursorLeft,
+    moveCursorRight,
+    moveCursorDown,
+    moveCursorUp
+  }
+}
 

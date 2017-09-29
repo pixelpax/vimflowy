@@ -1,4 +1,5 @@
 var scripts = [ 
+    "state.js",
     "search.js",
     "cursorMovement.js",
     "vimflowy.js" 

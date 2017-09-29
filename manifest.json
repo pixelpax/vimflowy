@@ -9,6 +9,7 @@
   "content_scripts": [ { "matches": ["https://workflowy.com/*"], "js": ["contentscript.js"] } ],
 
   "web_accessible_resources": [ 
+    "state.js",
     "cursorMovement.js",
     "search.js",
     "vimflowy.js" ]

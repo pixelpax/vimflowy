@@ -5,23 +5,13 @@ const Mode = {
   INSERT: 'INSERT'
 }
 
-const stateClojure = (stateChanged = () => {}) => {
-  let s = {
+const state = stateClojure({
     mode: Mode.NORMAL,
     anchorOffset: 0,
     debug: false
-  }
-
-  return {
-    set: stateReducer => {
-      s = Object.assign({}, s, stateReducer(s))
-      stateChanged()
-    },
-    get: () => Object.assign({}, s)
-  }
-}
-
-const state = stateClojure(() => document.getElementById('pageContainer').dispatchEvent(new Event('vimflowy.stateChanged')))
+  },
+  () => document.getElementById('pageContainer').dispatchEvent(new Event('vimflowy.stateChanged'))
+)
 
 const debug = (...args) => state.get().debug && console.log(...args)
 
@@ -44,15 +34,18 @@ $(() => {
 
   searchBox(state.set, state.get)
 
-  modeIndicator(document.getElementById('pageContainer'), state.get)
+  const mainContainer = document.getElementById('pageContainer')
 
-  document.getElementById('pageContainer').addEventListener('keydown', event => {
+  modeIndicator(mainContainer, state.get)
+  mainContainer.addEventListener('vimflowy.stateChanged', () => setCursorAfterVerticalMove(projectAncestor(state.get().cursorTarget)))
+
+  mainContainer.addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
 
     const actionMap = {
       [Mode.NORMAL]: {
         h: moveCursorLeft,
-        j: moveCursorDown,
+        j: moveCursorDown(state),
         k: moveCursorUp,
         l: moveCursorRight,
         '/': searchCommand,
