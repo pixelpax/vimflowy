@@ -1,14 +1,14 @@
 const closest = (node, selector) => {
   let element = node
   while(element && !element.matches(selector)) {
-    element = node.parentNode
+    element = element.parentNode
   }
 
   return element
 }
 
 const projectAncestor = project => {
-  const ancestor = project.closest(`.project:not([projectid='${project.getAttribute('projectid')}'])`)
+  const ancestor = closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`)
 
   return ancestor.className.includes('mainTreeRoot')
     ? project
@@ -33,7 +33,7 @@ const moveAboveFold = element => {
   }
 }
 
-const setCursorAfterVerticalMove = cursorTargetProject => {
+const setCursorAfterVerticalMove = (anchorOffset, cursorTargetProject) => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
   const selection = window.getSelection()
@@ -43,7 +43,7 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   }
   const textNode = cursorTarget.childNodes[0]
   const range = document.createRange()
-  range.setStart(textNode, Math.min(state.get().anchorOffset, textNode.length))
+  range.setStart(textNode, Math.min(anchorOffset, textNode.length))
   range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
@@ -52,8 +52,8 @@ const setCursorAfterVerticalMove = cursorTargetProject => {
   moveAboveFold(cursorTarget)
 }
 
-const moveCursorDown = state => targetElement => {
-  const project = projectAncestor(targetElement)
+const moveCursorDown = startElement => {
+  const project = projectAncestor(startElement)
   let cursorTargetProject = project.className.includes('open')
     ? project.querySelector('.project')
     : project.nextElementSibling
@@ -67,10 +67,10 @@ const moveCursorDown = state => targetElement => {
     return
   }
 
-  state.set(s => ({cursorTarget: cursorTargetProject}))
+  return cursorTargetProject
 }
 
-const moveCursorUp = t => {
+const moveCursorUp = state => t => {
   const project = projectAncestor(t) 
   let cursorTarget = null
 
@@ -86,7 +86,7 @@ const moveCursorUp = t => {
     cursorTarget = projectAncestor(project) 
   }
 
-  cursorTarget && setCursorAfterVerticalMove(cursorTarget)
+  cursorTarget && setCursorAfterVerticalMove(state.get().anchorOffset, cursorTarget)
 }
 
 const moveCursorHorizontally = offset => {

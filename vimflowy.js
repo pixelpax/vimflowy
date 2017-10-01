@@ -37,7 +37,6 @@ $(() => {
   const mainContainer = document.getElementById('pageContainer')
 
   modeIndicator(mainContainer, state.get)
-  mainContainer.addEventListener('vimflowy.stateChanged', () => setCursorAfterVerticalMove(projectAncestor(state.get().cursorTarget)))
 
   mainContainer.addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
@@ -45,8 +44,8 @@ $(() => {
     const actionMap = {
       [Mode.NORMAL]: {
         h: moveCursorLeft,
-        j: moveCursorDown(state),
-        k: moveCursorUp,
+        j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
+        k: moveCursorUp(state),
         l: moveCursorRight,
         '/': searchCommand,
         '?': searchCommand,
