@@ -51,9 +51,9 @@ const moveCursorDown = t => {
     ? project.querySelector('.project')
     : project.nextElementSibling
 
-  while(cursorTargetProject && cursorTargetProject.className.includes('childrenEnd')) {
-    const sibling = projectAncestor(cursorTargetProject).nextElementSibling
-    cursorTargetProject = (sibling.className.includes('childrenEnd') || sibling.className.includes('project')) && sibling
+  while(cursorTargetProject && !cursorTargetProject.className.includes('project')) {
+    const projectSibling = projectAncestor(cursorTargetProject).nextElementSibling
+    cursorTargetProject = projectSibling
   }
 
   if (!cursorTargetProject) {
