@@ -45,7 +45,7 @@ $(() => {
       [Mode.NORMAL]: {
         h: moveCursorLeft,
         j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
-        k: moveCursorUp(state),
+        k: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorUp(target)),
         l: moveCursorRight,
         '/': searchCommand,
         '?': searchCommand,

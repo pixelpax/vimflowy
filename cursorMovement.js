@@ -66,7 +66,7 @@ const moveCursorDown = startElement => {
   return cursorTargetProject.nextElementSibling
 }
 
-const moveCursorUp = state => t => {
+const moveCursorUp = t => {
   const project = projectAncestor(t) 
   let cursorTarget = null
 
@@ -82,7 +82,9 @@ const moveCursorUp = state => t => {
     cursorTarget = projectAncestor(project) 
   }
 
-  cursorTarget && setCursorAfterVerticalMove(state.get().anchorOffset, cursorTarget)
+  return cursorTarget.className.includes('mainTreeRoot')
+    ? project
+    : cursorTarget
 }
 
 const moveCursorHorizontally = offset => {
