@@ -70,10 +70,12 @@ $(() => {
           $(t).trigger(e)
         },
         i: () => state.set(s => ({mode: Mode.INSERT})),
-        escape: () => state.set(s => ({mode: Mode.NORMAL}))
+        escape: () => state.set(s => ({mode: Mode.NORMAL})),
+        esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
       },
       [Mode.INSERT]: {
-        escape: () => state.set(s => ({mode: Mode.NORMAL}))
+        escape: () => state.set(s => ({mode: Mode.NORMAL})),
+        esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
       }
     }
 
