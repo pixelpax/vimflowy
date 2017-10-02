@@ -30,17 +30,18 @@ const moveAboveFold = element => {
 const setCursorAfterVerticalMove = (anchorOffset, cursorTargetProject) => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
-  const selection = window.getSelection()
-
   if (!cursorTarget.childNodes.length) {
-    cursorTarget.append('')
+    cursorTarget.append(' ')
   }
+
+  const selection = window.getSelection()
   const textNode = cursorTarget.childNodes[0]
   const range = document.createRange()
-  range.setStart(textNode, Math.min(anchorOffset, textNode.length))
+  range.setStart(textNode, Math.min(anchorOffset, textNode.length - 1))
   range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
+  selection.modify('extend', 'right', 'character')
   cursorTarget.focus()
 
   moveAboveFold(cursorTarget)
@@ -87,7 +88,7 @@ const moveCursorUp = t => {
     : cursorTarget
 }
 
-const setCursorAt = offset => {
+const setCursorAt = (offset, insertCursor = false) => {
   const selection = document.getSelection()
   const {anchorOffset, baseNode} = selection
   let effectiveOffset = offset
@@ -100,13 +101,10 @@ const setCursorAt = offset => {
     return
   }
 
-  if (effectiveOffset > baseNode.length) {
-    effectiveOffset = baseNode.length
-  }
-
-  if (effectiveOffset < 0) {
-    effectiveOffset = 0
-  }
+  effectiveOffset = Math.min(effectiveOffset, insertCursor
+    ? baseNode.length
+    : baseNode.length - 1)
+  effectiveOffset = Math.max(effectiveOffset, 0)
 
   state.set(_ => ({
     anchorOffset: effectiveOffset
@@ -117,13 +115,16 @@ const setCursorAt = offset => {
   range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
+  if (!insertCursor) {
+    selection.modify('extend', 'right', 'character')
+  }
   baseNode.parentElement.focus()
 }
 
-const moveCursorToStart = setCursorAt.bind(null, 0) 
-const moveCursorToEnd = setCursorAt.bind(null, (_, baseNode) => baseNode.length)
-const moveCursorLeft = setCursorAt.bind(null, anchorOffset => anchorOffset - 1)
-const moveCursorRight = setCursorAt.bind(null, anchorOffset => anchorOffset + 1)
+const moveCursorToStart = setCursorAt.bind(null, 0, true) 
+const moveCursorToEnd = setCursorAt.bind(null, (_, baseNode) => baseNode.length, true)
+const moveCursorLeft = setCursorAt.bind(null, anchorOffset => anchorOffset - 1, false)
+const moveCursorRight = setCursorAt.bind(null, anchorOffset => anchorOffset + 1, false)
 
 if (typeof module !== 'undefined') {
   module.exports = {

@@ -101,6 +101,7 @@ $(() => {
           }
 
           state.set(s => ({mode: Mode.INSERT}))
+          document.getSelection().modify('extend', 'left', 'character')
         },
         Escape: () => state.set(s => ({mode: Mode.NORMAL})),
         Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
