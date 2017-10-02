@@ -7,13 +7,7 @@ const closest = (node, selector) => {
   return element
 }
 
-const projectAncestor = project => {
-  const ancestor = closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`)
-
-  return ancestor.className.includes('mainTreeRoot')
-    ? project
-    : ancestor
-} 
+const projectAncestor = project => closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`)
 
 const moveAboveFold = element => {
   const rect = element.getBoundingClientRect()
@@ -54,16 +48,22 @@ const setCursorAfterVerticalMove = (anchorOffset, cursorTargetProject) => {
 
 const moveCursorDown = startElement => {
   const project = projectAncestor(startElement)
-  let cursorTargetProject = project.className.includes('open')
-    ? project.querySelector('.project')
-    : project.nextElementSibling
 
-  while(cursorTargetProject && !cursorTargetProject.className.includes('project')) {
-    const projectSibling = projectAncestor(cursorTargetProject).nextElementSibling
-    cursorTargetProject = projectSibling
+  if (project.className.includes('open')) {
+    return project.querySelector('.project')
   }
 
-  return cursorTargetProject
+  let cursorTargetProject = project
+  while(!cursorTargetProject.nextElementSibling || !cursorTargetProject.nextElementSibling.className.includes('project')) {
+    const ancestor = projectAncestor(cursorTargetProject)
+
+    if (ancestor.className.includes('mainTreeRoot')) {
+      return cursorTargetProject
+    }
+    cursorTargetProject = ancestor
+  }
+
+  return cursorTargetProject.nextElementSibling
 }
 
 const moveCursorUp = state => t => {
