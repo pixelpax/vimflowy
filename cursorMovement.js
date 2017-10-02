@@ -121,10 +121,10 @@ const setCursorAt = (offset, insertCursor = false) => {
   baseNode.parentElement.focus()
 }
 
-const moveCursorToStart = setCursorAt.bind(null, 0, true) 
-const moveCursorToEnd = setCursorAt.bind(null, (_, baseNode) => baseNode.length, true)
-const moveCursorLeft = setCursorAt.bind(null, anchorOffset => anchorOffset - 1, false)
-const moveCursorRight = setCursorAt.bind(null, anchorOffset => anchorOffset + 1, false)
+const moveCursorToStart = () => setCursorAt(0, true) 
+const moveCursorToEnd = () => setCursorAt((_, baseNode) => baseNode.length, true)
+const moveCursorLeft = () => setCursorAt(anchorOffset => anchorOffset - 1)
+const moveCursorRight = () => setCursorAt(anchorOffset => anchorOffset + 1)
 
 if (typeof module !== 'undefined') {
   module.exports = {
