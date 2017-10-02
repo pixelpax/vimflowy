@@ -103,6 +103,16 @@ $(() => {
           state.set(s => ({mode: Mode.INSERT}))
           document.getSelection().modify('extend', 'left', 'character')
         },
+        a: t => {
+          if (preventInsertMode(t)) {
+            flashMode('Cannot edit this')
+            return
+          }
+
+          state.set(s => ({mode: Mode.INSERT}))
+          document.getSelection().modify('extend', 'left', 'character')
+          document.getSelection().modify('move', 'right', 'character')
+        },
         Escape: () => state.set(s => ({mode: Mode.NORMAL})),
         Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
       },
