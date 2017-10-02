@@ -25,6 +25,27 @@ const modeIndicator = (mainContainer, getState) => {
     const {mode} = getState()
     indicatorElement.innerHTML = mode
   })
+
+  let timerId = null
+
+  return {
+    flashMode: (temporaryMode, duration = 1000) => {
+      clearTimeout(timerId)
+      indicatorElement.innerHTML = temporaryMode
+      timerId = setTimeout(() => {
+        indicatorElement.innerHTML = getState().mode
+      }, duration)
+    }
+  }
+}
+
+const preventInsertMode = target => {
+  const targetProject = projectAncestor(target)
+  const isMainDotOfForeignSharedList = targetProject.className.includes('addedShared')
+
+  const isNotEditable = targetProject.getAttribute('data-tid') === '2'
+
+  return isMainDotOfForeignSharedList || isNotEditable
 }
 
 $(() => {
@@ -36,7 +57,7 @@ $(() => {
 
   const mainContainer = document.getElementById('pageContainer')
 
-  modeIndicator(mainContainer, state.get)
+  const {flashMode} = modeIndicator(mainContainer, state.get)
 
   mainContainer.addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
@@ -61,7 +82,14 @@ $(() => {
           e.altKey = true
           $(t).trigger(e)
         },
-        i: () => state.set(s => ({mode: Mode.INSERT})),
+        i: t => {
+          if (preventInsertMode(t)) {
+            flashMode('Cannot edit this')
+            return
+          }
+
+          state.set(s => ({mode: Mode.INSERT}))
+        },
         escape: () => state.set(s => ({mode: Mode.NORMAL})),
         esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
       },
