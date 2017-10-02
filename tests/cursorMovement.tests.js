@@ -46,7 +46,6 @@ test('move from open project\'s children to next closed project', t => {
         <div class="name"><div class="content" contenteditable>something</div></div>
         <div class="children">
           <div class="project" projectid="2"><div class="name"><div class="content" data-test="cursor" contenteditable>something else</div></div></div>
-          <div class="childrenEnd"></div>
         </div>
       </div>
       <div class="project" projectid="3"><div class="name"><div class="content" contenteditable>end here</div></div></div>
@@ -66,14 +65,12 @@ test('move from open project\'s children to next closed project two levels above
       <div class="project open" projectid="1">
         <div class="name"><div class="content" contenteditable>something</div></div>
         <div class="children">
-          <div class="project" projectid="2">
+          <div class="project open" projectid="2">
             <div class="name"><div class="content"contenteditable>something else</div></div>
             <div class="children">
               <div class="project" projectid="3"><div class="name"><div class="content" data-test="cursor" contenteditable>cursor here</div></div></div>
-              <div class="childrenEnd"></div>
             </div>
           </div>
-          <div class="childrenEnd"></div>
         </div>
       </div>
       <div class="project" projectid="4"><div class="name"><div class="content" contenteditable>end here</div></div></div>

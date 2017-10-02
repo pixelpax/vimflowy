@@ -63,10 +63,6 @@ const moveCursorDown = startElement => {
     cursorTargetProject = projectSibling
   }
 
-  if (!cursorTargetProject) {
-    return
-  }
-
   return cursorTargetProject
 }
 
