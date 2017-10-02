@@ -109,7 +109,9 @@ $(() => {
       return
     }
 
-    if (state.get().mode === Mode.NORMAL && !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)) {
+    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(event.key);
+    const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
+    if (state.get().mode === Mode.NORMAL && (input || modified)) {
       event.preventDefault()
 
       debug('prevented because NORMAL mode', event)
