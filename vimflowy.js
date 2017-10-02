@@ -1,4 +1,4 @@
-const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.key && event.key.toLowerCase()}`
+const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.key && event.key}`
 
 const Mode = {
   NORMAL: 'NORMAL',
@@ -68,6 +68,18 @@ $(() => {
         j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
         k: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorUp(target)),
         l: moveCursorRight,
+        O: t => {
+          moveCursorToStart()
+          e.which = 13
+          $(t).trigger(e)
+          state.set(s => ({mode: Mode.INSERT}))
+        },
+        o: t => {
+          moveCursorToEnd()
+          e.which = 13
+          $(t).trigger(e)
+          state.set(s => ({mode: Mode.INSERT}))
+        },
         '/': searchCommand,
         '?': searchCommand,
         'alt-l': t => {
@@ -90,19 +102,20 @@ $(() => {
 
           state.set(s => ({mode: Mode.INSERT}))
         },
-        escape: () => state.set(s => ({mode: Mode.NORMAL})),
-        esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
+        Escape: () => state.set(s => ({mode: Mode.NORMAL})),
+        Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
       },
       [Mode.INSERT]: {
-        escape: () => state.set(s => ({mode: Mode.NORMAL})),
-        esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
+        Escape: () => state.set(s => ({mode: Mode.NORMAL})),
+        Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
       }
     }
+
+    debug(state.get().mode, keyFrom(event), event)
 
     if (actionMap[state.get().mode][keyFrom(event)]) {
       event.preventDefault()
 
-      debug(state.get().mode, event)
 
       actionMap[state.get().mode][keyFrom(event)](event.target)
 
@@ -114,7 +127,7 @@ $(() => {
     if (state.get().mode === Mode.NORMAL && (input || modified)) {
       event.preventDefault()
 
-      debug('prevented because NORMAL mode', event)
+      debug('prevented because NORMAL mode')
     }
   })
 })

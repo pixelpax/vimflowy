@@ -87,33 +87,43 @@ const moveCursorUp = t => {
     : cursorTarget
 }
 
-const moveCursorHorizontally = offset => {
-  const {anchorOffset, baseNode} = document.getSelection()
-  const targetCursorPosition = anchorOffset + offset
-  if (targetCursorPosition < 0) {
+const setCursorAt = offset => {
+  const selection = document.getSelection()
+  const {anchorOffset, baseNode} = selection
+  let effectiveOffset = offset
+
+  if (typeof offset === 'function') {
+    effectiveOffset = offset(anchorOffset, baseNode)
+  }
+
+  if (effectiveOffset === anchorOffset) {
     return
   }
 
-  if (targetCursorPosition > baseNode.length) {
-    return
+  if (effectiveOffset > baseNode.length) {
+    effectiveOffset = baseNode.length
   }
 
-  const selection = window.getSelection()
-  state.set(s => ({
-    anchorOffset: targetCursorPosition
+  if (effectiveOffset < 0) {
+    effectiveOffset = 0
+  }
+
+  state.set(_ => ({
+    anchorOffset: effectiveOffset
   }))
 
   const range = document.createRange()
-  range.setStart(baseNode, targetCursorPosition)
+  range.setStart(baseNode, effectiveOffset)
   range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
   baseNode.parentElement.focus()
 }
 
-const moveCursorLeft = moveCursorHorizontally.bind(null, -1)
-
-const moveCursorRight = moveCursorHorizontally.bind(null, 1)
+const moveCursorToStart = setCursorAt.bind(null, 0) 
+const moveCursorToEnd = setCursorAt.bind(null, (_, baseNode) => baseNode.length)
+const moveCursorLeft = setCursorAt.bind(null, anchorOffset => anchorOffset - 1)
+const moveCursorRight = setCursorAt.bind(null, anchorOffset => anchorOffset + 1)
 
 if (typeof module !== 'undefined') {
   module.exports = {
@@ -123,4 +133,3 @@ if (typeof module !== 'undefined') {
     moveCursorUp
   }
 }
-
