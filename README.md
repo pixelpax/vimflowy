@@ -17,11 +17,15 @@ Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/s
     - `?`: Focus the search box
     - `o`: Create a new bullet below current line and go into insert mode
     - `O`: Create a new bullet above current line and go into insert mode
-* insert mode
-    - `<Esc>`: Enter Normal mode
-* workflowy manipulation
+    - `0`: Move cursor to the first character of the line
+    - `^`: Move cursor to the first character of the line
+    - `$`: Move cursor to the last character on the line
+    - `I`: Insert at the beginning of the line
+    - `A`: Insert after the end of the line
     - `<Alt>l`: Zoom into current list item
     - `<Alt>h`: Zoom out of current list
+* insert mode
+    - `<Esc>`: Enter Normal mode
 
 Mode indicator
 --------------

@@ -39,15 +39,6 @@ const modeIndicator = (mainContainer, getState) => {
   }
 }
 
-const preventInsertMode = target => {
-  const targetProject = projectAncestor(target)
-  const isMainDotOfForeignSharedList = targetProject.className.includes('addedShared')
-
-  const isNotEditable = targetProject.getAttribute('data-tid') === '2'
-
-  return isMainDotOfForeignSharedList || isNotEditable
-}
-
 $(() => {
   window.toggleDebugging = () => state.set(s => ({
     debug: !s.debug
@@ -59,6 +50,22 @@ $(() => {
 
   const {flashMode} = modeIndicator(mainContainer, state.get)
 
+  const onlyIfProjectCanBeEdited = command => target => {
+    const targetProject = projectAncestor(target)
+    const isMainDotOfForeignSharedList = targetProject.className.includes('addedShared')
+
+    const isNotEditable = targetProject.getAttribute('data-tid') === '2'
+
+    const commandShouldBePrevented = isMainDotOfForeignSharedList || isNotEditable
+
+    if (commandShouldBePrevented) {
+        flashMode('Cannot edit this')
+        return
+    }
+
+    command(target)
+  }
+
   mainContainer.addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
 
@@ -68,20 +75,44 @@ $(() => {
         j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
         k: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorUp(target)),
         l: moveCursorRight,
-        O: t => {
-          moveCursorToStart()
-          e.which = 13
-          $(t).trigger(e)
+        i: onlyIfProjectCanBeEdited(() => {
           state.set(s => ({mode: Mode.INSERT}))
-        },
-        o: t => {
-          moveCursorToEnd()
-          e.which = 13
-          $(t).trigger(e)
+          document.getSelection().modify('extend', 'left', 'character')
+        }),
+        a: onlyIfProjectCanBeEdited(() => {
           state.set(s => ({mode: Mode.INSERT}))
-        },
+          document.getSelection().modify('extend', 'left', 'character')
+          document.getSelection().modify('move', 'right', 'character')
+        }),
         '/': searchCommand,
         '?': searchCommand,
+        o: t => {
+          const insertCursor = true
+          moveCursorToEnd(insertCursor)
+          e.which = 13
+          $(t).trigger(e)
+          state.set(s => ({mode: Mode.INSERT}))
+        },
+        O: t => {
+          const insertCursor = true
+          moveCursorToStart(insertCursor)
+          e.which = 13
+          $(t).trigger(e)
+          state.set(s => ({mode: Mode.INSERT}))
+        },
+        '0': () => moveCursorToStart(),
+        '^': () => moveCursorToStart(),
+        '$': () => moveCursorToEnd(),
+        'I': onlyIfProjectCanBeEdited(() => {
+          const insertCursor = true
+          moveCursorToStart(insertCursor)
+          state.set(s => ({mode: Mode.INSERT}))
+        }),
+        'A': onlyIfProjectCanBeEdited(() => {
+          const insertCursor = true
+          moveCursorToEnd(insertCursor)
+          state.set(s => ({mode: Mode.INSERT}))
+        }),
         'alt-l': t => {
           state.set(s => ({anchorOffset: 0}))
           e.which = 39
@@ -93,25 +124,6 @@ $(() => {
           e.which = 37
           e.altKey = true
           $(t).trigger(e)
-        },
-        i: t => {
-          if (preventInsertMode(t)) {
-            flashMode('Cannot edit this')
-            return
-          }
-
-          state.set(s => ({mode: Mode.INSERT}))
-          document.getSelection().modify('extend', 'left', 'character')
-        },
-        a: t => {
-          if (preventInsertMode(t)) {
-            flashMode('Cannot edit this')
-            return
-          }
-
-          state.set(s => ({mode: Mode.INSERT}))
-          document.getSelection().modify('extend', 'left', 'character')
-          document.getSelection().modify('move', 'right', 'character')
         },
         Escape: () => state.set(s => ({mode: Mode.NORMAL})),
         Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
