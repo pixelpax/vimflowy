@@ -4,21 +4,30 @@ Vimflowy: Vim shortcuts for Workflowy
 Keybindings
 -----------
 
-Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/shift/meta to prevent typing in normal mode, but not to block native chrome and workflowy shortcuts.
+Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/shift/meta to prevent typing in normal mode, but not to block native chrome and workflowy shortcuts. (with some exceptions, this is a work in progress)
 
 * Normal mode
     - `j`: Move down one item
     - `k`: Move up one item
     - `h`: Move cursor left
     - `l`: Move cursor right
-    - `i`: Enter Insert mode
+    - `i`: Insert before currently selected character
+    - `a`: Insert after currently selected character
     - `/`: Focus the search box
     - `?`: Focus the search box
+    - `o`: Create a new bullet below current line and go into insert mode
+    - `O`: Create a new bullet above current line and go into insert mode
 * insert mode
     - `<Esc>`: Enter Normal mode
 * workflowy manipulation
     - `<Alt>l`: Zoom into current list item
     - `<Alt>h`: Zoom out of current list
+
+Mode indicator
+--------------
+
+In the bottom left corner there is a mode indicator that shows what mode you are in currently. 
+When you attempt to edit bullets that you don't have privileges to edit, the mode indicator will flash `Cannot edit this` for 1 second.
 
 Usage tips
 ----------
