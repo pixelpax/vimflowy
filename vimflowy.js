@@ -39,6 +39,19 @@ const modeIndicator = (mainContainer, getState) => {
   }
 }
 
+const goToInsertMode = (cursorRight = false) => {
+  state.set(s => ({mode: Mode.INSERT}))
+  document.getSelection().modify('extend', 'left', 'character')
+  if (cursorRight) {
+    document.getSelection().modify('move', 'right', 'character')
+  }
+}
+
+const goToNormalMode = () => {
+  state.set(s => ({mode: Mode.NORMAL}))
+  document.getSelection().modify('extend', 'left', 'character')
+}
+
 $(() => {
   window.toggleDebugging = () => state.set(s => ({
     debug: !s.debug
@@ -75,43 +88,32 @@ $(() => {
         j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
         k: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorUp(target)),
         l: moveCursorRight,
-        i: onlyIfProjectCanBeEdited(() => {
-          state.set(s => ({mode: Mode.INSERT}))
-          document.getSelection().modify('extend', 'left', 'character')
-        }),
-        a: onlyIfProjectCanBeEdited(() => {
-          state.set(s => ({mode: Mode.INSERT}))
-          document.getSelection().modify('extend', 'left', 'character')
-          document.getSelection().modify('move', 'right', 'character')
-        }),
+        i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
+        a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
         '/': searchCommand,
         '?': searchCommand,
         o: t => {
-          const insertCursor = true
-          moveCursorToEnd(insertCursor)
+          moveCursorToEnd()
+          goToInsertMode(true)
           e.which = 13
           $(t).trigger(e)
-          state.set(s => ({mode: Mode.INSERT}))
         },
         O: t => {
-          const insertCursor = true
-          moveCursorToStart(insertCursor)
+          moveCursorToStart()
+          goToInsertMode()
           e.which = 13
           $(t).trigger(e)
-          state.set(s => ({mode: Mode.INSERT}))
         },
-        '0': () => moveCursorToStart(),
-        '^': () => moveCursorToStart(),
-        '$': () => moveCursorToEnd(),
+        '0': moveCursorToStart,
+        '^': moveCursorToStart,
+        '$': moveCursorToEnd,
         'I': onlyIfProjectCanBeEdited(() => {
-          const insertCursor = true
-          moveCursorToStart(insertCursor)
-          state.set(s => ({mode: Mode.INSERT}))
+          moveCursorToStart()
+          goToInsertMode()
         }),
         'A': onlyIfProjectCanBeEdited(() => {
-          const insertCursor = true
-          moveCursorToEnd(insertCursor)
-          state.set(s => ({mode: Mode.INSERT}))
+          moveCursorToEnd()
+          goToInsertMode(true)
         }),
         'alt-l': t => {
           state.set(s => ({anchorOffset: 0}))
@@ -125,12 +127,12 @@ $(() => {
           e.altKey = true
           $(t).trigger(e)
         },
-        Escape: () => state.set(s => ({mode: Mode.NORMAL})),
-        Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
+        Escape: goToNormalMode,
+        Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
       },
       [Mode.INSERT]: {
-        Escape: () => state.set(s => ({mode: Mode.NORMAL})),
-        Esc: () => console.log('MAC WTF') || state.set(s => ({mode: Mode.NORMAL})) // mac?
+        Escape: goToNormalMode,
+        Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
       }
     }
 

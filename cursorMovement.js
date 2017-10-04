@@ -88,7 +88,7 @@ const moveCursorUp = t => {
     : cursorTarget
 }
 
-const setCursorAt = (offset, insertCursor = false) => {
+const setCursorAt = (offset) => {
   const selection = document.getSelection()
   const {anchorOffset, baseNode} = selection
   let effectiveOffset = offset
@@ -101,9 +101,7 @@ const setCursorAt = (offset, insertCursor = false) => {
     return
   }
 
-  effectiveOffset = Math.min(effectiveOffset, insertCursor
-    ? baseNode.length
-    : baseNode.length - 1)
+  effectiveOffset = Math.min(effectiveOffset, baseNode.length - 1)
   effectiveOffset = Math.max(effectiveOffset, 0)
 
   state.set(_ => ({
@@ -115,14 +113,12 @@ const setCursorAt = (offset, insertCursor = false) => {
   range.collapse(true)
   selection.removeAllRanges()
   selection.addRange(range)
-  if (!insertCursor) {
-    selection.modify('extend', 'right', 'character')
-  }
+  selection.modify('extend', 'right', 'character')
   baseNode.parentElement.focus()
 }
 
-const moveCursorToStart = insertCursor => setCursorAt(0, insertCursor) 
-const moveCursorToEnd = insertCursor => setCursorAt((_, baseNode) => baseNode.length, insertCursor)
+const moveCursorToStart = () => setCursorAt(0) 
+const moveCursorToEnd = () => setCursorAt((_, baseNode) => baseNode.length)
 const moveCursorLeft = () => setCursorAt(anchorOffset => anchorOffset - 1)
 const moveCursorRight = () => setCursorAt(anchorOffset => anchorOffset + 1)
 
