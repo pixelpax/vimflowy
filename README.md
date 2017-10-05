@@ -22,6 +22,8 @@ Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/s
     - `$`: Move cursor to the last character on the line
     - `I`: Insert at the beginning of the line
     - `A`: Insert after the end of the line
+    - `u`: Undo
+    - `<Ctrl>r`: Redo
     - `<Alt>l`: Zoom into current list item
     - `<Alt>h`: Zoom out of current list
 * insert mode
