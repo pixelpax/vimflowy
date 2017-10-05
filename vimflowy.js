@@ -1,4 +1,4 @@
-const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.key && event.key}`
+const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.key && event.key}`
 
 const Mode = {
   NORMAL: 'NORMAL',
@@ -44,7 +44,7 @@ const modeClosure = (mainContainer, getState, setState) => {
     goToNormalMode: () => {
       setState(s => ({mode: Mode.NORMAL}))
       setMode(Mode.NORMAL)
-      document.getSelection().modify('extend', 'left', 'character')
+      setCursorAt(a => a)
     }
   }
 }
@@ -124,6 +124,50 @@ $(() => {
           e.which = 37
           e.altKey = true
           $(t).trigger(e)
+        },
+        u: t => {
+          const selection = document.getSelection()
+          const selectionSnapshot = {
+            anchorOffset: selection.anchorOffset,
+          }
+          e.which = 90
+          e.ctrlKey = true
+          $(window).trigger(e)
+
+          if (!t.childNodes.length) {
+            e.which = 90
+            e.ctrlKey = true
+            $(window).trigger(e)
+            t.focus()
+            return
+          }
+
+          const textNode = t.childNodes[0]
+          const range = document.createRange()
+          range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
+          range.collapse(true)
+          selection.removeAllRanges()
+          selection.addRange(range)
+          selection.modify('extend', 'right', 'character')
+          t.focus()
+        },
+        'ctrl-r': t => {
+          const selection = document.getSelection()
+          const selectionSnapshot = {
+            anchorOffset: selection.anchorOffset,
+          }
+          e.which = 89
+          e.ctrlKey = true
+          $(window).trigger(e)
+
+          const textNode = t.childNodes[0]
+          const range = document.createRange()
+          range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
+          range.collapse(true)
+          selection.removeAllRanges()
+          selection.addRange(range)
+          selection.modify('extend', 'right', 'character')
+          t.focus()
         },
         Escape: goToNormalMode,
         Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?

@@ -97,10 +97,6 @@ const setCursorAt = (offset) => {
     effectiveOffset = offset(anchorOffset, baseNode)
   }
 
-  if (effectiveOffset === anchorOffset) {
-    return
-  }
-
   effectiveOffset = Math.min(effectiveOffset, baseNode.length - 1)
   effectiveOffset = Math.max(effectiveOffset, 0)
 
