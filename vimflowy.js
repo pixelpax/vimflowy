@@ -5,52 +5,50 @@ const Mode = {
   INSERT: 'INSERT'
 }
 
-const state = stateClojure({
+const state = stateClosure({
     mode: Mode.NORMAL,
     anchorOffset: 0,
     debug: false
-  },
-  () => document.getElementById('pageContainer').dispatchEvent(new Event('vimflowy.stateChanged'))
+  }
 )
 
 const debug = (...args) => state.get().debug && console.log(...args)
 
-const modeIndicator = (mainContainer, getState) => {
+const modeClosure = (mainContainer, getState, setState) => {
   const indicatorElement = document.createElement('div')
   indicatorElement.setAttribute('style', 'position: fixed; z-index:9001; bottom:0; left: 0; background-color: grey; color: white; padding: .3em; font-family: sans-serif;')
   indicatorElement.innerHTML = 'NORMAL'
   document.querySelector('body').append(indicatorElement)
 
-  mainContainer.addEventListener('vimflowy.stateChanged', () => {
-    const {mode} = getState()
-    indicatorElement.innerHTML = mode
-  })
-
   let timerId = null
+  const setMode = modeText => {
+    clearTimeout(timerId)
+    indicatorElement.innerHTML = modeText
+  }
 
   return {
     flashMode: (temporaryMode, duration = 1000) => {
-      clearTimeout(timerId)
-      indicatorElement.innerHTML = temporaryMode
+      setMode(temporaryMode)
       timerId = setTimeout(() => {
         indicatorElement.innerHTML = getState().mode
       }, duration)
+    },
+    goToInsertMode: (cursorRight = false) => {
+      setState(s => ({mode: Mode.INSERT}))
+      setMode(Mode.INSERT)
+      document.getSelection().modify('extend', 'left', 'character')
+      if (cursorRight) {
+        document.getSelection().modify('move', 'right', 'character')
+      }
+    },
+    goToNormalMode: () => {
+      setState(s => ({mode: Mode.NORMAL}))
+      setMode(Mode.NORMAL)
+      document.getSelection().modify('extend', 'left', 'character')
     }
   }
 }
 
-const goToInsertMode = (cursorRight = false) => {
-  state.set(s => ({mode: Mode.INSERT}))
-  document.getSelection().modify('extend', 'left', 'character')
-  if (cursorRight) {
-    document.getSelection().modify('move', 'right', 'character')
-  }
-}
-
-const goToNormalMode = () => {
-  state.set(s => ({mode: Mode.NORMAL}))
-  document.getSelection().modify('extend', 'left', 'character')
-}
 
 $(() => {
   window.toggleDebugging = () => state.set(s => ({
@@ -61,7 +59,7 @@ $(() => {
 
   const mainContainer = document.getElementById('pageContainer')
 
-  const {flashMode} = modeIndicator(mainContainer, state.get)
+  const {flashMode, goToInsertMode, goToNormalMode} = modeClosure(mainContainer, state.get, state.set)
 
   const onlyIfProjectCanBeEdited = command => target => {
     const targetProject = projectAncestor(target)

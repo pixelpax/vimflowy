@@ -1,4 +1,4 @@
-const stateClojure = (initialState = {}, stateChanged = () => {}) => {
+const stateClosure = (initialState = {}, stateChanged = () => {}) => {
   let s = initialState 
 
   return {
@@ -8,8 +8,4 @@ const stateClojure = (initialState = {}, stateChanged = () => {}) => {
     },
     get: () => Object.assign({}, s)
   }
-}
-
-if (typeof module !== 'undefined') {
-  module.exports = stateClojure
 }

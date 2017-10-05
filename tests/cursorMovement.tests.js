@@ -1,6 +1,5 @@
 const test = require('tape')
 const {moveCursorDown} = require('../cursorMovement')
-const stateClojure = require('../state')
 const jsdom = require('jsdom')
 
 const {JSDOM} = jsdom
