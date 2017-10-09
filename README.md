@@ -26,6 +26,7 @@ Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/s
     - `<Ctrl>r`: Redo
     - `<Alt>l`: Zoom into current list item
     - `<Alt>h`: Zoom out of current list
+    - `dd`: remove the current bullet
 * insert mode
     - `<Esc>`: Enter Normal mode
 

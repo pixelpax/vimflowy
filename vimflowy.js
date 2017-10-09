@@ -55,6 +55,8 @@ $(() => {
     debug: !s.debug
   }))
 
+  let stack = ''
+
   searchBox(state.set, state.get)
 
   const mainContainer = document.getElementById('pageContainer')
@@ -170,7 +172,19 @@ $(() => {
           t.focus()
         },
         Escape: goToNormalMode,
-        Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
+        Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
+        d: t => {
+          if (!stack) {
+            stack = 'd'
+            return
+          }
+
+          stack = ''
+          e.which = 8
+          e.ctrlKey = true
+          e.shiftKey = true
+          $(t).trigger(e)
+        }
       },
       [Mode.INSERT]: {
         Escape: goToNormalMode,
