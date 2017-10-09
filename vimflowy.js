@@ -86,6 +86,10 @@ $(() => {
       [Mode.NORMAL]: {
         h: moveCursorLeft,
         j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
+        Enter: target => {
+          setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target))
+          moveCursorToStart()
+        },
         k: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorUp(target)),
         l: moveCursorRight,
         i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
@@ -184,7 +188,7 @@ $(() => {
           e.ctrlKey = true
           e.shiftKey = true
           $(t).trigger(e)
-        }
+        },
       },
       [Mode.INSERT]: {
         Escape: goToNormalMode,
@@ -196,6 +200,7 @@ $(() => {
 
     if (actionMap[state.get().mode][keyFrom(event)]) {
       event.preventDefault()
+      event.stopPropagation()
 
 
       actionMap[state.get().mode][keyFrom(event)](event.target)

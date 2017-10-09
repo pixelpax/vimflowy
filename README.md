@@ -27,6 +27,7 @@ Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/s
     - `<Alt>l`: Zoom into current list item
     - `<Alt>h`: Zoom out of current list
     - `dd`: remove the current bullet
+    - `Enter`: go to the beginning of next line
 * insert mode
     - `<Esc>`: Enter Normal mode
 
