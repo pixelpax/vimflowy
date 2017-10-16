@@ -55,11 +55,11 @@ const moveCursorDown = startElement => {
   }
 
   let cursorTargetProject = project
-  while(!cursorTargetProject.nextElementSibling || !cursorTargetProject.nextElementSibling.className.includes('project')) {
+  while(!(cursorTargetProject.nextElementSibling && cursorTargetProject.nextElementSibling.className.includes('project'))) {
     const ancestor = projectAncestor(cursorTargetProject)
 
     if (ancestor.className.includes('mainTreeRoot')) {
-      return cursorTargetProject
+      return project
     }
     cursorTargetProject = ancestor
   }
