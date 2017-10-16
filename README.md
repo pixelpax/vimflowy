@@ -28,6 +28,8 @@ Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/s
     - `<Alt>h`: Zoom out of current list
     - `dd`: remove the current bullet
     - `Enter`: go to the beginning of next line
+    - `<Alt><Shift>J`: Move the current line down
+    - `<Alt><Shift>K`: Move the current line up
 * insert mode
     - `<Esc>`: Enter Normal mode
 
