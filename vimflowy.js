@@ -1,4 +1,4 @@
-const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.shiftKey ? 'shift-' : ''}${event.key && event.key}`
+const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.key && event.key}`
 
 const Mode = {
   NORMAL: 'NORMAL',
@@ -189,13 +189,13 @@ $(() => {
           e.shiftKey = true
           $(t).trigger(e)
         },
-        'alt-shift-J': t => {
+        'alt-J': t => {
           e.which = 40 
           e.altKey = true
           e.shiftKey = true
           $(t).trigger(e)
         },
-        'alt-shift-K': t => {
+        'alt-K': t => {
           e.which = 38 
           e.altKey = true
           e.shiftKey = true
