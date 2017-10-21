@@ -82,41 +82,58 @@ $(() => {
   mainContainer.addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
 
+    const setOffset = anchorOffset => state.set(_ => ({anchorOffset}))
+    const offsetCalculator = () => (contentAbstraction, offset) => {
+      const maxOffset = contentAbstraction.length - 1
+      const bound = o => {
+        let inBounds = o
+        inBounds = Math.min(maxOffset, inBounds)
+        inBounds = Math.max(0, inBounds)
+        return inBounds
+      }
+
+      const currentOffset = state.get().anchorOffset
+
+      const effective = bound(offset(currentOffset))
+      setOffset(effective)
+      return effective
+    }
+
     const actionMap = {
       [Mode.NORMAL]: {
-        h: moveCursorLeft,
-        j: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target)),
+        h: t => moveCursorLeft(t, offsetCalculator()),
+        j: target => setCursorAfterVerticalMove(offsetCalculator(), moveCursorDown(target)),
         Enter: target => {
-          setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorDown(target))
-          moveCursorToStart()
+          setCursorAfterVerticalMove(offsetCalculator(), moveCursorDown(target))
+          moveCursorToStart(target, offsetCalculator())
         },
-        k: target => setCursorAfterVerticalMove(state.get().anchorOffset, moveCursorUp(target)),
-        l: moveCursorRight,
+        k: target => setCursorAfterVerticalMove(offsetCalculator(), moveCursorUp(target)),
+        l: t => moveCursorRight(t, offsetCalculator()),
         i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
         a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
         '/': searchCommand,
         '?': searchCommand,
         o: t => {
-          moveCursorToEnd()
+          moveCursorToEnd(t, offsetCalculator())
           goToInsertMode(true)
           e.which = 13
           $(t).trigger(e)
         },
         O: t => {
-          moveCursorToStart()
+          moveCursorToStart(t, offsetCalculator())
           goToInsertMode()
           e.which = 13
           $(t).trigger(e)
         },
-        '0': moveCursorToStart,
-        '^': moveCursorToStart,
-        '$': moveCursorToEnd,
-        'I': onlyIfProjectCanBeEdited(() => {
-          moveCursorToStart()
+        '0': t => moveCursorToStart(t, offsetCalculator()),
+        '^': t => moveCursorToStart(t, offsetCalculator()),
+        '$': t => moveCursorToEnd(t, offsetCalculator()),
+        'I': onlyIfProjectCanBeEdited(t => {
+          moveCursorToStart(t, offsetCalculator())
           goToInsertMode()
         }),
-        'A': onlyIfProjectCanBeEdited(() => {
-          moveCursorToEnd()
+        'A': onlyIfProjectCanBeEdited(t => {
+          moveCursorToEnd(t, offsetCalculator())
           goToInsertMode(true)
         }),
         'alt-l': t => {

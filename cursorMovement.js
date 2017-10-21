@@ -7,6 +7,52 @@ const closest = (node, selector) => {
   return element
 }
 
+const NODE_TYPES = {
+  ELEMENT: 1,
+  TEXT: 3
+}
+
+const getContentAbstraction = node => {
+  const contentElement = closest(node, '.content')
+
+  const getNodes = element => [...element.childNodes].reduce((accu, current) => {
+    if (current.nodeType === NODE_TYPES.TEXT) {
+      return [...accu, current]
+    }
+
+    if (current.nodeType === NODE_TYPES.ELEMENT) {
+      return [...accu, ...getNodes(current)]
+    }
+
+    console.log(`I did not expect this nodetype: ${current.nodeType} in this element`, current)
+  }, [])
+
+  const nodes = getNodes(contentElement)
+
+  return {
+    get length() { return nodes.reduce((accu, current) => accu + current.length, 0) },
+    setCursorAt: function (offset) {
+      for(let i = 0; i < nodes.length; ++i) {
+        const node = nodes[i]
+
+        if (offset < node.length) {
+          const range = document.createRange()
+          range.setStart(node, offset)
+          range.collapse(true)
+          const selection = document.getSelection()
+          selection.removeAllRanges()
+          selection.addRange(range)
+          selection.modify('extend', 'right', 'character')
+          contentElement.focus()
+          return
+        }
+
+        offset -= node.length
+      }
+    }
+  }
+}
+
 const projectAncestor = project => closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`)
 
 const moveAboveFold = element => {
@@ -27,22 +73,16 @@ const moveAboveFold = element => {
   }
 }
 
-const setCursorAfterVerticalMove = (anchorOffset, cursorTargetProject) => {
+const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) => {
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
   if (!cursorTarget.childNodes.length) {
     cursorTarget.append(' ')
   }
 
-  const selection = window.getSelection()
-  const textNode = cursorTarget.childNodes[0]
-  const range = document.createRange()
-  range.setStart(textNode, Math.min(anchorOffset, textNode.length - 1))
-  range.collapse(true)
-  selection.removeAllRanges()
-  selection.addRange(range)
-  selection.modify('extend', 'right', 'character')
-  cursorTarget.focus()
+  const abstraction = getContentAbstraction(cursorTarget)
+  const offset = calculateOffset(abstraction, o => o)
+  abstraction.setCursorAt(offset)
 
   moveAboveFold(cursorTarget)
 }
@@ -113,10 +153,29 @@ const setCursorAt = (offset) => {
   baseNode.parentElement.focus()
 }
 
-const moveCursorToStart = () => setCursorAt(0) 
-const moveCursorToEnd = () => setCursorAt((_, baseNode) => baseNode.length)
-const moveCursorLeft = () => setCursorAt(anchorOffset => anchorOffset - 1)
-const moveCursorRight = () => setCursorAt(anchorOffset => anchorOffset + 1)
+const moveCursorToStart = (target, calculateOffset) => {
+  const contentAbstraction = getContentAbstraction(target)
+  const offset = calculateOffset(contentAbstraction, () => 0)
+  contentAbstraction.setCursorAt(0)
+}
+
+const moveCursorToEnd = (target, calculateOffset) => {
+  const contentAbstraction = getContentAbstraction(target)
+  const offset = calculateOffset(contentAbstraction, () => contentAbstraction.length - 1)
+  contentAbstraction.setCursorAt(offset)
+}
+
+const moveCursorLeft = (target, calculateOffset) => {
+  const contentAbstraction = getContentAbstraction(target)
+  const offset = calculateOffset(contentAbstraction, o => o - 1)
+  contentAbstraction.setCursorAt(offset)
+}
+
+const moveCursorRight = (target, calculateOffset) => {
+  const contentAbstraction = getContentAbstraction(target)
+  const offset = calculateOffset(contentAbstraction, o => o + 1)
+  contentAbstraction.setCursorAt(offset)
+}
 
 if (typeof module !== 'undefined') {
   module.exports = {
