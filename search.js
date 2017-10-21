@@ -5,7 +5,7 @@ const searchCommand = () => {
   searchBox.focus()
 }
 
-const searchBox = (setState, getState) => {
+const searchBox = (setState, getState, calculateOffset) => {
   document.getElementById('searchBox').addEventListener('focus', event => {
     if (event.sourceCapabilities) {
       return
@@ -18,7 +18,7 @@ const searchBox = (setState, getState) => {
     }
 
     debug('dirty escape search hack')
-    setCursorAfterVerticalMove(getState().anchorOffset, projectAncestor(event.relatedTarget))
+    setCursorAfterVerticalMove(calculateOffset, projectAncestor(event.relatedTarget))
   })
 
   document.getElementById('searchBox').addEventListener('keydown', event => {
@@ -33,7 +33,7 @@ const searchBox = (setState, getState) => {
     const focusFirstSearchResult = () => {
       const firstMatch = document.querySelector('.searching .mainTreeRoot .project')
       if (firstMatch) {
-        setCursorAfterVerticalMove(getState().anchorOffset, firstMatch)
+        setCursorAfterVerticalMove(calculateOffset, firstMatch)
       }
 
       return Boolean(firstMatch)

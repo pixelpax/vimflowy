@@ -57,7 +57,23 @@ $(() => {
 
   let stack = ''
 
-  searchBox(state.set, state.get)
+  const offsetCalculator = state => (contentAbstraction, offset) => {
+    const maxOffset = contentAbstraction.length - 1
+    const bound = o => {
+      let inBounds = o
+      inBounds = Math.min(maxOffset, inBounds)
+      inBounds = Math.max(0, inBounds)
+      return inBounds
+    }
+
+    const currentOffset = state.get().anchorOffset
+
+    const effective = bound(offset(currentOffset))
+    state.set(_ => ({anchorOffset: effective}))
+    return effective
+  }
+
+  searchBox(state.set, state.get, offsetCalculator(state))
 
   const mainContainer = document.getElementById('pageContainer')
 
@@ -82,58 +98,41 @@ $(() => {
   mainContainer.addEventListener('keydown', event => {
     const e = jQuery.Event('keydown')
 
-    const setOffset = anchorOffset => state.set(_ => ({anchorOffset}))
-    const offsetCalculator = () => (contentAbstraction, offset) => {
-      const maxOffset = contentAbstraction.length - 1
-      const bound = o => {
-        let inBounds = o
-        inBounds = Math.min(maxOffset, inBounds)
-        inBounds = Math.max(0, inBounds)
-        return inBounds
-      }
-
-      const currentOffset = state.get().anchorOffset
-
-      const effective = bound(offset(currentOffset))
-      setOffset(effective)
-      return effective
-    }
-
     const actionMap = {
       [Mode.NORMAL]: {
-        h: t => moveCursorLeft(t, offsetCalculator()),
-        j: target => setCursorAfterVerticalMove(offsetCalculator(), moveCursorDown(target)),
+        h: t => moveCursorLeft(t, offsetCalculator(state)),
+        j: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target)),
         Enter: target => {
-          setCursorAfterVerticalMove(offsetCalculator(), moveCursorDown(target))
-          moveCursorToStart(target, offsetCalculator())
+          setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target))
+          moveCursorToStart(target, offsetCalculator(state))
         },
-        k: target => setCursorAfterVerticalMove(offsetCalculator(), moveCursorUp(target)),
-        l: t => moveCursorRight(t, offsetCalculator()),
+        k: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(target)),
+        l: t => moveCursorRight(t, offsetCalculator(state)),
         i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
         a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
         '/': searchCommand,
         '?': searchCommand,
         o: t => {
-          moveCursorToEnd(t, offsetCalculator())
+          moveCursorToEnd(t, offsetCalculator(state))
           goToInsertMode(true)
           e.which = 13
           $(t).trigger(e)
         },
         O: t => {
-          moveCursorToStart(t, offsetCalculator())
+          moveCursorToStart(t, offsetCalculator(state))
           goToInsertMode()
           e.which = 13
           $(t).trigger(e)
         },
-        '0': t => moveCursorToStart(t, offsetCalculator()),
-        '^': t => moveCursorToStart(t, offsetCalculator()),
-        '$': t => moveCursorToEnd(t, offsetCalculator()),
+        '0': t => moveCursorToStart(t, offsetCalculator(state)),
+        '^': t => moveCursorToStart(t, offsetCalculator(state)),
+        '$': t => moveCursorToEnd(t, offsetCalculator(state)),
         'I': onlyIfProjectCanBeEdited(t => {
-          moveCursorToStart(t, offsetCalculator())
+          moveCursorToStart(t, offsetCalculator(state))
           goToInsertMode()
         }),
         'A': onlyIfProjectCanBeEdited(t => {
-          moveCursorToEnd(t, offsetCalculator())
+          moveCursorToEnd(t, offsetCalculator(state))
           goToInsertMode(true)
         }),
         'alt-l': t => {
