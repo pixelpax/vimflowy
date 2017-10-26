@@ -49,33 +49,31 @@ const modeClosure = (mainContainer, getState, setState) => {
   }
 }
 
-let secondDTimeout
-const firstD = (target, keymap) => {
-  keymap.d = function (t) {
-    secondD(t, this)
+const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
+  const [first, second] = twoKeys.split(' ');
+  let sequenceTimeout
+
+  const sequenceHandler = function () {
+    const original = keymap[second]
+
+    keymap[second] = function (t) {
+      clearTimeout(sequenceTimeout)
+      handler(t)
+      keymap[second] = original
+    }
+
+    sequenceTimeout = setTimeout(() => {
+      keymap[first] = sequenceHandler
+    }, timeout)
   }
 
-  secondDTimeout = setTimeout(() => {
-    keymap.d = function (t) { firstD(t, this) }
-  }, 800)
-}
-
-const secondD = (target, keymap) => {
-  clearTimeout(secondDTimeout)
-  const e = jQuery.Event('keydown')
-  e.which = 8
-  e.ctrlKey = true
-  e.shiftKey = true
-  $(target).trigger(e)
-  keymap.d = function (t) { firstD(t, this) }
+  keymap[first] = sequenceHandler
 }
 
 $(() => {
   window.toggleDebugging = () => state.set(s => ({
     debug: !s.debug
   }))
-
-  let stack = ''
 
   const offsetCalculator = state => (contentAbstraction, offset) => {
     const maxOffset = contentAbstraction.length - 1
@@ -86,7 +84,7 @@ $(() => {
       return inBounds
     }
 
-    const currentOffset = state.get().anchorOffset
+      const currentOffset = state.get().anchorOffset
 
     const effective = bound(offset(currentOffset))
     state.set(_ => ({anchorOffset: effective}))
@@ -217,7 +215,6 @@ $(() => {
       },
       Escape: goToNormalMode,
       Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
-      d: function (t) { firstD(t, this) },
       'alt-J': t => {
         const e = jQuery.Event('keydown')
         e.which = 40 
@@ -238,6 +235,15 @@ $(() => {
       Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
     }
   }
+
+  sequence('d d', (target) => {
+    const e = jQuery.Event('keydown')
+    e.which = 8
+    e.ctrlKey = true
+    e.shiftKey = true
+    $(target).trigger(e)
+  })(actionMap[Mode.NORMAL])
+
   mainContainer.addEventListener('keydown', event => {
     debug(state.get().mode, keyFrom(event), event)
 
