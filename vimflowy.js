@@ -49,6 +49,26 @@ const modeClosure = (mainContainer, getState, setState) => {
   }
 }
 
+let secondDTimeout
+const firstD = (target, keymap) => {
+  keymap.d = function (t) {
+    secondD(t, this)
+  }
+
+  secondDTimeout = setTimeout(() => {
+    keymap.d = function (t) { firstD(t, this) }
+  }, 800)
+}
+
+const secondD = (target, keymap) => {
+  clearTimeout(secondDTimeout)
+  const e = jQuery.Event('keydown')
+  e.which = 8
+  e.ctrlKey = true
+  e.shiftKey = true
+  $(target).trigger(e)
+  keymap.d = function (t) { firstD(t, this) }
+}
 
 $(() => {
   window.toggleDebugging = () => state.set(s => ({
@@ -95,135 +115,130 @@ $(() => {
     command(target)
   }
 
-  mainContainer.addEventListener('keydown', event => {
-    const e = jQuery.Event('keydown')
+  const actionMap = {
+    [Mode.NORMAL]: {
+      h: t => moveCursorLeft(t, offsetCalculator(state)),
+      j: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target)),
+      Enter: target => {
+        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target))
+        moveCursorToStart(target, offsetCalculator(state))
+      },
+      k: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(target)),
+      l: t => moveCursorRight(t, offsetCalculator(state)),
+      i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
+      a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
+      '/': searchCommand,
+      '?': searchCommand,
+      o: t => {
+        moveCursorToEnd(t, offsetCalculator(state))
+        goToInsertMode(true)
+        const e = jQuery.Event('keydown')
+        e.which = 13
+        $(t).trigger(e)
+      },
+      O: t => {
+        moveCursorToStart(t, offsetCalculator(state))
+        goToInsertMode()
+        const e = jQuery.Event('keydown')
+        e.which = 13
+        $(t).trigger(e)
+      },
+      '0': t => moveCursorToStart(t, offsetCalculator(state)),
+      '^': t => moveCursorToStart(t, offsetCalculator(state)),
+      '$': t => moveCursorToEnd(t, offsetCalculator(state)),
+      'I': onlyIfProjectCanBeEdited(t => {
+        moveCursorToStart(t, offsetCalculator(state))
+        goToInsertMode()
+      }),
+      'A': onlyIfProjectCanBeEdited(t => {
+        moveCursorToEnd(t, offsetCalculator(state))
+        goToInsertMode(true)
+      }),
+      'alt-l': t => {
+        state.set(s => ({anchorOffset: 0}))
+        const e = jQuery.Event('keydown')
+        e.which = 39
+        e.altKey = true
+        $(t).trigger(e)
+      },
+      'alt-h': t => {
+        state.set(s => ({anchorOffset: 0}))
+        const e = jQuery.Event('keydown')
+        e.which = 37
+        e.altKey = true
+        $(t).trigger(e)
+      },
+      u: t => {
+        const selection = document.getSelection()
+        const selectionSnapshot = {
+          anchorOffset: selection.anchorOffset,
+        }
+        const e = jQuery.Event('keydown')
+        e.which = 90
+        e.ctrlKey = true
+        $(window).trigger(e)
 
-    const actionMap = {
-      [Mode.NORMAL]: {
-        h: t => moveCursorLeft(t, offsetCalculator(state)),
-        j: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target)),
-        Enter: target => {
-          setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target))
-          moveCursorToStart(target, offsetCalculator(state))
-        },
-        k: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(target)),
-        l: t => moveCursorRight(t, offsetCalculator(state)),
-        i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
-        a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
-        '/': searchCommand,
-        '?': searchCommand,
-        o: t => {
-          moveCursorToEnd(t, offsetCalculator(state))
-          goToInsertMode(true)
-          e.which = 13
-          $(t).trigger(e)
-        },
-        O: t => {
-          moveCursorToStart(t, offsetCalculator(state))
-          goToInsertMode()
-          e.which = 13
-          $(t).trigger(e)
-        },
-        '0': t => moveCursorToStart(t, offsetCalculator(state)),
-        '^': t => moveCursorToStart(t, offsetCalculator(state)),
-        '$': t => moveCursorToEnd(t, offsetCalculator(state)),
-        'I': onlyIfProjectCanBeEdited(t => {
-          moveCursorToStart(t, offsetCalculator(state))
-          goToInsertMode()
-        }),
-        'A': onlyIfProjectCanBeEdited(t => {
-          moveCursorToEnd(t, offsetCalculator(state))
-          goToInsertMode(true)
-        }),
-        'alt-l': t => {
-          state.set(s => ({anchorOffset: 0}))
-          e.which = 39
-          e.altKey = true
-          $(t).trigger(e)
-        },
-        'alt-h': t => {
-          state.set(s => ({anchorOffset: 0}))
-          e.which = 37
-          e.altKey = true
-          $(t).trigger(e)
-        },
-        u: t => {
-          const selection = document.getSelection()
-          const selectionSnapshot = {
-            anchorOffset: selection.anchorOffset,
-          }
+        if (!t.childNodes.length) {
+          const e = jQuery.Event('keydown')
           e.which = 90
           e.ctrlKey = true
           $(window).trigger(e)
-
-          if (!t.childNodes.length) {
-            e.which = 90
-            e.ctrlKey = true
-            $(window).trigger(e)
-            t.focus()
-            return
-          }
-
-          const textNode = t.childNodes[0]
-          const range = document.createRange()
-          range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
-          range.collapse(true)
-          selection.removeAllRanges()
-          selection.addRange(range)
-          selection.modify('extend', 'right', 'character')
           t.focus()
-        },
-        'ctrl-r': t => {
-          const selection = document.getSelection()
-          const selectionSnapshot = {
-            anchorOffset: selection.anchorOffset,
-          }
-          e.which = 89
-          e.ctrlKey = true
-          $(window).trigger(e)
-
-          const textNode = t.childNodes[0]
-          const range = document.createRange()
-          range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
-          range.collapse(true)
-          selection.removeAllRanges()
-          selection.addRange(range)
-          selection.modify('extend', 'right', 'character')
-          t.focus()
-        },
-        Escape: goToNormalMode,
-        Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
-        d: t => {
-          if (!stack) {
-            stack = 'd'
-            return
-          }
-
-          stack = ''
-          e.which = 8
-          e.ctrlKey = true
-          e.shiftKey = true
-          $(t).trigger(e)
-        },
-        'alt-J': t => {
-          e.which = 40 
-          e.altKey = true
-          e.shiftKey = true
-          $(t).trigger(e)
-        },
-        'alt-K': t => {
-          e.which = 38 
-          e.altKey = true
-          e.shiftKey = true
-          $(t).trigger(e)
+          return
         }
-      },
-      [Mode.INSERT]: {
-        Escape: goToNormalMode,
-        Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
-      }
-    }
 
+        const textNode = t.childNodes[0]
+        const range = document.createRange()
+        range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
+        range.collapse(true)
+        selection.removeAllRanges()
+        selection.addRange(range)
+        selection.modify('extend', 'right', 'character')
+        t.focus()
+      },
+      'ctrl-r': t => {
+        const selection = document.getSelection()
+        const selectionSnapshot = {
+          anchorOffset: selection.anchorOffset,
+        }
+        const e = jQuery.Event('keydown')
+        e.which = 89
+        e.ctrlKey = true
+        $(window).trigger(e)
+
+        const textNode = t.childNodes[0]
+        const range = document.createRange()
+        range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
+        range.collapse(true)
+        selection.removeAllRanges()
+        selection.addRange(range)
+        selection.modify('extend', 'right', 'character')
+        t.focus()
+      },
+      Escape: goToNormalMode,
+      Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
+      d: function (t) { firstD(t, this) },
+      'alt-J': t => {
+        const e = jQuery.Event('keydown')
+        e.which = 40 
+        e.altKey = true
+        e.shiftKey = true
+        $(t).trigger(e)
+      },
+      'alt-K': t => {
+        const e = jQuery.Event('keydown')
+        e.which = 38 
+        e.altKey = true
+        e.shiftKey = true
+        $(t).trigger(e)
+      }
+    },
+    [Mode.INSERT]: {
+      Escape: goToNormalMode,
+      Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
+    }
+  }
+  mainContainer.addEventListener('keydown', event => {
     debug(state.get().mode, keyFrom(event), event)
 
     if (actionMap[state.get().mode][keyFrom(event)]) {
@@ -236,7 +251,7 @@ $(() => {
       return
     }
 
-    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(event.key);
+    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(event.key)
     const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
     if (state.get().mode === Mode.NORMAL && (input || modified)) {
       event.preventDefault()
