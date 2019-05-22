@@ -6,11 +6,49 @@
   "description": "Vim shortcuts for Workflowy",
   "icons": { "48": "icon48.png", "128": "icon128.png" },
 
-  "content_scripts": [ { "matches": ["https://workflowy.com/*"], "js": ["contentscript.js"] } ],
+  "permissions": 
+  [
+    "tabs",
+    "http://*/*",
+    "https://*/*", 
+    "storage"
+  ],
+
+  "background": {
+      "scripts": 
+      [
+        "jquery.js",
+        "background.js"
+      ],
+      "persistent": false 
+    },
+
+  "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'",
+
+  "content_scripts": 
+  [
+    {
+      "matches": ["https://workflowy.com/*"],
+      "run_at": "document_start",
+      "js": 
+      [
+        "jquery.js"
+      ]
+    }, 
+    {
+      "matches": ["https://workflowy.com/*"],
+      "run_at": "document_end",
+      "js": 
+      [
+        "contentscript.js"
+      ]
+    } 
+  ],
 
   "web_accessible_resources": [ 
+    "jquery.js",
     "state.js",
     "cursorMovement.js",
-    "search.js",
-    "vimflowy.js" ]
+    "vimflowy.js" 
+  ]
 }

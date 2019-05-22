@@ -6,7 +6,8 @@ const searchCommand = () => {
 }
 
 const searchBox = (setState, getState, calculateOffset) => {
-  document.getElementById('searchBox').addEventListener('focus', event => {
+  document.getElementsByClassName('searchBox*').addEventListener('focus', event => {
+  //document.getElementById('searchBox').addEventListener('focus', event => {
     if (event.sourceCapabilities) {
       return
     }

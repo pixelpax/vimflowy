@@ -70,10 +70,10 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
   keymap[first] = sequenceHandler
 }
 
-$(() => {
+  $(() => {
   window.toggleDebugging = () => state.set(s => ({
     debug: !s.debug
-  }))
+  })) 
 
   const offsetCalculator = state => (contentAbstraction, offset) => {
     const maxOffset = contentAbstraction.length - 1
@@ -91,9 +91,9 @@ $(() => {
     return effective
   }
 
-  searchBox(state.set, state.get, offsetCalculator(state))
-
-  const mainContainer = document.getElementById('pageContainer')
+  //searchBox(state.set, state.get, offsetCalculator(state))
+  //const mainContainer = document.getElementById('pageContainer')
+  const mainContainer = document.getElementById('app')
 
   const {flashMode, goToInsertMode, goToNormalMode} = modeClosure(mainContainer, state.get, state.set)
 
@@ -114,7 +114,8 @@ $(() => {
   }
 
   const actionMap = {
-    [Mode.NORMAL]: {
+    [Mode.NORMAL]: 
+    {
       h: t => moveCursorLeft(t, offsetCalculator(state)),
       j: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target)),
       Enter: target => {
@@ -125,8 +126,8 @@ $(() => {
       l: t => moveCursorRight(t, offsetCalculator(state)),
       i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
       a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
-      '/': searchCommand,
-      '?': searchCommand,
+      //'/': searchCommand,
+      //'?': searchCommand,
       o: t => {
         moveCursorToEnd(t, offsetCalculator(state))
         goToInsertMode(true)
@@ -230,19 +231,27 @@ $(() => {
         $(t).trigger(e)
       }
     },
-    [Mode.INSERT]: {
+    [Mode.INSERT]: 
+    {
       Escape: goToNormalMode,
       Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
     }
   }
 
-  sequence('d d', (target) => {
-    const e = jQuery.Event('keydown')
-    e.which = 8
-    e.ctrlKey = true
-    e.shiftKey = true
-    $(target).trigger(e)
-  })(actionMap[Mode.NORMAL])
+  sequence('j k', (target) => 
+  {
+    //console.log("JK pressed: ")
+    goToNormalMode()
+  })(actionMap[Mode.INSERT]);
+
+  sequence('d d', (target) => 
+  {
+    const e = jQuery.Event('keydown');
+    e.which = 8;
+    e.ctrlKey = true;
+    e.shiftKey = true; 
+    $(target).trigger(e);
+  })(actionMap[Mode.NORMAL]);
 
   mainContainer.addEventListener('keydown', event => {
     debug(state.get().mode, keyFrom(event), event)
@@ -265,4 +274,4 @@ $(() => {
       debug('prevented because NORMAL mode')
     }
   })
-})
+}) 

@@ -1,6 +1,8 @@
 const closest = (node, selector) => {
   let element = node
-  while(element && !element.matches(selector)) {
+   while(element 
+        && typeof element.matches !== 'undefined'
+        && !element.matches(selector)) { 
     element = element.parentNode
   }
 
@@ -53,7 +55,10 @@ const getContentAbstraction = node => {
   }
 }
 
-const projectAncestor = project => closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`)
+const projectAncestor = project => closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`) 
+/* const projectAncestor = project => typeof project.getAttribute !== 'undefined' 
+                        ? closest(project, `.project:not([projectid='${project.getAttribute('projectid')}'])`) 
+                        : project   */
 
 const moveAboveFold = element => {
   const rect = element.getBoundingClientRect()
@@ -90,42 +95,73 @@ const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) => {
 const moveCursorDown = startElement => {
   const project = projectAncestor(startElement)
 
-  if (project.className.includes('open')) {
+  //if (project.className.includes('open')) {
+  if (project.className.includes('open') || project.className.includes('selected')) {
     return project.querySelector('.project')
   }
 
   let cursorTargetProject = project
-  while(!(cursorTargetProject.nextElementSibling && cursorTargetProject.nextElementSibling.className.includes('project'))) {
+
+  while(!(cursorTargetProject.nextElementSibling 
+          && typeof cursorTargetProject.nextElementSibling.className.includes !== 'undefined'
+          && cursorTargetProject.nextElementSibling.className.includes('project')
+  )) 
+  {
     const ancestor = projectAncestor(cursorTargetProject)
 
-    if (ancestor.className.includes('mainTreeRoot')) {
+     if (ancestor.className
+        //&& typeof ancestor.className.includes !== 'undefined'
+        //&& ancestor.className.includes('mainTreeRoot')) 
+        && ancestor.className.includes('selected')) 
+    {
       return project
-    }
+    } 
+    
+/*     if(cursorTargetProject.className == ancestor.className)
+      return ancestor; */
+
     cursorTargetProject = ancestor
   }
 
   return cursorTargetProject.nextElementSibling
 }
 
-const moveCursorUp = t => {
+const moveCursorUp = t => 
+{
   const project = projectAncestor(t) 
   let cursorTarget = null
 
-  if (project.previousElementSibling) {
+  if (project.previousElementSibling)
+  {
     cursorTarget = project.previousElementSibling
-    if (cursorTarget.className.includes('open')) {
+    if (cursorTarget.className.includes('open')) 
+    {
       const textContainers = cursorTarget.querySelectorAll('.project')
       cursorTarget = textContainers[textContainers.length - 1]
     }
   }
 
-  if (!cursorTarget) {
+  if (!cursorTarget) 
+  {
     cursorTarget = projectAncestor(project) 
   }
 
-  return cursorTarget.className.includes('mainTreeRoot')
+/*    return cursorTarget.className.includes('mainTreeRoot')
     ? project
-    : cursorTarget
+    : cursorTarget  */
+
+   if(!cursorTarget.className
+    //|| typeof cursorTarget.className.includes === 'undefined'
+    //|| cursorTarget.className.includes('mainTreeRoot')
+    )
+    {
+      return project
+    }
+    else
+    {
+      return cursorTarget
+    } 
+
 }
 
 const setCursorAt = (offset) => {
