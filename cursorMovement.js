@@ -37,7 +37,7 @@ const getContentAbstraction = node => {
       for(let i = 0; i < nodes.length; ++i) {
         const node = nodes[i]
 
-        if (offset < node.length) {
+        if (offset <= node.length) {
           const range = document.createRange()
           range.setStart(node, offset)
           range.collapse(true)
@@ -165,6 +165,11 @@ const moveCursorUp = t =>
 }
 
 const setCursorAt = (offset) => {
+
+  // if(offset == 0 || isNaN(offset))
+  if(isNaN(offset))
+    return;
+
   const selection = document.getSelection()
   const {anchorOffset, baseNode} = selection
   let effectiveOffset = offset
@@ -173,8 +178,9 @@ const setCursorAt = (offset) => {
     effectiveOffset = offset(anchorOffset, baseNode)
   }
 
-  effectiveOffset = Math.min(effectiveOffset, baseNode.length - 1)
-  effectiveOffset = Math.max(effectiveOffset, 0)
+  let baseNodeLen =baseNode.length !== undefined ? baseNode.length - 1 : -1; 
+  effectiveOffset = Math.min(effectiveOffset, baseNodeLen);
+  effectiveOffset = Math.max(effectiveOffset, 0);
 
   state.set(_ => ({
     anchorOffset: effectiveOffset

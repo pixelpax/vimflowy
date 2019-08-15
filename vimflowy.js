@@ -113,38 +113,41 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
     command(target)
   }
 
-  const actionMap = {
+  // _cancels_ event propagation
+  const actionMap = 
+  {
     [Mode.NORMAL]: 
     {
       h: t => moveCursorLeft(t, offsetCalculator(state)),
       j: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target)),
-      Enter: target => {
-        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target))
-        moveCursorToStart(target, offsetCalculator(state))
-      },
       k: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(target)),
       l: t => moveCursorRight(t, offsetCalculator(state)),
       i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
       a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
+      '/': t => { WF.search("test"); },
       //'/': searchCommand,
       //'?': searchCommand,
       o: t => {
-        moveCursorToEnd(t, offsetCalculator(state))
-        goToInsertMode(true)
-        const e = jQuery.Event('keydown')
-        e.which = 13
-        $(t).trigger(e)
+        const focusedItem = WF.focusedItem();
+        const Parent = focusedItem.getParent();
+        const CurrentItemIndex = focusedItem.getPriority();
+        const NextItemIndex = CurrentItemIndex + 1; 
+        WF.createItem(Parent, NextItemIndex);
+        // WF.insertText(" ");
+        goToInsertMode(false);
       },
       O: t => {
-        moveCursorToStart(t, offsetCalculator(state))
-        goToInsertMode()
-        const e = jQuery.Event('keydown')
-        e.which = 13
-        $(t).trigger(e)
+        const focusedItem = WF.focusedItem();
+        const Parent = focusedItem.getParent();
+        const CurrentItemIndex = focusedItem.getPriority();
+        WF.createItem(Parent, CurrentItemIndex);
+        goToInsertMode();
       },
+      'B': t => moveCursorToStart(t, offsetCalculator(state)),
       '0': t => moveCursorToStart(t, offsetCalculator(state)),
       '^': t => moveCursorToStart(t, offsetCalculator(state)),
       '$': t => moveCursorToEnd(t, offsetCalculator(state)),
+      'E': t => moveCursorToEnd(t, offsetCalculator(state)),
       'I': onlyIfProjectCanBeEdited(t => {
         moveCursorToStart(t, offsetCalculator(state))
         goToInsertMode()
@@ -154,119 +157,409 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
         goToInsertMode(true)
       }),
       'alt-l': t => {
-        state.set(s => ({anchorOffset: 0}))
-        const e = jQuery.Event('keydown')
-        e.which = 39
-        e.altKey = true
-        $(t).trigger(e)
+        WF.zoomIn(WF.focusedItem());
       },
       'alt-h': t => {
-        state.set(s => ({anchorOffset: 0}))
-        const e = jQuery.Event('keydown')
-        e.which = 37
-        e.altKey = true
-        $(t).trigger(e)
+        WF.zoomOut(WF.currentItem());
       },
-      u: t => {
-        const selection = document.getSelection()
-        const selectionSnapshot = {
-          anchorOffset: selection.anchorOffset,
+      x: t => 
+      { 
+        const currentOffset = state.get().anchorOffset
+        WF.insertText("");
+        setCursorAt(currentOffset);
+        goToInsertMode();
+        goToNormalMode();
+        goToNormalMode();
+        setCursorAt(currentOffset);
+      },
+      u: t => { WF.undo(); },
+      y: t => { WF.redo(); }, 
+      'ctrl-r': t => { WF.redo(); },
+      ' ': t => {
+        const focusedItem = WF.focusedItem();
+        if(focusedItem.isExpanded())
+          WF.collapseItem(focusedItem);
+        else
+          WF.expandItem(focusedItem);
+      },
+      'D': t =>
+      {
+        var CurrentSelection = WF.getSelection();
+        if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
+        {
+          WF.editGroup(() => 
+          {
+            CurrentSelection.forEach((item, i) => 
+            {
+              WF.deleteItem(item);
+            });
+          });
         }
-        const e = jQuery.Event('keydown')
-        e.which = 90
-        e.ctrlKey = true
-        $(window).trigger(e)
+      },
+      'V': t =>
+      {
+        var CurrentSelection = WF.getSelection();
+        var focusedItem = WF.focusedItem();
+        CurrentSelection.push(focusedItem);
+        WF.setSelection(CurrentSelection);
+        // console.log("highlight pls");
+      },
+      'K': t =>
+      {
+        // limit it to the current scope for now
+        if(WF.focusedItem().getPreviousVisibleSibling() == null)
+          return;
 
-        if (!t.childNodes.length) {
-          const e = jQuery.Event('keydown')
-          e.which = 90
-          e.ctrlKey = true
-          $(window).trigger(e)
-          t.focus()
-          return
+        var CurrentSelection = WF.getSelection();
+
+        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(t));
+        var CurrItem = WF.focusedItem();
+
+        CurrentSelection.push(CurrItem);
+
+        const CurrIndex = CurrItem.getPriority();
+        const FirstElementIndex = CurrentSelection[0].getPriority();
+
+        var CurrAndAboveSelection = CurrentSelection.filter(function(value, index, arr){
+          const NextIndex = value.getPriority();
+          return (NextIndex <= CurrIndex || NextIndex <= FirstElementIndex);
+        });
+
+        WF.setSelection(CurrAndAboveSelection);
+      },
+      'J': t =>
+      {
+        // console.log("shift J");
+
+        // limit it to the current scope for now
+        if(WF.focusedItem().getNextVisibleSibling() == null)
+          return;
+
+        var CurrentSelection = WF.getSelection();
+        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(t));
+        var CurrItem = WF.focusedItem();
+
+        CurrentSelection.push(CurrItem);
+
+        const CurrIndex = CurrItem.getPriority();
+        const FirstElementIndex = CurrentSelection[0].getPriority();
+        
+        var CurrAndBelowSelection = CurrentSelection.filter(function(value, index, arr){
+          const i = value.getPriority();
+          return (i >= CurrIndex || i >= FirstElementIndex);
+        });
+
+        WF.setSelection(CurrAndBelowSelection);
+      },
+      'alt-J': t => 
+      {
+
+        var selection = WF.getSelection();
+        if (selection === undefined || selection.length == 0) 
+          selection = SelectionPreMove;
+
+        if (selection !== undefined && selection.length != 0)
+        {
+          const nextItem = selection[selection.length-1].getNextVisibleSibling();
+          if(nextItem == null)
+            return;
+
+          const parentItem = nextItem.getParent();
+
+          SelectionPreMove = selection;
+          WF.editGroup(() => 
+          {
+            WF.moveItems(selection, parentItem, nextItem.getPriority() + 1);
+          });
+        }
+        else
+        {
+          const focusedItem = WF.focusedItem();
+          const nextItem = focusedItem.getNextVisibleSibling();
+          if(nextItem)
+          {
+            const parentItem = nextItem.getParent();
+            WF.moveItems([nextItem], parentItem, focusedItem.getPriority() + 1);
+          }
         }
 
-        const textNode = t.childNodes[0]
-        const range = document.createRange()
-        range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
-        range.collapse(true)
-        selection.removeAllRanges()
-        selection.addRange(range)
-        selection.modify('extend', 'right', 'character')
-        t.focus()
       },
-      'ctrl-r': t => {
-        const selection = document.getSelection()
-        const selectionSnapshot = {
-          anchorOffset: selection.anchorOffset,
-        }
-        const e = jQuery.Event('keydown')
-        e.which = 89
-        e.ctrlKey = true
-        $(window).trigger(e)
+      'alt-K': t => 
+      {
+        var selection = WF.getSelection();
+        if (selection === undefined || selection.length == 0) 
+          selection = SelectionPreMove;
 
-        const textNode = t.childNodes[0]
-        const range = document.createRange()
-        range.setStart(textNode, Math.min(selectionSnapshot.anchorOffset, textNode.length - 1))
-        range.collapse(true)
-        selection.removeAllRanges()
-        selection.addRange(range)
-        selection.modify('extend', 'right', 'character')
-        t.focus()
+        if (selection !== undefined && selection.length != 0)
+        {
+          const prevItem = selection[0].getPreviousVisibleSibling();
+          if(prevItem == null)
+            return;
+
+          const parentItem = prevItem.getParent();
+
+          SelectionPreMove = selection;
+          WF.editGroup(() => 
+          {
+            WF.moveItems(selection, parentItem, prevItem.getPriority());
+          });
+        }
+        else
+        {
+          const focusedItem = WF.focusedItem();
+          const prevItem = focusedItem.getPreviousVisibleSibling();
+          if(prevItem)
+          {
+            const parentItem = focusedItem.getParent();
+            WF.moveItems([focusedItem], parentItem, prevItem.getPriority());
+          }
+        }
+
       },
-      Escape: goToNormalMode,
-      Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
-      'alt-J': t => {
-        const e = jQuery.Event('keydown')
-        e.which = 40 
-        e.altKey = true
-        e.shiftKey = true
-        $(t).trigger(e)
+      'alt-j': t => {
+
+        const focusedItem = WF.focusedItem();
+        const nextItem = focusedItem.getNextVisibleSibling();
+        if(nextItem == null)
+          return;
+
+        const parentItem = nextItem.getParent();
+        WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
+
       },
-      'alt-K': t => {
-        const e = jQuery.Event('keydown')
-        e.which = 38 
-        e.altKey = true
-        e.shiftKey = true
-        $(t).trigger(e)
+      'alt-k': t => {
+
+        const focusedItem = WF.focusedItem();
+        const prevItem = focusedItem.getPreviousVisibleSibling();
+        if(prevItem == null)
+          return;
+
+        const parentItem = prevItem.getParent();
+
+        WF.moveItems([focusedItem], parentItem, prevItem.getPriority());
+
       }
     },
     [Mode.INSERT]: 
     {
-      Escape: goToNormalMode,
+      // Escape: goToNormalMode,
       Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
     }
   }
 
-  sequence('j k', (target) => 
+  let PrevEnterItem = null;
+  let SelectionPreMove = [];
+
+  // _allows_ event propagation 
+  const transparentActionMap = 
   {
-    //console.log("JK pressed: ")
-    goToNormalMode()
-  })(actionMap[Mode.INSERT]);
+    [Mode.NORMAL]: 
+    {
+      Enter: e => 
+      {
+        const focusedItem = WF.focusedItem();
+        if(e.shiftKey && focusedItem)
+        {
+          goToInsertMode();
+          return;
+        }
+
+        PrevEnterItem = WF.currentItem();
+        if(focusedItem)
+        {
+          // console.log("transparent Enter (NORMAL) valid focus");
+          e.preventDefault()
+          e.stopPropagation()
+          WF.zoomIn(focusedItem);
+          WF.editItemName(focusedItem);
+        }
+        else
+        {
+          WF.zoomIn(WF.currentItem());
+          WF.editItemName(WF.currentItem());
+          console.log("transparent Enter (NORMAL) Invalid focus");
+        }
+      },
+      Backspace: e => 
+      {
+        console.log("backspacing?");
+        e.preventDefault()
+        e.stopPropagation()
+        if(PrevEnterItem)
+        {
+          // console.log("trying to zoom in on prev item");
+          // console.log(PrevEnterItem);
+          WF.zoomIn(PrevEnterItem);
+        }
+      },
+      Escape: e => 
+      {
+        if(WF.focusedItem())
+        {
+            // console.log("transparent Escape (NORMAL)");
+            const Selection = WF.getSelection();
+            if (Selection !== undefined && Selection.length != 0)
+              WF.setSelection([]);
+
+            e.preventDefault()
+            e.stopPropagation()
+        }
+        // else
+        // {
+        //     console.log("transparent Escape (NORMAL) failed");
+        // }
+        goToNormalMode();
+      }
+      // Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
+      // 'ctrl-Dead': goToInsertMode,
+      // 'ctrl-¨': goToInsertMode
+    },
+    [Mode.INSERT]: 
+    {
+      Escape: e =>
+      {
+        if(WF.focusedItem())
+        {
+          // console.log("transparent Escape (INSERT)");
+          e.preventDefault()
+          e.stopPropagation()
+          WF.zoomIn(WF.currentItem());
+          goToNormalMode();
+        }
+        // else
+        // {
+        //   console.log("transparent Escape (INSERT) failed");
+        // }
+      },
+      Enter: () => 
+      {
+        const focusedItem = WF.focusedItem();
+        if(focusedItem == null)
+        {
+          // console.log("ggoing to normal mode");
+          WF.zoomIn(WF.currentItem());
+          WF.editItemName(WF.currentItem());
+          goToNormalMode();
+        }
+      }
+    }
+  }
 
   sequence('d d', (target) => 
   {
-    const e = jQuery.Event('keydown');
-    e.which = 8;
-    e.ctrlKey = true;
-    e.shiftKey = true; 
-    $(target).trigger(e);
+    var CurrentSelection = WF.getSelection();
+    if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
+    {
+      WF.editGroup(() => 
+      {
+        CurrentSelection.forEach((item, i) => 
+        {
+          WF.deleteItem(item);
+        });
+      });
+      WF.editItemName(WF.currentItem());
+    }
+    else
+    {
+      const focusedItem = WF.focusedItem();
+      if(focusedItem.getPreviousVisibleSibling() === null)
+      {
+        const SelectedProject = target.parentNode.parentNode.parentNode.parentNode;
+        WF.deleteItem(focusedItem);
+        setCursorAfterVerticalMove(offsetCalculator(state), SelectedProject);
+      }
+      else
+      {
+        const PrevTarget = target.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
+        WF.deleteItem(focusedItem);
+        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(PrevTarget));
+      }
+    }
   })(actionMap[Mode.NORMAL]);
 
-  mainContainer.addEventListener('keydown', event => {
+  sequence('p p', (target) => 
+  {
+    WF.duplicateItem(WF.focusedItem());
+  })(actionMap[Mode.NORMAL]);
+
+  // sequence('d w', (target) => 
+  // {
+  //   // fuck it, i don't care, lets hack this.
+  //   const focusedItem = WF.focusedItem();
+  //   const focusedElement = focusedItem.getElement();
+  //   console.log(focusedElement);
+
+  //   const currentOffset = state.get().anchorOffset
+  //   console.log(currentOffset);
+  //   // const effective = bound(offset(currentOffset))
+  //   // console.log(effective);
+
+  //   // WF.insertText("€");
+  //   // const NameStr = focusedItem.getNameInPlainText();
+  //   // if(NameStr.includes("€"))
+  //   // {
+  //   // }
+  //   // else
+  //   // {
+  //   //   const NoteStr = focusedItem.getNoteInPlainText();
+  //   // }
+  //   // console.log(WF.focusedItem);
+
+  // })(actionMap[Mode.NORMAL]);
+
+
+  let PrevKey = "";
+
+  // Bulk moving items deselects them...
+  // Reselecting them during the same event "frame"
+  // does not work - which is why we do it on the keyup event for now.
+  mainContainer.addEventListener('keyup', event => 
+  { 
+    if (SelectionPreMove !== undefined && SelectionPreMove.length != 0) 
+    {
+      WF.setSelection(SelectionPreMove);
+      SelectionPreMove = [];
+    }
+  });
+
+  mainContainer.addEventListener('keydown', event => 
+  { 
+    const currentOffset = state.get().anchorOffset
+    console.log(currentOffset);
+
     debug(state.get().mode, keyFrom(event), event)
 
-    if (actionMap[state.get().mode][keyFrom(event)]) {
+    if (actionMap[state.get().mode][keyFrom(event)]) 
+    {
       event.preventDefault()
       event.stopPropagation()
-
-
       actionMap[state.get().mode][keyFrom(event)](event.target)
 
       return
     }
 
-    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(event.key)
+    if (transparentActionMap[state.get().mode][keyFrom(event)]) 
+    {
+      transparentActionMap[state.get().mode][keyFrom(event)](event)
+      return
+    }
+
+    // Handle jk == esc. @TODO: make into buffer
+    // and merge inte with the search functionality
+    // or write a new sequence handler for insert mode. 
+    if(PrevKey == 74 && event.keyCode == 75 && state.get().mode === Mode.INSERT)
+    {
+      goToNormalMode();
+      // @TODO... need to return false when inside the name and true when in notes..!?
+      goToInsertMode(false);
+      goToNormalMode();
+      moveCursorLeft(event.target, offsetCalculator(state)),
+      WF.insertText("");
+      event.preventDefault();
+    }
+    PrevKey = event.keyCode;
+
+    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key)
     const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
     if (state.get().mode === Mode.NORMAL && (input || modified)) {
       event.preventDefault()

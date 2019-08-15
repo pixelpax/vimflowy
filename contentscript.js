@@ -1,7 +1,8 @@
 
 var scripts = [ 
-    "jquery.js",
+    // "jquery.js",
     "state.js",
+    "search.js",
     "cursorMovement.js",
     "vimflowy.js" 
     ];
