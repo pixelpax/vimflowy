@@ -41,10 +41,16 @@ const modeClosure = (mainContainer, getState, setState) => {
         document.getSelection().modify('move', 'right', 'character')
       }
     },
-    goToNormalMode: () => {
+    goToNormalMode: () => 
+    {
+      if(state.get().mode === Mode.NORMAL)
+        setCursorAt(a => a)
+      else
+        // update cursor pos based on where we ended up after INSERT mode
+        setCursorAt(document.getSelection().getRangeAt(0).startOffset-1);
+
       setState(s => ({mode: Mode.NORMAL}))
       setMode(Mode.NORMAL)
-      setCursorAt(a => a)
     }
   }
 }
@@ -524,8 +530,15 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
 
   mainContainer.addEventListener('keydown', event => 
   { 
-    const currentOffset = state.get().anchorOffset
-    console.log(currentOffset);
+
+    // if(state.get().mode === Mode.INSERT)
+    // {
+    //   let selection = document.getSelection();
+    //   const idx = selection.getRangeAt(0);
+    //   console.log(idx.startOffset);
+    // }
+    // const currentOffset = state.get().anchorOffset
+    // console.log(currentOffset);
 
     debug(state.get().mode, keyFrom(event), event)
 
@@ -550,11 +563,17 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
     if(PrevKey == 74 && event.keyCode == 75 && state.get().mode === Mode.INSERT)
     {
       goToNormalMode();
-      // @TODO... need to return false when inside the name and true when in notes..!?
-      goToInsertMode(false);
-      goToNormalMode();
-      moveCursorLeft(event.target, offsetCalculator(state)),
+
+      // remove j from under the cursor
+      const currentOffset = state.get().anchorOffset
       WF.insertText("");
+      setCursorAt(currentOffset);
+      goToInsertMode();
+      goToNormalMode();
+      goToNormalMode();
+      setCursorAt(currentOffset);
+
+      // prevent k from being typed out.
       event.preventDefault();
     }
     PrevKey = event.keyCode;
