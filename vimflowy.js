@@ -355,12 +355,35 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
 
   let PrevEnterItem = null;
   let SelectionPreMove = [];
+  let bExpandAll = true;
 
   // _allows_ event propagation 
   const transparentActionMap = 
   {
     [Mode.NORMAL]: 
     {
+      'ctrl- ': e => 
+      {
+        e.preventDefault()
+        e.stopPropagation()
+        const currentRootItem = WF.currentItem();
+        const Children = currentRootItem.getChildren();
+        if (Children !== undefined && Children.length != 0)
+        {
+          bExpandAll = !bExpandAll;
+          WF.editGroup(() => 
+          {
+            Children.forEach((item, i) => 
+            {
+              if(bExpandAll)
+                WF.collapseItem(item);
+              else
+                WF.expandItem(item);
+            });
+          });
+          WF.editItemName(WF.currentItem());
+        }
+      },
       Enter: e => 
       {
         const focusedItem = WF.focusedItem();
