@@ -370,6 +370,16 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
         const Children = currentRootItem.getChildren();
         if (Children !== undefined && Children.length != 0)
         {
+
+          // fix focus loss problem when collapsing
+          if(WF.focusedItem().getParent().equals(WF.currentItem()) == false)
+          {
+            if(WF.focusedItem().getParent().getParent().equals(WF.currentItem()))
+              WF.editItemName(WF.focusedItem().getParent());
+            else
+              WF.editItemName(WF.currentItem());
+          }
+
           bExpandAll = !bExpandAll;
           WF.editGroup(() => 
           {
@@ -381,7 +391,8 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
                 WF.expandItem(item);
             });
           });
-          WF.editItemName(WF.currentItem());
+
+
         }
       },
       Enter: e => 
