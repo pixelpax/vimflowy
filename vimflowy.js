@@ -285,7 +285,7 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
           if(nextItem)
           {
             const parentItem = nextItem.getParent();
-            WF.moveItems([nextItem], parentItem, focusedItem.getPriority() + 1);
+            WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
           }
         }
 
