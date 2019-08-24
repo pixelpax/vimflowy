@@ -3,6 +3,7 @@ var scripts = [
     // "jquery.js",
     "state.js",
     "search.js",
+    "TimeTagCounter.js",
     "cursorMovement.js",
     "vimflowy.js" 
     ];

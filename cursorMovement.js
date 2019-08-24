@@ -164,9 +164,9 @@ const moveCursorUp = t =>
 
 }
 
-const setCursorAt = (offset) => {
+const setCursorAt = (offset) => 
+{
 
-  // if(offset == 0 || isNaN(offset))
   if(isNaN(offset))
     return;
 
@@ -178,7 +178,7 @@ const setCursorAt = (offset) => {
     effectiveOffset = offset(anchorOffset, baseNode)
   }
 
-  let baseNodeLen =baseNode.length !== undefined ? baseNode.length - 1 : -1; 
+  let baseNodeLen = baseNode.length !== undefined ? baseNode.length - 1 : -1; 
   effectiveOffset = Math.min(effectiveOffset, baseNodeLen);
   effectiveOffset = Math.max(effectiveOffset, 0);
 
@@ -193,6 +193,16 @@ const setCursorAt = (offset) => {
   selection.addRange(range)
   selection.modify('extend', 'right', 'character')
   baseNode.parentElement.focus()
+}
+
+const moveCursorTo = (target, calculateOffset, desiredOffset) => 
+{
+  if(isNaN(desiredOffset))
+    return;
+
+  const contentAbstraction = getContentAbstraction(target);
+  const offset = calculateOffset(contentAbstraction, () => desiredOffset);
+  contentAbstraction.setCursorAt(offset);
 }
 
 const moveCursorToStart = (target, calculateOffset) => {

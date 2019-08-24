@@ -44,10 +44,14 @@ const modeClosure = (mainContainer, getState, setState) => {
     goToNormalMode: () => 
     {
       if(state.get().mode === Mode.NORMAL)
+      {
         setCursorAt(a => a)
+      }
       else
+      {
         // update cursor pos based on where we ended up after INSERT mode
         setCursorAt(document.getSelection().getRangeAt(0).startOffset-1);
+      }
 
       setState(s => ({mode: Mode.NORMAL}))
       setMode(Mode.NORMAL)
@@ -99,7 +103,8 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
 
   //searchBox(state.set, state.get, offsetCalculator(state))
   //const mainContainer = document.getElementById('pageContainer')
-  const mainContainer = document.getElementById('app')
+  // const mainContainer = document.getElementById('app')
+  const mainContainer = document.getElementById('app');
 
   const {flashMode, goToInsertMode, goToNormalMode} = modeClosure(mainContainer, state.get, state.set)
 
@@ -133,6 +138,53 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
       '/': t => { WF.search("test"); },
       //'/': searchCommand,
       //'?': searchCommand,
+      e: t => {
+
+        const focusedItem = WF.focusedItem();
+        if(!focusedItem)
+          return;
+
+        const split = focusedItem.getNameInPlainText().split(" ");
+        const currentOffset = state.get().anchorOffset
+
+        let traverseLength = 0;
+        for(let i = 0; i < split.length; ++i) 
+        {
+          traverseLength += split[i].length;
+          traverseLength += 1;
+          const wordEndOffset = traverseLength - 2;
+          if(wordEndOffset > currentOffset)
+          {
+            moveCursorTo(t, offsetCalculator(state), wordEndOffset);
+            return;
+          }
+        }
+
+      },
+      b: t => {
+
+        const focusedItem = WF.focusedItem();
+        if(!focusedItem)
+          return;
+
+        const split = focusedItem.getNameInPlainText().split(" ");
+        const currentOffset = state.get().anchorOffset
+
+        let traverseLength = 0;
+        for(let i = 0; i < split.length; ++i) 
+        {
+          traverseLength += split[i].length;
+          traverseLength += 1;
+          if(traverseLength >= currentOffset)
+          {
+            const startWordOffset = traverseLength - split[i].length - 1;
+            moveCursorTo(t, offsetCalculator(state), startWordOffset);
+            return;
+          }
+
+        }
+
+      },
       o: t => {
         const focusedItem = WF.focusedItem();
         const Parent = focusedItem.getParent();
@@ -170,13 +222,19 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
       },
       x: t => 
       { 
-        const currentOffset = state.get().anchorOffset
+        const currentOffset = state.get().anchorOffset;
         WF.insertText("");
-        setCursorAt(currentOffset);
-        goToInsertMode();
-        goToNormalMode();
-        goToNormalMode();
-        setCursorAt(currentOffset);
+        moveCursorTo(t, offsetCalculator(state), currentOffset);
+        // setCursorAt(currentOffset);
+        // goToInsertMode();
+        // goToNormalMode();
+        // goToNormalMode();
+        // setCursorAt(currentOffset);
+      },
+      '§': t => {
+          previousTimeTagCounterMsg = "";
+          WF.hideMessage();
+          bShowTimeCounter = !bShowTimeCounter;
       },
       u: t => { WF.undo(); },
       y: t => { WF.redo(); }, 
@@ -417,12 +475,12 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
         {
           WF.zoomIn(WF.currentItem());
           WF.editItemName(WF.currentItem());
-          console.log("transparent Enter (NORMAL) Invalid focus");
+          // console.log("transparent Enter (NORMAL) Invalid focus");
         }
       },
       Backspace: e => 
       {
-        console.log("backspacing?");
+        // console.log("backspacing?");
         e.preventDefault()
         e.stopPropagation()
         if(PrevEnterItem)
@@ -524,16 +582,10 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
 
   // sequence('d w', (target) => 
   // {
-  //   // fuck it, i don't care, lets hack this.
   //   const focusedItem = WF.focusedItem();
   //   const focusedElement = focusedItem.getElement();
-  //   console.log(focusedElement);
-
   //   const currentOffset = state.get().anchorOffset
-  //   console.log(currentOffset);
   //   // const effective = bound(offset(currentOffset))
-  //   // console.log(effective);
-
   //   // WF.insertText("€");
   //   // const NameStr = focusedItem.getNameInPlainText();
   //   // if(NameStr.includes("€"))
@@ -547,8 +599,16 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
 
   // })(actionMap[Mode.NORMAL]);
 
+  mainContainer.addEventListener('mouseup', event => 
+  { 
+    if(state.get().mode === Mode.NORMAL && (!document.getSelection() || document.getSelection().toString().length == 0))
+    {
+        goToInsertMode(true);
+        goToNormalMode();
+        goToInsertMode(true);
+    }
+  });
 
-  let PrevKey = "";
 
   // Bulk moving items deselects them...
   // Reselecting them during the same event "frame"
@@ -562,62 +622,70 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
     }
   });
 
+  let PrevKey = "";
+  let bShowTimeCounter = false;
+
   mainContainer.addEventListener('keydown', event => 
   { 
-
-    // if(state.get().mode === Mode.INSERT)
-    // {
-    //   let selection = document.getSelection();
-    //   const idx = selection.getRangeAt(0);
-    //   console.log(idx.startOffset);
-    // }
-    // const currentOffset = state.get().anchorOffset
-    // console.log(currentOffset);
-
-    debug(state.get().mode, keyFrom(event), event)
 
     if (actionMap[state.get().mode][keyFrom(event)]) 
     {
       event.preventDefault()
       event.stopPropagation()
       actionMap[state.get().mode][keyFrom(event)](event.target)
-
-      return
     }
-
-    if (transparentActionMap[state.get().mode][keyFrom(event)]) 
+    else if (transparentActionMap[state.get().mode][keyFrom(event)]) 
     {
       transparentActionMap[state.get().mode][keyFrom(event)](event)
-      return
     }
-
-    // Handle jk == esc. @TODO: make into buffer
-    // and merge inte with the search functionality
-    // or write a new sequence handler for insert mode. 
-    if(PrevKey == 74 && event.keyCode == 75 && state.get().mode === Mode.INSERT)
+    else
     {
-      goToNormalMode();
+      // Handle jk == esc. @TODO: make into buffer
+      // and merge inte with the search functionality
+      // or write a new sequence handler for insert mode. 
+      if(PrevKey == 74 && event.keyCode == 75 && state.get().mode === Mode.INSERT)
+      {
+        goToNormalMode();
 
-      // remove j from under the cursor
-      const currentOffset = state.get().anchorOffset
-      WF.insertText("");
-      setCursorAt(currentOffset);
-      goToInsertMode();
-      goToNormalMode();
-      goToNormalMode();
-      setCursorAt(currentOffset);
+        // remove j from under the cursor
+        const currentOffset = state.get().anchorOffset
+        WF.insertText("");
+        setCursorAt(currentOffset);
+        goToInsertMode();
+        goToNormalMode();
+        goToNormalMode();
+        setCursorAt(currentOffset);
 
-      // prevent k from being typed out.
-      event.preventDefault();
+        // prevent k from being typed out.
+        event.preventDefault();
+      }
+      PrevKey = event.keyCode;
+
+      if (state.get().mode === Mode.NORMAL)
+      {
+        // const input = ValidNormalKeys.includes(event.key);
+        const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
+        const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
+        if (input || modified)
+        {
+          const exceptions = 
+          [
+            123   // F12
+            , 46  // Delete
+          ];
+
+          // console.log("illegal key");
+          // console.log(event.keyCode);
+
+          if(!exceptions.includes(event.keyCode))
+            event.preventDefault()
+
+        }
+      }
     }
-    PrevKey = event.keyCode;
 
-    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key)
-    const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
-    if (state.get().mode === Mode.NORMAL && (input || modified)) {
-      event.preventDefault()
+    if(bShowTimeCounter)
+        updateTimeTagCounter();
 
-      debug('prevented because NORMAL mode')
-    }
   })
 }) 
