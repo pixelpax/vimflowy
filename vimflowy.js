@@ -145,9 +145,12 @@ const modeClosure = (mainContainer, getState, setState) => {
       }
       else if(key == key_Slash)
       {
-        // focus on top item otherwise search fails
-        WF.editItemName(WF.currentItem());
-        keyBuffer = [key];
+        if(state.get().mode === Mode.NORMAL)
+        {
+          // focus on top item otherwise search fails
+          WF.editItemName(WF.currentItem());
+          keyBuffer = [key];
+        }
       }
       else
       {
@@ -217,7 +220,6 @@ const modeClosure = (mainContainer, getState, setState) => {
           WF.editItemName(WF.currentItem());
       }
     }
-
 
     window.toggleDebugging = () => state.set(s => ({
       debug: !s.debug
