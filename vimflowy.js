@@ -59,31 +59,169 @@ const modeClosure = (mainContainer, getState, setState) => {
   }
 }
 
-const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
-  const [first, second] = twoKeys.split(' ');
-  let sequenceTimeout
+  $(() => 
+  {
 
-  const sequenceHandler = function () {
-    const original = keymap[second]
+    function preventDefaultWhileInNormalMode(event)
+    {
+      if (state.get().mode === Mode.NORMAL)
+      {
+        // const input = ValidNormalKeys.includes(event.key);
+        const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
+        const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
+        if (input || modified)
+        {
+          const exceptions = 
+          [
+            123   // F12
+            , 46  // Delete
+          ];
 
-    keymap[second] = function (t) {
-      clearTimeout(sequenceTimeout)
-      handler(t)
-      keymap[second] = original
+          // console.log("illegal key");
+          // console.log(event.keyCode);
+
+          if(!exceptions.includes(event.keyCode))
+            event.preventDefault()
+
+        }
+      }
     }
 
-    sequenceTimeout = setTimeout(() => {
-      keymap[first] = sequenceHandler
-    }, timeout)
-  }
+    function mouseClickIntoInsertMode()
+    {
+      if(state.get().mode === Mode.NORMAL && (!document.getSelection() || document.getSelection().toString().length == 0))
+      {
+          goToInsertMode(true);
+          goToNormalMode();
+          goToInsertMode(true);
+      }
+    }
 
-  keymap[first] = sequenceHandler
-}
+    function reselectItemsBeingMoved()
+    {
+      // Bulk moving items deselects them...
+      // Reselecting them during the same event "frame"
+      // does not work - which is why we do it on the keyup event for now.
+      if (SelectionPreMove !== undefined && SelectionPreMove.length != 0) 
+      {
+        WF.setSelection(SelectionPreMove);
+        SelectionPreMove = [];
+      }
+    }
 
-  $(() => {
-  window.toggleDebugging = () => state.set(s => ({
-    debug: !s.debug
-  })) 
+    function updateKeyBuffer_Keydown(event)
+    {
+      const key = event.key;
+
+      if(keyBuffer.includes(key_Slash))
+      {
+
+        if(key == 'Backspace')
+        {
+          if(keyBuffer.length > 1)
+          {
+            keyBuffer.pop();
+          }
+        }
+        else
+        {
+          keyBuffer = [...keyBuffer, key];
+        }
+
+        const filteredKeys = keyBuffer.filter(function(value, index, arr)
+        {
+          return validSearchKeys.includes(value);
+        });
+
+        var slashIndex = filteredKeys.indexOf("/");
+        if (slashIndex > -1) {
+            filteredKeys.splice(slashIndex, 1);
+        }
+
+        const keyBufferStr = filteredKeys.join(""); 
+
+        WF.hideMessage();
+        WF.showMessage(keyBufferStr.bold(), false);
+      }
+      else if(key == key_Slash)
+      {
+        // focus on top item otherwise search fails
+        WF.editItemName(WF.currentItem());
+        keyBuffer = [key];
+      }
+      else
+      {
+        if(keyBuffer.length > 2)
+          keyBuffer.shift();
+
+        keyBuffer = [...keyBuffer, key];
+      }
+
+      if(keyBuffer.includes(key_Slash) && key != key_Esc)
+      {
+        return true;
+      }
+
+      return false;
+    }
+
+    function updateKeyBuffer_Keyup(event)
+    {
+      const searchQuery = WF.currentSearchQuery();
+      const key = event.key;
+
+      if(keyBuffer.includes(key_Slash))
+      {
+        if(key == key_Esc)
+        {
+          keyBuffer = [];
+          console.log("clearing buffer and search");
+          WF.hideMessage();
+          WF.search("");
+          WF.clearSearch();
+          WF.editItemName(WF.currentItem());
+        }
+        else if(searchQuery !== null && key == 'Enter')
+        // else if(key == 'Enter')
+        {
+          console.log(searchQuery);
+          WF.editItemName(WF.currentItem());
+          WF.hideMessage();
+          keyBuffer = [];
+        }
+        else
+        {
+          const filteredKeys = keyBuffer.filter(function(value, index, arr)
+          {
+            return validSearchKeys.includes(value);
+          });
+
+          console.log(filteredKeys);
+
+          var slashIndex = filteredKeys.indexOf("/");
+          if (slashIndex > -1) {
+              filteredKeys.splice(slashIndex, 1);
+          }
+
+          const keyBufferStr = filteredKeys.join(""); 
+
+          WF.hideMessage();
+          WF.showMessage(keyBufferStr.bold(), false);
+          WF.search(keyBufferStr);
+        }
+      }
+      else if(searchQuery !== null && key == 'Escape')
+      {
+          WF.search("");
+          WF.clearSearch();
+          WF.editItemName(WF.currentItem());
+      }
+    }
+
+
+    window.toggleDebugging = () => state.set(s => ({
+      debug: !s.debug
+    })) 
 
   const offsetCalculator = state => (contentAbstraction, offset) => {
     const maxOffset = contentAbstraction.length - 1
@@ -135,7 +273,7 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
       l: t => moveCursorRight(t, offsetCalculator(state)),
       i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
       a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
-      '/': t => { WF.search("test"); },
+      // '/': t => { WF.search("test"); },
       //'/': searchCommand,
       //'?': searchCommand,
       e: t => {
@@ -152,6 +290,10 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
         {
           traverseLength += split[i].length;
           traverseLength += 1;
+
+          if(split[i] == "")
+            continue;
+
           const wordEndOffset = traverseLength - 2;
           if(wordEndOffset > currentOffset)
           {
@@ -167,38 +309,54 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
         if(!focusedItem)
           return;
 
-        const split = focusedItem.getNameInPlainText().split(" ");
+        const nameInPlainText = focusedItem.getNameInPlainText();
+        const split = nameInPlainText.split(" ");
         const currentOffset = state.get().anchorOffset
 
-        let traverseLength = 0;
-        for(let i = 0; i < split.length; ++i) 
+        let traverseLength = nameInPlainText.length - 1;
+        for(let i = split.length-1; i >= 0; --i) 
         {
-          traverseLength += split[i].length;
-          traverseLength += 1;
-          if(traverseLength >= currentOffset)
+          traverseLength -= (split[i].length - 1);
+          if(split[i] != "" && traverseLength < currentOffset)
           {
-            const startWordOffset = traverseLength - split[i].length - 1;
-            moveCursorTo(t, offsetCalculator(state), startWordOffset);
+            moveCursorTo(t, offsetCalculator(state), traverseLength);
             return;
           }
-
+          traverseLength -= 2;
         }
 
       },
       o: t => {
         const focusedItem = WF.focusedItem();
-        const Parent = focusedItem.getParent();
-        const CurrentItemIndex = focusedItem.getPriority();
-        const NextItemIndex = CurrentItemIndex + 1; 
-        WF.createItem(Parent, NextItemIndex);
-        // WF.insertText(" ");
+        const parentItem = focusedItem.getParent();
+        const currentItem = WF.currentItem();
+        if(!focusedItem.equals(currentItem))
+        {
+          const currentItemIndex = focusedItem.getPriority();
+          const nextItemIndex = currentItemIndex + 1; 
+          WF.createItem(parentItem, nextItemIndex);
+        }
+        else
+        {
+          WF.createItem(currentItem, 0);
+        }
+
         goToInsertMode(false);
       },
       O: t => {
         const focusedItem = WF.focusedItem();
-        const Parent = focusedItem.getParent();
-        const CurrentItemIndex = focusedItem.getPriority();
-        WF.createItem(Parent, CurrentItemIndex);
+        const parentItem = focusedItem.getParent();
+        const currentItem = WF.currentItem();
+        if(!focusedItem.equals(currentItem))
+        {
+          const currentItemIndex = focusedItem.getPriority();
+          WF.createItem(parentItem, currentItemIndex);
+        }
+        else
+        {
+          WF.createItem(currentItem, 0);
+        }
+
         goToInsertMode();
       },
       'B': t => moveCursorToStart(t, offsetCalculator(state)),
@@ -293,8 +451,6 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
       },
       'J': t =>
       {
-        // console.log("shift J");
-
         // limit it to the current scope for now
         if(WF.focusedItem().getNextVisibleSibling() == null)
           return;
@@ -422,31 +578,43 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
     {
       'ctrl- ': e => 
       {
+
         e.preventDefault()
         e.stopPropagation()
-        const currentRootItem = WF.currentItem();
+        const currentItem = WF.currentItem();
+        const currentRootItem = currentItem;
         const Children = currentRootItem.getChildren();
         if (Children !== undefined && Children.length != 0)
         {
-
           // fix focus loss problem when collapsing
-          if(WF.focusedItem().getParent().equals(WF.currentItem()) == false)
+          const focusedItem = WF.focusedItem();
+          if(focusedItem.getParent().equals(currentItem) == false)
           {
-            if(WF.focusedItem().getParent().getParent().equals(WF.currentItem()))
-              WF.editItemName(WF.focusedItem().getParent());
+            if(focusedItem.getParent().getParent().equals(currentItem))
+              WF.editItemName(focusedItem.getParent());
             else
-              WF.editItemName(WF.currentItem());
+              WF.editItemName(currentItem);
           }
 
           bExpandAll = !bExpandAll;
+
+          if(focusedItem)
+          {
+            const focusKids = focusedItem.getChildren();
+            if(focusKids !== undefined && focusKids.length != 0)
+            {
+              bExpandAll = !focusedItem.isExpanded();
+            }
+          }
+
           WF.editGroup(() => 
           {
             Children.forEach((item, i) => 
             {
               if(bExpandAll)
-                WF.collapseItem(item);
-              else
                 WF.expandItem(item);
+              else
+                WF.collapseItem(item);
             });
           });
 
@@ -490,6 +658,39 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
           WF.zoomIn(PrevEnterItem);
         }
       },
+      'dd': e => 
+      {
+        var CurrentSelection = WF.getSelection();
+        if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
+        {
+          WF.editGroup(() => 
+          {
+            CurrentSelection.forEach((item, i) => 
+            {
+              WF.deleteItem(item);
+            });
+          });
+          WF.editItemName(WF.currentItem());
+        }
+        else
+        {
+          const focusedItem = WF.focusedItem();
+          if(focusedItem.getPreviousVisibleSibling() === null)
+          {
+            const SelectedProject = e.target.parentNode.parentNode.parentNode.parentNode;
+            WF.deleteItem(focusedItem);
+            setCursorAfterVerticalMove(offsetCalculator(state), SelectedProject);
+          }
+          else
+          {
+            const PrevTarget = e.target.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
+            WF.deleteItem(focusedItem);
+            setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(PrevTarget));
+          }
+        }
+        e.preventDefault()
+        e.stopPropagation()
+      },
       Escape: e => 
       {
         if(WF.focusedItem())
@@ -502,15 +703,46 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
             e.preventDefault()
             e.stopPropagation()
         }
-        // else
-        // {
-        //     console.log("transparent Escape (NORMAL) failed");
-        // }
         goToNormalMode();
+      },
+      'pp': e => 
+      {
+        const focusedItem = WF.focusedItem();
+        if(focusedItem)
+        {
+          WF.duplicateItem(WF.focusedItem());
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      },
+      'dw': e => 
+      {
+        focusedItem = WF.focusedItem();
+        if(focusedItem)
+        {
+          var split = focusedItem.getNameInPlainText().split(/[ ]+/).filter(Boolean);
+          const currentOffset = state.get().anchorOffset
+          let traverseLength = 0;
+          for(let i = 0; i < split.length; ++i) 
+          {
+            traverseLength += split[i].length;
+            traverseLength += 1;
+
+            const wordEndOffset = traverseLength - 2;
+            if(wordEndOffset >= currentOffset)
+            {
+              const targetOffset = wordEndOffset - split[i].length + 1;
+              split.splice(i, 1);
+              var newName = split.join(" ");
+              WF.setItemName(focusedItem, newName);
+              moveCursorTo(event.target, offsetCalculator(state), targetOffset);
+              event.preventDefault()
+              event.stopPropagation()
+              break;
+            }
+          }
+        }
       }
-      // Esc: () => console.log('MAC WTF') || goToNormalMode(), // mac?
-      // 'ctrl-Dead': goToInsertMode,
-      // 'ctrl-¨': goToInsertMode
     },
     [Mode.INSERT]: 
     {
@@ -518,132 +750,13 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
       {
         if(WF.focusedItem())
         {
-          // console.log("transparent Escape (INSERT)");
           e.preventDefault()
           e.stopPropagation()
           WF.zoomIn(WF.currentItem());
           goToNormalMode();
         }
-        // else
-        // {
-        //   console.log("transparent Escape (INSERT) failed");
-        // }
       },
-      Enter: () => 
-      {
-        const focusedItem = WF.focusedItem();
-        if(focusedItem == null)
-        {
-          // console.log("ggoing to normal mode");
-          WF.zoomIn(WF.currentItem());
-          WF.editItemName(WF.currentItem());
-          goToNormalMode();
-        }
-      }
-    }
-  }
-
-  sequence('d d', (target) => 
-  {
-    var CurrentSelection = WF.getSelection();
-    if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
-    {
-      WF.editGroup(() => 
-      {
-        CurrentSelection.forEach((item, i) => 
-        {
-          WF.deleteItem(item);
-        });
-      });
-      WF.editItemName(WF.currentItem());
-    }
-    else
-    {
-      const focusedItem = WF.focusedItem();
-      if(focusedItem.getPreviousVisibleSibling() === null)
-      {
-        const SelectedProject = target.parentNode.parentNode.parentNode.parentNode;
-        WF.deleteItem(focusedItem);
-        setCursorAfterVerticalMove(offsetCalculator(state), SelectedProject);
-      }
-      else
-      {
-        const PrevTarget = target.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
-        WF.deleteItem(focusedItem);
-        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(PrevTarget));
-      }
-    }
-  })(actionMap[Mode.NORMAL]);
-
-  sequence('p p', (target) => 
-  {
-    WF.duplicateItem(WF.focusedItem());
-  })(actionMap[Mode.NORMAL]);
-
-  // sequence('d w', (target) => 
-  // {
-  //   const focusedItem = WF.focusedItem();
-  //   const focusedElement = focusedItem.getElement();
-  //   const currentOffset = state.get().anchorOffset
-  //   // const effective = bound(offset(currentOffset))
-  //   // WF.insertText("€");
-  //   // const NameStr = focusedItem.getNameInPlainText();
-  //   // if(NameStr.includes("€"))
-  //   // {
-  //   // }
-  //   // else
-  //   // {
-  //   //   const NoteStr = focusedItem.getNoteInPlainText();
-  //   // }
-  //   // console.log(WF.focusedItem);
-
-  // })(actionMap[Mode.NORMAL]);
-
-  mainContainer.addEventListener('mouseup', event => 
-  { 
-    if(state.get().mode === Mode.NORMAL && (!document.getSelection() || document.getSelection().toString().length == 0))
-    {
-        goToInsertMode(true);
-        goToNormalMode();
-        goToInsertMode(true);
-    }
-  });
-
-
-  // Bulk moving items deselects them...
-  // Reselecting them during the same event "frame"
-  // does not work - which is why we do it on the keyup event for now.
-  mainContainer.addEventListener('keyup', event => 
-  { 
-    if (SelectionPreMove !== undefined && SelectionPreMove.length != 0) 
-    {
-      WF.setSelection(SelectionPreMove);
-      SelectionPreMove = [];
-    }
-  });
-
-  let PrevKey = "";
-  let bShowTimeCounter = false;
-
-  mainContainer.addEventListener('keydown', event => 
-  { 
-
-    if (actionMap[state.get().mode][keyFrom(event)]) 
-    {
-      event.preventDefault()
-      event.stopPropagation()
-      actionMap[state.get().mode][keyFrom(event)](event.target)
-    }
-    else if (transparentActionMap[state.get().mode][keyFrom(event)]) 
-    {
-      transparentActionMap[state.get().mode][keyFrom(event)](event)
-    }
-    else
-    {
-      // Handle jk == esc. @TODO: make into buffer
-      // and merge inte with the search functionality
-      // or write a new sequence handler for insert mode. 
-      if(PrevKey == 74 && event.keyCode == 75 && state.get().mode === Mode.INSERT)
+      'jk': e => 
       {
         goToNormalMode();
 
@@ -658,34 +771,78 @@ const sequence = (twoKeys, handler, timeout = 800) => (keymap) => {
 
         // prevent k from being typed out.
         event.preventDefault();
-      }
-      PrevKey = event.keyCode;
-
-      if (state.get().mode === Mode.NORMAL)
+      },
+      Enter: () => 
       {
-        // const input = ValidNormalKeys.includes(event.key);
-        const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
-        const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
-        if (input || modified)
+        const focusedItem = WF.focusedItem();
+        if(focusedItem == null)
         {
-          const exceptions = 
-          [
-            123   // F12
-            , 46  // Delete
-          ];
-
-          // console.log("illegal key");
-          // console.log(event.keyCode);
-
-          if(!exceptions.includes(event.keyCode))
-            event.preventDefault()
-
+          WF.zoomIn(WF.currentItem());
+          WF.editItemName(WF.currentItem());
+          goToNormalMode();
         }
       }
+    }
+  }
+
+  let bShowTimeCounter = false;
+  let keyBuffer = [];
+  const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
+  const key_Slash = "/"//55;
+  const key_Esc = "Escape"//27;
+
+  mainContainer.addEventListener('mouseup', event => 
+  { 
+    mouseClickIntoInsertMode();
+  });
+
+  mainContainer.addEventListener('keyup', event => 
+  { 
+    reselectItemsBeingMoved();
+    updateKeyBuffer_Keyup(event);
+  });
+
+  mainContainer.addEventListener('keydown', event => 
+  { 
+
+    if(updateKeyBuffer_Keydown(event))
+    {
+      event.preventDefault()
+      event.stopPropagation()
+      return;
+    }
+
+    if (keyBuffer.length > 1 
+      && transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]]) 
+    {
+      // handle sequence bindings
+      transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]](event);
+
+      // @TODO: check if we have triple and quad 
+      // sequences in the if statement instead
+      keyBuffer.pop();
+      keyBuffer.pop();
+    }
+    else if (actionMap[state.get().mode][keyFrom(event)]) 
+    {
+      // handle simple bindings that always block propagation
+      event.preventDefault()
+      event.stopPropagation()
+      actionMap[state.get().mode][keyFrom(event)](event.target)
+    }
+    else if (transparentActionMap[state.get().mode][keyFrom(event)]) 
+    {
+      // handle bindings that sometimes block propagation
+      transparentActionMap[state.get().mode][keyFrom(event)](event)
+    }
+    else
+    {
+      preventDefaultWhileInNormalMode(event);
     }
 
     if(bShowTimeCounter)
         updateTimeTagCounter();
 
   })
+
 }) 

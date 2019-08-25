@@ -86,19 +86,25 @@ function updateTimeTagCounter()
             hashInComplete = 0,
             atComplete = 0,
             atInComplete = 0;
-        items.forEach(item => {
-            getTimeTags(item).forEach(t => {
+        items.forEach(item => 
+        {
+            getTimeTags(item).forEach(t => 
+            {
                 let tag = t.tag,
                     addMins = getMinutes(tag);
-                if (tag.startsWith("#")) {
+                if (tag.startsWith("#")) 
+                {
                     item.isWithinCompleted() ? hashComplete += addMins : hashInComplete += addMins
-                } else {
+                } 
+                else 
+                {
                     item.isWithinCompleted() ? atComplete += addMins : atInComplete += addMins
                 }
             })
         });
-        const hashAll = hashComplete + hashInComplete,
-            atAll = atComplete + atInComplete;
+        // const hashAll = hashComplete + hashInComplete;
+        const hashAll = hashInComplete;
+        const atAll = atComplete + atInComplete;
         if (atAll + hashAll === 0) return null;
         hashTotals = hashAll > 0 ? `\t${convertTimeToStr(hashAll)}` : "";
         return `${hashTotals}`
