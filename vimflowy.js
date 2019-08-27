@@ -328,22 +328,33 @@ const modeClosure = (mainContainer, getState, setState) => {
         }
 
       },
-      o: t => {
+      o: t => 
+      {
+
         const focusedItem = WF.focusedItem();
         const parentItem = focusedItem.getParent();
         const currentItem = WF.currentItem();
-        if(!focusedItem.equals(currentItem))
+        const bFocusHasVisibleChildren = focusedItem.getVisibleChildren().length != 0;
+
+        // Just add item if we are focusing 
+        // on the top-most-item (zoomed in)
+        if(focusedItem.equals(currentItem))
+        {
+          WF.createItem(currentItem, 0);
+        }
+        else if (focusedItem.isExpanded() && bFocusHasVisibleChildren)
+        {
+          WF.createItem(focusedItem, 0);
+        }
+        else
         {
           const currentItemIndex = focusedItem.getPriority();
           const nextItemIndex = currentItemIndex + 1; 
           WF.createItem(parentItem, nextItemIndex);
         }
-        else
-        {
-          WF.createItem(currentItem, 0);
-        }
 
         goToInsertMode(false);
+
       },
       O: t => {
         const focusedItem = WF.focusedItem();
