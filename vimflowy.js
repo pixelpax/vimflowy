@@ -728,6 +728,58 @@ const modeClosure = (mainContainer, getState, setState) => {
           e.stopPropagation()
         }
       },
+      // 'Tab': e => 
+      // {
+      //     var selection = WF.getSelection();
+      //     if (selection === undefined || selection.length == 0) 
+      //       selection = SelectionPreMove;
+
+      //     const bOutdent = e.shiftKey;
+
+      //     e.preventDefault()
+      //     e.stopPropagation()
+
+      //     if (selection !== undefined && selection.length != 0)
+      //     {
+      //       const nextItem = selection[selection.length-1].getNextVisibleSibling();
+      //       if(nextItem == null)
+      //         return;
+
+      //       const parentItem = nextItem.getParent();
+
+      //       SelectionPreMove = selection;
+      //       WF.editGroup(() => 
+      //       {
+      //         WF.moveItems(selection, parentItem, nextItem.getPriority() + 1);
+      //       });
+      //     }
+      //     else
+      //     {
+      //       const focusedItem = WF.focusedItem();
+      //       const nextItem = focusedItem.getNextVisibleSibling();
+      //       if(nextItem)
+      //       {
+      //         const parentItem = nextItem.getParent();
+      //         WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
+      //       }
+      //     }
+      // },
+      'G': e => 
+      {
+        children = WF.currentItem().getVisibleChildren();
+        if (children !== undefined && children.length != 0) 
+        {
+          WF.editItemName(children[children.length - 1]);
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      },
+      'gg': e => 
+      {
+          WF.editItemName(WF.currentItem());
+          event.preventDefault()
+          event.stopPropagation()
+      },
       'dw': e => 
       {
         focusedItem = WF.focusedItem();
@@ -817,7 +869,6 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   mainContainer.addEventListener('keydown', event => 
   { 
-
     if(updateKeyBuffer_Keydown(event))
     {
       event.preventDefault()
