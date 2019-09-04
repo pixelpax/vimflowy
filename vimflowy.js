@@ -87,6 +87,31 @@ const modeClosure = (mainContainer, getState, setState) => {
       }
     }
 
+    function focusOnItemOverTime(itemToFocus)
+    {
+        if(itemToFocus == null)
+          return;
+
+        forceFocusItem = itemToFocus;
+        forceFocusItemID = setInterval(() => 
+        {
+          // the page will have successfully zoomed out
+          // once the focused item becomes valid again
+          const currentlyFocusedItem = WF.focusedItem();
+          if(currentlyFocusedItem != null)
+          {
+            WF.editItemName(forceFocusItem);
+            clearInterval(forceFocusItemID);
+            forceFocusItem = null;
+            forceFocusItemID = null;
+          }
+          else
+          {
+            console.log("failing to peek");
+          }
+        }, 10); 
+    }
+
     function mouseClickIntoInsertMode()
     {
       if(state.get().mode === Mode.NORMAL && (!document.getSelection() || document.getSelection().toString().length == 0))
@@ -390,6 +415,57 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       'alt-h': t => {
         WF.zoomOut(WF.currentItem());
+      },
+      'ctrl-l': t => 
+      {
+        const focusedItem = WF.focusedItem();
+        // console.log("attempting to peak in");
+        if(focusedItem != null)
+        {
+          const focusedAncestors = focusedItem.getAncestors();
+          if(focusedAncestors.length != 0)
+          {
+            // console.log("anscestors length : " + focusedAncestors.length);
+            if(focusedAncestors.length == 1)
+            {
+              // console.log("zooming in on focused item: " + focusedItem.getNameInPlainText());
+              WF.zoomIn(focusedItem);
+            }
+            else
+            {
+              const currentItem = WF.currentItem();
+              focusedAncestors.forEach((item, i) => 
+              {
+                // console.log("index: " + i);
+                // console.log("item: " + item.getNameInPlainText());
+                const itemParent = item.getParent();
+                if(itemParent && itemParent.equals(currentItem))
+                {
+                  WF.zoomIn(item);
+                  WF.editItemName(focusedItem);
+                  focusOnItemOverTime(focusedItem);
+                  return;
+                }
+              });
+            }
+          }
+        //   else
+        //   {
+        //     console.log("no anscestors");
+        //   }
+        // }
+        // else
+        // {
+        //   console.log("no focuseItem");
+        // }
+      },
+      'ctrl-h': t => 
+      {
+        const currentItem = WF.currentItem();
+        const focusedItem = WF.focusedItem();
+        // WF.editItemName(currentItem);
+        WF.zoomOut(currentItem);
+        focusOnItemOverTime(focusedItem);
       },
       x: t => 
       { 
@@ -855,6 +931,8 @@ const modeClosure = (mainContainer, getState, setState) => {
   const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
   const key_Slash = "/"//55;
   const key_Esc = "Escape"//27;
+  let forceFocusItem = null;
+  let forceFocusItemID = null; 
 
   mainContainer.addEventListener('mouseup', event => 
   { 
@@ -863,12 +941,22 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   mainContainer.addEventListener('keyup', event => 
   { 
+    // clear the hacky timer, used in ctrl-h/l, whenever we pressing something
+    if(forceFocusItem != null)
+    {
+      clearInterval(forceFocusItemID);
+      forceFocusItem = null;
+      forceFocusItemID = null 
+    }
+
     reselectItemsBeingMoved();
     updateKeyBuffer_Keyup(event);
+
   });
 
   mainContainer.addEventListener('keydown', event => 
   { 
+
     if(updateKeyBuffer_Keydown(event))
     {
       event.preventDefault()
