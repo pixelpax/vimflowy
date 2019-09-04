@@ -453,7 +453,7 @@ const modeClosure = (mainContainer, getState, setState) => {
         //   {
         //     console.log("no anscestors");
         //   }
-        // }
+        }
         // else
         // {
         //   console.log("no focuseItem");
