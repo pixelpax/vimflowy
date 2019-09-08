@@ -114,11 +114,16 @@ const modeClosure = (mainContainer, getState, setState) => {
 
     function mouseClickIntoInsertMode()
     {
-      if(state.get().mode === Mode.NORMAL && (!document.getSelection() || document.getSelection().toString().length == 0))
+      if(state.get().mode === Mode.NORMAL)
       {
-          goToInsertMode(true);
-          goToNormalMode();
-          goToInsertMode(true);
+        goToInsertMode(true);
+        // only go into insert mode if we are clicking - NOT selecting
+        // if(!document.getSelection() || document.getSelection().toString().length == 0)
+        // {
+        //   goToInsertMode(true);
+        //   goToNormalMode();
+        //   goToInsertMode(true);
+        // }
       }
     }
 
@@ -944,7 +949,7 @@ const modeClosure = (mainContainer, getState, setState) => {
   let forceFocusItem = null;
   let forceFocusItemID = null; 
 
-  mainContainer.addEventListener('mouseup', event => 
+  mainContainer.addEventListener('mousedown', event => 
   { 
     mouseClickIntoInsertMode();
   });
