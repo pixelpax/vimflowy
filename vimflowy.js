@@ -840,6 +840,16 @@ const modeClosure = (mainContainer, getState, setState) => {
       //       }
       //     }
       // },
+      'g': e => 
+      {
+        const focusedItem = WF.focusedItem();
+        if(focusedItem)
+        {
+          WF.editItemName(focusedItem.getParent());
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      },
       'G': e => 
       {
         children = WF.currentItem().getVisibleChildren();
