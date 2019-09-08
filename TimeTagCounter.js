@@ -144,16 +144,17 @@ function updateTimeTagCounter()
 
     previousTimeTagCounterMsg = msg;
 
+    WF.hideMessage();
+    clearTimeTagCounter();
+
     if (!timeTagInfo) 
-        return void toastMsg("No Time Tags found.", 2, true);
+        WF.showMessage("No Time Tags found.".bold(), true);
+    else
+        WF.showMessage(msg.bold(), false);
 
     //showSortDialog(timeTagInfo, name, 'Add Time to Name?', 'Z-A')
     // toastMsg(msg, 3, false);
-
-    WF.hideMessage();
-    clearTimeTagCounter();
-    WF.showMessage(msg.bold(), false);
-
+    // return void toastMsg("No Time Tags found.", 2, true);
 };
 
 let previousTimeTagCounterMsg;
