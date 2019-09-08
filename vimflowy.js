@@ -141,6 +141,10 @@ const modeClosure = (mainContainer, getState, setState) => {
 
     function updateKeyBuffer_Keydown(event)
     {
+
+      if(modiferKeyCodesToIgnore.includes(event.keyCode))
+        return;
+
       const key = event.key;
 
       if(keyBuffer.includes(key_Slash))
@@ -797,6 +801,8 @@ const modeClosure = (mainContainer, getState, setState) => {
             e.preventDefault()
             e.stopPropagation()
         }
+        WF.hideMessage();
+        WF.hideDialog();
         goToNormalMode();
       },
       'pp': e => 
@@ -876,27 +882,85 @@ const modeClosure = (mainContainer, getState, setState) => {
         focusedItem = WF.focusedItem();
         if(focusedItem)
         {
-          var split = focusedItem.getNameInPlainText().split(/[ ]+/).filter(Boolean);
           const currentOffset = state.get().anchorOffset
-          let traverseLength = 0;
-          for(let i = 0; i < split.length; ++i) 
-          {
-            traverseLength += split[i].length;
-            traverseLength += 1;
+          const itemName = focusedItem.getNameInPlainText();
+          const substring_Start = itemName.substring(0, currentOffset);
+          const substring_End = itemName.substring(currentOffset);
+          const underCursorChar = itemName.charAt(currentOffset); 
 
-            const wordEndOffset = traverseLength - 2;
-            if(wordEndOffset >= currentOffset)
-            {
-              const targetOffset = wordEndOffset - split[i].length + 1;
-              split.splice(i, 1);
-              var newName = split.join(" ");
-              WF.setItemName(focusedItem, newName);
-              moveCursorTo(event.target, offsetCalculator(state), targetOffset);
-              event.preventDefault()
-              event.stopPropagation()
-              break;
-            }
+          if(/[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar))
+          {
+            const substringArray = substring_End.split(/([^a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
+            const modifiedEndString = substring_End.substring(substringArray[0].length).trim();
+            const finalString = substring_Start.concat(modifiedEndString);
+            WF.setItemName(focusedItem, finalString);
           }
+          else
+          {
+            const substringArray = substring_End.split(/([a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
+            const modifiedEndString = substring_End.substring(substringArray[0].length).trim();
+            const finalString = substring_Start.concat(modifiedEndString);
+            WF.setItemName(focusedItem, finalString);
+          }
+
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      },
+      'd$': e => 
+      {
+        focusedItem = WF.focusedItem();
+        if(focusedItem)
+        {
+          const currentOffset = state.get().anchorOffset
+          const itemName = focusedItem.getNameInPlainText();
+          const substring_Start = itemName.substring(0, currentOffset);
+          WF.setItemName(focusedItem, substring_Start);
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      },
+      'dr': e => 
+      {
+        focusedItem = WF.focusedItem();
+        if(focusedItem)
+        {
+          const currentOffset = state.get().anchorOffset
+          const itemName = focusedItem.getNameInPlainText();
+          const substring_Start = itemName.substring(0, currentOffset);
+          WF.setItemName(focusedItem, substring_Start);
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      },
+      'de': e => 
+      {
+        focusedItem = WF.focusedItem();
+        if(focusedItem)
+        {
+          const currentOffset = state.get().anchorOffset
+          const itemName = focusedItem.getNameInPlainText();
+          const substring_Start = itemName.substring(0, currentOffset);
+          const substring_End = itemName.substring(currentOffset);
+          const underCursorChar = itemName.charAt(currentOffset); 
+
+          if(/[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar))
+          {
+            const substringArray = substring_End.split(/([^a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
+            const modifiedEndString = substring_End.substring(substringArray[0].length);
+            const finalString = substring_Start.concat(modifiedEndString);
+            WF.setItemName(focusedItem, finalString);
+          }
+          else
+          {
+            const substringArray = substring_End.split(/([a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
+            const modifiedEndString = substring_End.substring(substringArray[0].length);
+            const finalString = substring_Start.concat(modifiedEndString);
+            WF.setItemName(focusedItem, finalString);
+          }
+
+          event.preventDefault()
+          event.stopPropagation()
         }
       }
     },
@@ -946,6 +1010,7 @@ const modeClosure = (mainContainer, getState, setState) => {
   const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
   const key_Slash = "/"//55;
   const key_Esc = "Escape"//27;
+  const modiferKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
   let forceFocusItem = null;
   let forceFocusItemID = null; 
 
@@ -971,7 +1036,6 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   mainContainer.addEventListener('keydown', event => 
   { 
-
     if(updateKeyBuffer_Keydown(event))
     {
       event.preventDefault()
