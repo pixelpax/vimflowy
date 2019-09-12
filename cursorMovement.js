@@ -78,10 +78,12 @@ const moveAboveFold = element => {
   }
 }
 
-const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) => {
+const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) => 
+{
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
-  if (!cursorTarget.childNodes.length) {
+  if (!cursorTarget.childNodes.length) 
+  {
     cursorTarget.append(' ')
   }
 
@@ -92,11 +94,13 @@ const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) => {
   moveAboveFold(cursorTarget)
 }
 
-const moveCursorDown = startElement => {
+const moveCursorDown = startElement => 
+{
   const project = projectAncestor(startElement)
 
   //if (project.className.includes('open')) {
-  if (project.className.includes('open') || project.className.includes('selected')) {
+  if (project.className.includes('open') || project.className.includes('selected')) 
+  {
     return project.querySelector('.project')
   }
 

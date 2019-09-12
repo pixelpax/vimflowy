@@ -62,6 +62,20 @@ const modeClosure = (mainContainer, getState, setState) => {
   $(() => 
   {
 
+    function fixFocus() 
+    {
+      const active = document.activeElement.className;
+
+      if (active.includes("searchBoxInput")) 
+        return;
+
+      if (active.includes("content")) 
+        return;
+
+      const matches = document.querySelectorAll(".name.matches .content, .notes.matches .content");
+      matches.length > 0 ? matches[0].focus() : document.getElementsByClassName("content")[0].focus();
+    }
+
     function preventDefaultWhileInNormalMode(event)
     {
       if (state.get().mode === Mode.NORMAL)
@@ -533,19 +547,10 @@ const modeClosure = (mainContainer, getState, setState) => {
         var CurrentSelection = WF.getSelection();
 
         setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(t));
-        var CurrItem = WF.focusedItem();
 
-        CurrentSelection.push(CurrItem);
+        CurrentSelection.unshift(WF.focusedItem());
+        WF.setSelection(CurrentSelection);
 
-        const CurrIndex = CurrItem.getPriority();
-        const FirstElementIndex = CurrentSelection[0].getPriority();
-
-        var CurrAndAboveSelection = CurrentSelection.filter(function(value, index, arr){
-          const NextIndex = value.getPriority();
-          return (NextIndex <= CurrIndex || NextIndex <= FirstElementIndex);
-        });
-
-        WF.setSelection(CurrAndAboveSelection);
       },
       'J': t =>
       {
@@ -554,20 +559,11 @@ const modeClosure = (mainContainer, getState, setState) => {
           return;
 
         var CurrentSelection = WF.getSelection();
+
         setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(t));
-        var CurrItem = WF.focusedItem();
 
-        CurrentSelection.push(CurrItem);
-
-        const CurrIndex = CurrItem.getPriority();
-        const FirstElementIndex = CurrentSelection[0].getPriority();
-        
-        var CurrAndBelowSelection = CurrentSelection.filter(function(value, index, arr){
-          const i = value.getPriority();
-          return (i >= CurrIndex || i >= FirstElementIndex);
-        });
-
-        WF.setSelection(CurrAndBelowSelection);
+        CurrentSelection.push(WF.focusedItem());
+        WF.setSelection(CurrentSelection);
       },
       'alt-J': t => 
       {
@@ -676,12 +672,12 @@ const modeClosure = (mainContainer, getState, setState) => {
     {
       'ctrl- ': e => 
       {
-
         e.preventDefault()
         e.stopPropagation()
         const currentItem = WF.currentItem();
         const currentRootItem = currentItem;
-        const Children = currentRootItem.getChildren();
+        const Children = currentRootItem.getVisibleChildren();
+        // const Children = currentRootItem.getChildren();
         if (Children !== undefined && Children.length != 0)
         {
           // fix focus loss problem when collapsing
@@ -698,7 +694,8 @@ const modeClosure = (mainContainer, getState, setState) => {
 
           if(focusedItem)
           {
-            const focusKids = focusedItem.getChildren();
+            // const focusKids = focusedItem.getChildren();
+            const focusKids = focusedItem.getVisibleChildren();
             if(focusKids !== undefined && focusKids.length != 0)
             {
               bExpandAll = !focusedItem.isExpanded();
@@ -718,6 +715,10 @@ const modeClosure = (mainContainer, getState, setState) => {
 
 
         }
+      },
+      'ctrl-Dead': e => 
+      {
+        goToInsertMode();
       },
       Enter: e => 
       {
@@ -741,7 +742,6 @@ const modeClosure = (mainContainer, getState, setState) => {
         {
           WF.zoomIn(WF.currentItem());
           WF.editItemName(WF.currentItem());
-          // console.log("transparent Enter (NORMAL) Invalid focus");
         }
       },
       Backspace: e => 
@@ -815,42 +815,6 @@ const modeClosure = (mainContainer, getState, setState) => {
           e.stopPropagation()
         }
       },
-      // 'Tab': e => 
-      // {
-      //     var selection = WF.getSelection();
-      //     if (selection === undefined || selection.length == 0) 
-      //       selection = SelectionPreMove;
-
-      //     const bOutdent = e.shiftKey;
-
-      //     e.preventDefault()
-      //     e.stopPropagation()
-
-      //     if (selection !== undefined && selection.length != 0)
-      //     {
-      //       const nextItem = selection[selection.length-1].getNextVisibleSibling();
-      //       if(nextItem == null)
-      //         return;
-
-      //       const parentItem = nextItem.getParent();
-
-      //       SelectionPreMove = selection;
-      //       WF.editGroup(() => 
-      //       {
-      //         WF.moveItems(selection, parentItem, nextItem.getPriority() + 1);
-      //       });
-      //     }
-      //     else
-      //     {
-      //       const focusedItem = WF.focusedItem();
-      //       const nextItem = focusedItem.getNextVisibleSibling();
-      //       if(nextItem)
-      //       {
-      //         const parentItem = nextItem.getParent();
-      //         WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
-      //       }
-      //     }
-      // },
       'g': e => 
       {
         const focusedItem = WF.focusedItem();
@@ -994,13 +958,13 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       Enter: () => 
       {
-        const focusedItem = WF.focusedItem();
-        if(focusedItem == null)
-        {
-          WF.zoomIn(WF.currentItem());
-          WF.editItemName(WF.currentItem());
-          goToNormalMode();
-        }
+        // const focusedItem = WF.focusedItem();
+        // if(focusedItem == null)
+        // {
+        //   WF.zoomIn(WF.currentItem());
+        //   WF.editItemName(WF.currentItem());
+        //   goToNormalMode();
+        // }
       }
     }
   }
@@ -1013,6 +977,19 @@ const modeClosure = (mainContainer, getState, setState) => {
   const modiferKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
   let forceFocusItem = null;
   let forceFocusItemID = null; 
+
+  WFEventListener = event => 
+  {
+    // console.log(event);
+    if (event === 'locationChanged' 
+      && state.get().mode === Mode.INSERT
+      && !WF.focusedItem()
+    ) 
+    {
+      requestAnimationFrame(fixFocus);
+      goToNormalMode();
+    }
+  };
 
   mainContainer.addEventListener('mousedown', event => 
   { 
