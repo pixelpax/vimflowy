@@ -359,8 +359,8 @@ const modeClosure = (mainContainer, getState, setState) => {
       // '/': t => { WF.search("test"); },
       //'/': searchCommand,
       //'?': searchCommand,
-      e: t => {
-
+      e: t => 
+      {
         const focusedItem = WF.focusedItem();
         if(!focusedItem)
           return;
@@ -384,7 +384,39 @@ const modeClosure = (mainContainer, getState, setState) => {
             return;
           }
         }
+      },
+      w: t => 
+      {
+        const focusedItem = WF.focusedItem();
+        if(!focusedItem)
+          return;
 
+        const itemName = focusedItem.getNameInPlainText();
+
+        var currentOffset = state.get().anchorOffset;
+
+        const substring_End = itemName.substring(currentOffset);
+        const split = substring_End.split(" ");
+
+        let traverseLength = currentOffset;
+        for(let i = 0; i < split.length; ++i) 
+        {
+
+          if(split[i] == "")
+          {
+            traverseLength += 1;
+            continue;
+          }
+
+          const wordEndOffset = traverseLength;
+          if(wordEndOffset > currentOffset)
+          {
+            moveCursorTo(t, offsetCalculator(state), wordEndOffset + 1);
+            return;
+          }
+
+          traverseLength += split[i].length;
+        }
       },
       b: t => {
 
@@ -582,8 +614,85 @@ const modeClosure = (mainContainer, getState, setState) => {
           WF.hideMessage();
           bShowTimeCounter = !bShowTimeCounter;
       },
+      P: t => 
+      {
+        if (yankBuffer === undefined || yankBuffer.length == 0) 
+          return;
+
+        if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+          return;
+
+        const focusedItem = WF.focusedItem();
+        const parentItem = focusedItem.getParent();
+
+        if(parentItem == null)
+          return;
+
+        WF.editGroup(() => 
+        {
+          const createdItem = WF.duplicateItem(yankBuffer[0]);
+
+          if(createdItem == null || createdItem == undefined)
+            return;
+
+          const createdItemName = createdItem.getName();
+          var nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
+          WF.setItemName(createdItem, nameWithoutCopyTag);
+
+          if(focusedItem.equals(WF.currentItem()))
+            WF.moveItems([createdItem], focusedItem, 0);
+          else
+            WF.moveItems([createdItem], parentItem, focusedItem.getPriority());
+
+          WF.editItemName(createdItem);
+        });
+
+      },
+      p: t => 
+      {
+        if (yankBuffer === undefined || yankBuffer.length == 0) 
+          return;
+
+        if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+          return;
+
+        const focusedItem = WF.focusedItem();
+        const parentItem = focusedItem.getParent();
+
+        if(parentItem == null)
+          return;
+
+        WF.editGroup(() => 
+        {
+          const createdItem = WF.duplicateItem(yankBuffer[0]);
+
+          if(createdItem  == null || createdItem === undefined)
+            return;
+
+          const createdItemName = createdItem.getName();
+          var nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
+          WF.setItemName(createdItem, nameWithoutCopyTag);
+
+          if(focusedItem.equals(WF.currentItem()))
+            WF.moveItems([createdItem], focusedItem, 0);
+          else
+            WF.moveItems([createdItem], parentItem, focusedItem.getPriority()+1);
+
+          WF.editItemName(createdItem);
+        });
+
+      },
+      Y: t => 
+      {
+        if(WF.focusedItem())
+          yankBuffer = [WF.focusedItem()];
+      },
+      y: t => 
+      {
+        if(WF.focusedItem())
+          yankBuffer = [WF.focusedItem()];
+      },
       u: t => { WF.undo(); },
-      y: t => { WF.redo(); }, 
       'ctrl-r': t => { WF.redo(); },
       ' ': t => {
         const focusedItem = WF.focusedItem();
@@ -893,16 +1002,16 @@ const modeClosure = (mainContainer, getState, setState) => {
         WF.hideDialog();
         goToNormalMode();
       },
-      'pp': e => 
-      {
-        const focusedItem = WF.focusedItem();
-        if(focusedItem)
-        {
-          WF.duplicateItem(WF.focusedItem());
-          e.preventDefault()
-          e.stopPropagation()
-        }
-      },
+      // 'pp': e => 
+      // {
+      //   const focusedItem = WF.focusedItem();
+      //   if(focusedItem)
+      //   {
+      //     WF.duplicateItem(WF.focusedItem());
+      //     e.preventDefault()
+      //     e.stopPropagation()
+      //   }
+      // },
       'g': e => 
       {
         const focusedItem = WF.focusedItem();
@@ -1108,6 +1217,7 @@ const modeClosure = (mainContainer, getState, setState) => {
   let bKeyDownHasFired = false;
   let bShowTimeCounter = false;
   let keyBuffer = [];
+  let yankBuffer = [];
   const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
   const key_Slash = "/"//55;
   const key_Esc = "Escape"//27;

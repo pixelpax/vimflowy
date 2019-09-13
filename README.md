@@ -16,6 +16,9 @@ Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/
     - `/`: Start search 
     - `o`: Create a new bullet below current line and go into insert mode
     - `O`: Create a new bullet above current line and go into insert mode
+    - `e`: move to end of word 
+    - `w`: move forward one word 
+    - `b`: move backwards 1 word 
     - `0`: Move cursor to the first character of the line
     - `^`: Move cursor to the first character of the line
     - `B`: Move cursor to the first character of the line
@@ -30,17 +33,16 @@ Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/
     - `d$`: cut from cursor location to the very end of line 
     - `dr`: cut from cursor location to the very end of line 
     - `u`: Undo
-    - `y`: Redo 
+    - `y`: yank (copy) focused item (and children)
+    - `p`: paste yanked item below focused item (yanked item must be visible)
+    - `P`: paste yanked item above focused item (yanked item must be visible)
     - `<Ctrl>r`: Redo
     - `<Ctrl>l`: Zoom in on focused node 1 step and retain focus on that node 
     - `<Ctrl>h`: Zoom out of focused node 1 step and retain focus on that node 
     - `V`:  Add current item to Selection
     - `K`:  add below item to Selection 
     - `J`:  add above item to Selection
-    - `pp`: Duplicate focused item (temp until we get yank working) 
-    - `DD`: remove the current bullet(s)
     - `dd`: remove the current bullet(s)
-    - `d`:  remove the current bullet(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
     - `Enter`: Zoom in on focused node - and place current item in memory 
