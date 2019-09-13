@@ -4,7 +4,7 @@ Vimflowy: Vim shortcuts for Workflowy
 Keybindings
 -----------
 
-Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/shift/meta to prevent typing in normal mode - but not to block native chrome and workflowy shortcuts. (with some exceptions, this is a work in progress)
+Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/shift/meta to prevent typing in normal mode - but it should not block native chrome and workflowy shortcuts. (with some exceptions, this is a work in progress)
 
 * Normal mode
     - `j`: Move down one item
