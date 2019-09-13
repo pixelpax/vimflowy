@@ -45,14 +45,14 @@ Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/
     - `dd`: remove the current bullet(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
-    - `Enter`: Zoom in on focused node - and place current item in memory 
-    - `Backspace`: zoom in on item which was place in memory when using 'Enter'
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
     - `<Alt>h`: zoom out (identical to WF zoom out) 
     - `<Alt>l`: zoom in  (identical to WF zoom in) 
     - `Space`: toggle expande/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
+    - `Enter`: Zoom in on focused node - and place current item in memory 
+    - `Backspace`: zoom in on item which was place in memory when using 'Enter'
     - `§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
     - `<Ctrl>k`: Use Workflowys JumpToItemMenu 
     - `<Ctrl>~`: Use Workflowys JumpToItemMenu 

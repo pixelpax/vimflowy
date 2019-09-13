@@ -1313,7 +1313,7 @@ const modeClosure = (mainContainer, getState, setState) => {
         actionMap[state.get().mode][keyFrom(event)](event.target)
         event.preventDefault()
         event.stopPropagation()
-        return false;
+        // return false;
       }
       else if (transparentActionMap[state.get().mode][keyFrom(event)]) 
       {
