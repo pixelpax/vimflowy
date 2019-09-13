@@ -4,7 +4,7 @@ Vimflowy: Vim shortcuts for Workflowy
 Keybindings
 -----------
 
-Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/shift/meta to prevent typing in normal mode, but not to block native chrome and workflowy shortcuts. (with some exceptions, this is a work in progress)
+Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/shift/meta to prevent typing in normal mode - but not to block native chrome and workflowy shortcuts. (with some exceptions, this is a work in progress)
 
 * Normal mode
     - `j`: Move down one item
@@ -13,35 +13,57 @@ Disclaimer: for now normal mode blocks unsupported keystrokes without alt/ctrl/s
     - `l`: Move cursor right
     - `i`: Insert before currently selected character
     - `a`: Insert after currently selected character
-    - `/`: Focus the search box
-    - `?`: Focus the search box
+    - `/`: Start search 
     - `o`: Create a new bullet below current line and go into insert mode
     - `O`: Create a new bullet above current line and go into insert mode
     - `0`: Move cursor to the first character of the line
     - `^`: Move cursor to the first character of the line
+    - `B`: Move cursor to the first character of the line
+    - `E`: Move cursor to the last character on the line
     - `$`: Move cursor to the last character on the line
-    - `gg`: Go to top of the page
-    - `g`: Go to root of the current list
-    - `G`: Go to bottom of the page
+    - `gg`: Go to top most root item on page 
+    - `g`: Go to root item of the currently focused list
+    - `G`: Go to the bottom most root item on the current page
     - `I`: Insert at the beginning of the line
     - `A`: Insert after the end of the line
+    - `x`: remove character under cursor 
+    - `d$`: cut from cursor location to the very end of line 
+    - `dr`: cut from cursor location to the very end of line 
     - `u`: Undo
+    - `y`: Redo 
     - `<Ctrl>r`: Redo
-    - `<Ctrl>l`: Zoom into current list item
-    - `<Ctrl>h`: Zoom out of current list
-    - `dd`: remove the current bullet
-    - `dw`: remove the current word
-    - `Enter`: go to the beginning of next line
+    - `<Ctrl>l`: Zoom in on focused node 1 step and retain focus on that node 
+    - `<Ctrl>h`: Zoom out of focused node 1 step and retain focus on that node 
+    - `V`:  Add current item to Selection
+    - `K`:  add below item to Selection 
+    - `J`:  add above item to Selection
+    - `pp`: Duplicate focused item (temp until we get yank working) 
+    - `DD`: remove the current bullet(s)
+    - `dd`: remove the current bullet(s)
+    - `d`:  remove the current bullet(s)
+    - `dw`: cut from cursor location to next word
+    - `de`: cut from cursor location to the end of the current word
+    - `Enter`: Zoom in on focused node - and place current item in memory 
+    - `Backspace`: zoom in on item which was place in memory when using 'Enter'
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
+    - `<Alt>h`: zoom out (identical to WF zoom out) 
+    - `<Alt>l`: zoom in  (identical to WF zoom in) 
+    - `Space`: toggle expande/collapse on focusedItem 
+    - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
+    - `§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
+    - `<Ctrl>k`: Use Workflowys JumpToItemMenu 
+    - `<Ctrl>~`: Use Workflowys JumpToItemMenu 
 * insert mode
     - `<Esc>`: Enter Normal mode
+    - `<jk>`: Enter Normal mode
+    - `<Ctrl>k`: Use Workflowys JumpToItemMenu 
+    - `<Ctrl>~`: Use Workflowys JumpToItemMenu 
 
 Mode indicator
 --------------
 
 In the bottom left corner there is a mode indicator that shows what mode you are in currently. 
-When you attempt to edit bullets that you don't have privileges to edit, the mode indicator will flash `Cannot edit this` for 1 second.
 
 Usage tips
 ----------
@@ -64,8 +86,4 @@ Installation
 Tested on
 ---------
 
-These are environment specs that this thing was used on and was usable. If you ever use it on a different environment, feel free to create a PR with your spec in this list :)
-
-Please add items in this format: '<output of `lsb_release -a`>, Chrome <Version info from `chrome://settings/help`>'
-
-* Ubuntu 16.04.3 LTS, Chrome Version 61.0.3163.91 (Official Build) (64-bit)
+Only tested on window 10 so far. Some keybindings might differ on MAC - so let me know if something isn't working!
