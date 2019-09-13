@@ -80,6 +80,11 @@ const moveAboveFold = element => {
 
 const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) => 
 {
+  // @TODO: this should be removed once we refactor 
+  // cursorMovement to use the workflowy API instead. 
+  if(cursorTargetProject === null)
+    return;
+
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
   if (!cursorTarget.childNodes.length) 
