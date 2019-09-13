@@ -61,10 +61,11 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   $(() => 
   {
-
     function fixFocus() 
     {
       const active = document.activeElement.className;
+
+      // console.log("attempting to fix focus");
 
       if (active.includes("searchBoxInput")) 
         return;
@@ -72,14 +73,25 @@ const modeClosure = (mainContainer, getState, setState) => {
       if (active.includes("content")) 
         return;
 
+      // console.log("focus fixed");
+
       const matches = document.querySelectorAll(".name.matches .content, .notes.matches .content");
       matches.length > 0 ? matches[0].focus() : document.getElementsByClassName("content")[0].focus();
     }
 
     function preventDefaultWhileInNormalMode(event)
     {
+      // console.log("trying to prevent: " + event.key);
       if (state.get().mode === Mode.NORMAL)
       {
+
+       if(modiferKeyCodesToIgnore.includes(event.keyCode))
+       {
+          event.preventDefault();
+          event.stopPropagation();
+          // console.log("blocking modifer keys");
+       }
+
         // const input = ValidNormalKeys.includes(event.key);
         const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
         const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
@@ -95,42 +107,61 @@ const modeClosure = (mainContainer, getState, setState) => {
           // console.log(event.keyCode);
 
           if(!exceptions.includes(event.keyCode))
-            event.preventDefault()
+          {
+            event.preventDefault();
+
+            // !!! bind the key if you need to stopPropagation() as well. 
+            // event.stopPropagation();
+          }
 
         }
       }
     }
 
-    function focusOnItemOverTime(itemToFocus)
-    {
-        if(itemToFocus == null)
-          return;
+    // function focusOnItemOverTime(itemToFocus)
+    // {
+    //     if(itemToFocus == null)
+    //       return;
 
-        forceFocusItem = itemToFocus;
-        forceFocusItemID = setInterval(() => 
-        {
-          // the page will have successfully zoomed out
-          // once the focused item becomes valid again
-          const currentlyFocusedItem = WF.focusedItem();
-          if(currentlyFocusedItem != null)
-          {
-            WF.editItemName(forceFocusItem);
-            clearInterval(forceFocusItemID);
-            forceFocusItem = null;
-            forceFocusItemID = null;
-          }
-          else
-          {
-            console.log("failing to peek");
-          }
-        }, 10); 
-    }
+    //     forceFocusItem = itemToFocus;
+    //     clearInterval(forceFocusItemID);
+    //     forceFocusItemID = setInterval(() => 
+    //     {
+    //       // the page will have successfully zoomed out
+    //       // once the focused item becomes valid again
+    //       const currentlyFocusedItem = WF.focusedItem();
+    //       if(currentlyFocusedItem != null)
+    //       {
+    //         WF.editItemName(forceFocusItem);
+    //         clearInterval(forceFocusItemID);
+    //         forceFocusItem = null;
+    //         forceFocusItemID = null;
+    //       }
+    //       else
+    //       {
+    //         console.log("waiting for zoom animation to finish");
+    //       }
+    //     }, 10); 
+    // }
 
     function mouseClickIntoInsertMode()
     {
       if(state.get().mode === Mode.NORMAL)
       {
+
         goToInsertMode(true);
+
+        if(!WF.focusedItem())
+        {
+          // we clicked somewhere outside of the tree revert to normal mode!
+          WF.zoomTo(WF.currentItem());
+          WF.editItemName(WF.currentItem());
+          goToNormalMode();
+        }
+
+      // console.log("mouse focus fix");
+        requestAnimationFrame(fixFocus);
+
         // only go into insert mode if we are clicking - NOT selecting
         // if(!document.getSelection() || document.getSelection().toString().length == 0)
         // {
@@ -155,9 +186,8 @@ const modeClosure = (mainContainer, getState, setState) => {
 
     function updateKeyBuffer_Keydown(event)
     {
-
       if(modiferKeyCodesToIgnore.includes(event.keyCode))
-        return;
+        return true;
 
       const key = event.key;
 
@@ -226,7 +256,7 @@ const modeClosure = (mainContainer, getState, setState) => {
         if(key == key_Esc)
         {
           keyBuffer = [];
-          console.log("clearing buffer and search");
+          // console.log("clearing buffer and search");
           WF.hideMessage();
           WF.search("");
           WF.clearSearch();
@@ -235,7 +265,7 @@ const modeClosure = (mainContainer, getState, setState) => {
         else if(searchQuery !== null && key == 'Enter')
         // else if(key == 'Enter')
         {
-          console.log(searchQuery);
+          // console.log(searchQuery);
           WF.editItemName(WF.currentItem());
           WF.hideMessage();
           keyBuffer = [];
@@ -247,7 +277,7 @@ const modeClosure = (mainContainer, getState, setState) => {
             return validSearchKeys.includes(value);
           });
 
-          console.log(filteredKeys);
+          // console.log(filteredKeys);
 
           var slashIndex = filteredKeys.indexOf("/");
           if (slashIndex > -1) {
@@ -318,7 +348,10 @@ const modeClosure = (mainContainer, getState, setState) => {
     [Mode.NORMAL]: 
     {
       h: t => moveCursorLeft(t, offsetCalculator(state)),
-      j: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target)),
+      j: target => 
+      {
+        setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(target));
+      },
       k: target => setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(target)),
       l: t => moveCursorRight(t, offsetCalculator(state)),
       i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
@@ -452,7 +485,9 @@ const modeClosure = (mainContainer, getState, setState) => {
             if(focusedAncestors.length == 1)
             {
               // console.log("zooming in on focused item: " + focusedItem.getNameInPlainText());
-              WF.zoomIn(focusedItem);
+
+              // WF.zoomIn(focusedItem);
+              WF.zoomTo(focusedItem);
             }
             else
             {
@@ -464,9 +499,10 @@ const modeClosure = (mainContainer, getState, setState) => {
                 const itemParent = item.getParent();
                 if(itemParent && itemParent.equals(currentItem))
                 {
-                  WF.zoomIn(item);
+                  // WF.zoomIn(item);
+                  // focusOnItemOverTime(focusedItem);
+                  WF.zoomTo(item);
                   WF.editItemName(focusedItem);
-                  focusOnItemOverTime(focusedItem);
                   return;
                 }
               });
@@ -486,9 +522,49 @@ const modeClosure = (mainContainer, getState, setState) => {
       {
         const currentItem = WF.currentItem();
         const focusedItem = WF.focusedItem();
-        // WF.editItemName(currentItem);
-        WF.zoomOut(currentItem);
-        focusOnItemOverTime(focusedItem);
+        WF.editItemName(currentItem);
+
+        // console.clear();
+        // console.log("ctrl-h: currentItem: " + WF.currentItem().getNameInPlainText());
+
+        if(currentItem.getParent())
+        {
+          WF.zoomTo(currentItem.getParent());
+          // console.log("ctrl-h snapTo : " + currentItem.getParent().getNameInPlainText());
+          if(!WF.focusedItem())
+          {
+            // console.log("ctrl-h focus lost after snap, fixing focus");
+            requestAnimationFrame(fixFocus);
+            goToNormalMode();
+            WF.editItemName(currentItem);
+            // WF.zoomOut(currentItem);
+            // console.log("ctrl-h zoomOut: " + currentItem.getNameInPlainText());
+          }
+        }
+        else
+        {
+          // console.log("ctrl-h ZoomOut: " + currentItem);
+          // console.log(":((((((((((((((((((((((((((");
+          WF.zoomOut(currentItem);
+        }
+
+        if(WF.focusedItem())
+        {
+          // console.log("ctrl-h focusedItemWhenWestarted: " + focusedItem.getNameInPlainText());
+          // console.log("ctrl-h currentlyFocusedItem: " + WF.focusedItem().getNameInPlainText());
+          // WF.editItemName(WF.focusedItem());
+          WF.editItemName(focusedItem);
+        }
+        else
+        {
+          // console.log("ctrl-h failed");
+          requestAnimationFrame(fixFocus);
+          goToNormalMode();
+          // WF.zoomTo(currentItem);
+        }
+
+        // focusOnItemOverTime(focusedItem);
+        // console.log("preessing ctrl h");
       },
       x: t => 
       { 
@@ -657,7 +733,7 @@ const modeClosure = (mainContainer, getState, setState) => {
     [Mode.INSERT]: 
     {
       // Escape: goToNormalMode,
-      Esc: () => console.log('MAC WTF') || goToNormalMode() // mac?
+      Esc: () => console.log('MAC?') || goToNormalMode() // mac?
     }
   }
 
@@ -716,12 +792,19 @@ const modeClosure = (mainContainer, getState, setState) => {
 
         }
       },
+      'ctrl-k': e => 
+      {
+        focusPreJumpToItemMenu = WF.focusedItem();
+        goToInsertMode();
+      },
       'ctrl-Dead': e => 
       {
+        focusPreJumpToItemMenu = WF.focusedItem();
         goToInsertMode();
       },
       Enter: e => 
       {
+        // console.log("NormalMode: pressing enter");
         const focusedItem = WF.focusedItem();
         if(e.shiftKey && focusedItem)
         {
@@ -735,12 +818,14 @@ const modeClosure = (mainContainer, getState, setState) => {
           // console.log("transparent Enter (NORMAL) valid focus");
           e.preventDefault()
           e.stopPropagation()
-          WF.zoomIn(focusedItem);
+          // WF.zoomIn(focusedItem);
+          WF.zoomTo(focusedItem);
           WF.editItemName(focusedItem);
         }
         else
         {
-          WF.zoomIn(WF.currentItem());
+          // WF.zoomIn(WF.currentItem());
+          WF.zoomTo(WF.currentItem());
           WF.editItemName(WF.currentItem());
         }
       },
@@ -753,7 +838,9 @@ const modeClosure = (mainContainer, getState, setState) => {
         {
           // console.log("trying to zoom in on prev item");
           // console.log(PrevEnterItem);
-          WF.zoomIn(PrevEnterItem);
+
+          // WF.zoomIn(PrevEnterItem);
+          WF.zoomTo(PrevEnterItem);
         }
       },
       'dd': e => 
@@ -801,6 +888,7 @@ const modeClosure = (mainContainer, getState, setState) => {
             e.preventDefault()
             e.stopPropagation()
         }
+
         WF.hideMessage();
         WF.hideDialog();
         goToNormalMode();
@@ -932,13 +1020,27 @@ const modeClosure = (mainContainer, getState, setState) => {
     {
       Escape: e =>
       {
-        if(WF.focusedItem())
+        // prevent it from focusing on the search bar
+        e.preventDefault()
+
+        if(!WF.focusedItem())
         {
-          e.preventDefault()
-          e.stopPropagation()
-          WF.zoomIn(WF.currentItem());
-          goToNormalMode();
+          if(focusPreJumpToItemMenu)
+          {
+            WF.editItemName(focusPreJumpToItemMenu);
+            focusPreJumpToItemMenu = null;
+          }
+
+          if(!WF.focusedItem())
+            WF.editItemName(WF.currentItem());
         }
+        else
+        {
+          // console.log("stopping prop");
+          e.stopPropagation()
+        }
+
+        goToNormalMode();
       },
       'jk': e => 
       {
@@ -956,39 +1058,85 @@ const modeClosure = (mainContainer, getState, setState) => {
         // prevent k from being typed out.
         event.preventDefault();
       },
-      Enter: () => 
+      'ctrl-k': e => 
       {
-        // const focusedItem = WF.focusedItem();
-        // if(focusedItem == null)
-        // {
-        //   WF.zoomIn(WF.currentItem());
-        //   WF.editItemName(WF.currentItem());
-        //   goToNormalMode();
-        // }
+        // console.log("insert ctrl k");
+        focusPreJumpToItemMenu = WF.focusedItem();
+        goToNormalMode();
+        goToInsertMode();
+      },
+      'ctrl-Dead': e => 
+      {
+        // console.log("insert ctrl dead");
+        focusPreJumpToItemMenu = WF.focusedItem();
+        goToNormalMode();
+        goToInsertMode();
+      },
+      'Enter': e => 
+      {
+        // we are using the JumpToMenu to jump to the 
+        // item which we are already standing on.
+        // this means that "locationChanged" won't fire...
+        // so we'll handle it here for now.. 
+        if(!WF.focusedItem() && WF.currentItem())
+        {
+
+          if(focusPreJumpToItemMenu)
+          {
+            WF.editItemName(focusPreJumpToItemMenu);
+            focusPreJumpToItemMenu = null;
+          }
+
+          if(!WF.focusedItem())
+            WF.editItemName(WF.currentItem());
+
+          goToNormalMode();
+          event.preventDefault();
+
+          requestAnimationFrame(fixFocus);
+
+          // console.log("exiting the bullet menu");
+        }
+
+        // console.log("(insert) Enter: focused item: " + WF.focusedItem().getNameInPlainText());
+        // console.log("(insert) Enter: current item: " + WF.currentItem().getNameInPlainText());
+
       }
     }
   }
 
+  let bKeyDownHasFired = false;
   let bShowTimeCounter = false;
   let keyBuffer = [];
   const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
   const key_Slash = "/"//55;
   const key_Esc = "Escape"//27;
   const modiferKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
-  let forceFocusItem = null;
-  let forceFocusItemID = null; 
+  // let forceFocusItem = null;
+  // let forceFocusItemID = null; 
+  let focusPreJumpToItemMenu = null;
 
   WFEventListener = event => 
   {
+    // console.clear();
+    // console.log(state.get().mode);
     // console.log(event);
+    // console.log(WF.focusedItem() ? WF.focusedItem().getNameInPlainText() : "no focus on item");
+
+    // fix for not landing in NormalMode when using the JumpToItemMenu
     if (event === 'locationChanged' 
       && state.get().mode === Mode.INSERT
       && !WF.focusedItem()
     ) 
     {
+      // console.log("going into normal mode post using JumpToItemMenu");
       requestAnimationFrame(fixFocus);
       goToNormalMode();
+      focusPreJumpToItemMenu = null;
+      event.preventDefault()
+      event.stopPropagation()
     }
+
   };
 
   mainContainer.addEventListener('mousedown', event => 
@@ -998,13 +1146,25 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   mainContainer.addEventListener('keyup', event => 
   { 
+
+    // workaround for keydown not always firing
+    // if(!bKeyDownHasFired)
+    // {
+    //   console.log("keydown was not fired, trigging workaround");
+    //   HandleKeydown(event);
+    //   event.preventDefault()
+    //   event.stopPropagation()
+    // }
+    // bKeyDownHasFired = false;
+
     // clear the hacky timer, used in ctrl-h/l, whenever we pressing something
-    if(forceFocusItem != null)
-    {
-      clearInterval(forceFocusItemID);
-      forceFocusItem = null;
-      forceFocusItemID = null 
-    }
+    // if(forceFocusItem != null && !modiferKeyCodesToIgnore.includes(event.keyCode))
+    // {
+    //   console.log("clearing forceFocus");
+    //   clearInterval(forceFocusItemID);
+    //   forceFocusItem = null;
+    //   forceFocusItemID = null 
+    // }
 
     reselectItemsBeingMoved();
     updateKeyBuffer_Keyup(event);
@@ -1013,43 +1173,57 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   mainContainer.addEventListener('keydown', event => 
   { 
-    if(updateKeyBuffer_Keydown(event))
-    {
-      event.preventDefault()
-      event.stopPropagation()
-      return;
-    }
+    // temp workaround for "keyUp" and "keyDown" not always firing in sequence 
+    // bKeyDownHasFired = true;
 
-    if (keyBuffer.length > 1 
-      && transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]]) 
-    {
-      // handle sequence bindings
-      transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]](event);
+      if(updateKeyBuffer_Keydown(event))
+      {
+        event.preventDefault()
+        event.stopPropagation()
+        // console.log("-- KeybufferDownKey early out -- ")
+        return;
+      }
 
-      // @TODO: check if we have triple and quad 
-      // sequences in the if statement instead
-      keyBuffer.pop();
-      keyBuffer.pop();
-    }
-    else if (actionMap[state.get().mode][keyFrom(event)]) 
-    {
-      // handle simple bindings that always block propagation
-      event.preventDefault()
-      event.stopPropagation()
-      actionMap[state.get().mode][keyFrom(event)](event.target)
-    }
-    else if (transparentActionMap[state.get().mode][keyFrom(event)]) 
-    {
-      // handle bindings that sometimes block propagation
-      transparentActionMap[state.get().mode][keyFrom(event)](event)
-    }
-    else
-    {
-      preventDefaultWhileInNormalMode(event);
-    }
+      if (keyBuffer.length > 1 
+        && transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]]) 
+      {
+        // handle sequence bindings
+        transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]](event);
 
-    if(bShowTimeCounter)
-        updateTimeTagCounter();
+        // @TODO: check if we have triple and quad 
+        // sequences in the if statement instead
+        keyBuffer.pop();
+        keyBuffer.pop();
+        // console.log("-- Sequence Map -- ")
+      }
+      else if (actionMap[state.get().mode][keyFrom(event)]) 
+      {
+        // handle simple bindings that always block propagation
+        // console.log("-- Action Map -- ")
+        actionMap[state.get().mode][keyFrom(event)](event.target)
+        event.preventDefault()
+        event.stopPropagation()
+        return false;
+      }
+      else if (transparentActionMap[state.get().mode][keyFrom(event)]) 
+      {
+        // handle bindings that sometimes block propagation
+        transparentActionMap[state.get().mode][keyFrom(event)](event)
+        // console.log("-- Transparent Map -- ")
+      }
+      else
+      {
+        preventDefaultWhileInNormalMode(event);
+        // console.log("-- Preventing defaults -- ")
+      }
+
+      // console.log(WF.currentItem().getNameInPlainText());
+      // console.log(WF.focusedItem().getNameInPlainText());
+
+      if(bShowTimeCounter)
+          updateTimeTagCounter();
+
+      // return false;
 
   })
 
