@@ -959,6 +959,71 @@ const modeClosure = (mainContainer, getState, setState) => {
         }
 
       },
+      Tab: e => 
+      {
+        var selection = WF.getSelection();
+        if (selection === undefined || selection.length == 0) 
+          selection = SelectionPreMove;
+
+        if (selection !== undefined && selection.length != 0)
+        {
+
+          var prio = 0;
+          var newParentItem = null;
+
+          if(e.shiftKey)
+          {
+            const currentItem = WF.currentItem();
+            const selectionsParent = selection[0].getParent();
+            if(selectionsParent && !currentItem.equals(selectionsParent))
+            {
+              const grandParent = selectionsParent.getParent();
+              if(grandParent)
+              {
+                newParentItem = grandParent;
+                prio = selectionsParent.getPriority() + 1; 
+              }
+            }
+          }
+          else
+          {
+            newParentItem = selection[0].getPreviousVisibleSibling();
+            if(newParentItem)
+            {
+              const kids = newParentItem.getChildren(); 
+              if(kids.length != 0)
+                prio = kids[kids.length-1].getPriority()+1;
+            }
+          }
+
+          if(newParentItem == null || newParentItem === undefined)
+            return;
+
+          SelectionPreMove = selection;
+
+          const currentOffset = state.get().anchorOffset
+          // setCursorAt(currentOffset);
+          // WF.editItemName(selection[0]);
+
+          WF.editGroup(() => 
+          {
+            WF.moveItems(selection, newParentItem, prio);
+            WF.setSelection(selection);
+            if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
+              WF.expandItem(newParentItem);
+          });
+
+          WF.editItemName(selection[0]);
+          setCursorAt(currentOffset);
+
+          if(!WF.focusedItem())
+            requestAnimationFrame(fixFocus);
+
+          e.preventDefault()
+          e.stopPropagation()
+        }
+
+      },
       Enter: e => 
       {
         // console.log("NormalMode: pressing enter");
