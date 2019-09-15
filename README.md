@@ -49,6 +49,7 @@ Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/
     - `<Alt>K`: Move the current line up
     - `<Alt>h`: zoom out (identical to WF zoom out) 
     - `<Alt>l`: zoom in  (identical to WF zoom in) 
+    - `<Alt>Enter`: will open the first URL found in the focusedItems name or note 
     - `Space`: toggle expande/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `Enter`: Zoom in on focused node - and place current item in memory 

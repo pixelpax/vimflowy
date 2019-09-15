@@ -85,34 +85,38 @@ const modeClosure = (mainContainer, getState, setState) => {
       if (state.get().mode === Mode.NORMAL)
       {
 
-       if(modiferKeyCodesToIgnore.includes(event.keyCode))
+       if(modifierKeyCodesToIgnore.includes(event.keyCode))
        {
           event.preventDefault();
           event.stopPropagation();
-          // console.log("blocking modifer keys");
+          // console.log("blocking modifier keys");
        }
 
         // const input = ValidNormalKeys.includes(event.key);
         const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
-        const modified = !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
-        if (input || modified)
+        const modified = (event.metaKey || event.altKey || event.ctrlKey)
+        if (input && !modified)
+        // const modified = (event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
+        // if (input || !modified)
         {
-          const exceptions = 
-          [
-            123   // F12
-            , 46  // Delete
-          ];
+          // const normalModeExceptions = 
+          // [
+          //   // 'F12'
+          //   'Delete'
+          //   ,'alt-d'
+          // ]
 
           // console.log("illegal key");
           // console.log(event.keyCode);
+          // console.log("modified? " + modified);
 
-          if(!exceptions.includes(event.keyCode))
-          {
-            event.preventDefault();
+          // if(!normalModeExceptions.includes(keyFrom(event)))
+          // {
+          event.preventDefault();
 
             // !!! bind the key if you need to stopPropagation() as well. 
             // event.stopPropagation();
-          }
+          // }
 
         }
       }
@@ -186,7 +190,7 @@ const modeClosure = (mainContainer, getState, setState) => {
 
     function updateKeyBuffer_Keydown(event)
     {
-      if(modiferKeyCodesToIgnore.includes(event.keyCode))
+      if(modifierKeyCodesToIgnore.includes(event.keyCode))
         return true;
 
       const key = event.key;
@@ -911,6 +915,30 @@ const modeClosure = (mainContainer, getState, setState) => {
         focusPreJumpToItemMenu = WF.focusedItem();
         goToInsertMode();
       },
+      'alt-Enter': e => 
+      {
+        var focusedItem = WF.focusedItem();
+        if(!focusedItem)
+          return;
+
+        focusedItem = WF.getItemById(focusedItem.getId());
+
+        const element = focusedItem.getElement();
+        const firstContentLink = element.getElementsByClassName('contentLink')[0]; 
+        if(firstContentLink)
+        {
+          const contentHref = firstContentLink.getAttribute("href");
+          const strippedHref = contentHref.replace(/(^\w+:|^)\/\//, '');
+          const focusedItemName = focusedItem.getName();
+          const focusedItemNote = focusedItem.getNote();
+          if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
+          {
+            var win = window.open(contentHref, '_blank');
+            win.focus();
+          }
+        }
+
+      },
       Enter: e => 
       {
         // console.log("NormalMode: pressing enter");
@@ -1270,7 +1298,7 @@ const modeClosure = (mainContainer, getState, setState) => {
   const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
   const key_Slash = "/"//55;
   const key_Esc = "Escape"//27;
-  const modiferKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
+  const modifierKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
   // let forceFocusItem = null;
   // let forceFocusItemID = null; 
   let focusPreJumpToItemMenu = null;
@@ -1317,7 +1345,7 @@ const modeClosure = (mainContainer, getState, setState) => {
     // bKeyDownHasFired = false;
 
     // clear the hacky timer, used in ctrl-h/l, whenever we pressing something
-    // if(forceFocusItem != null && !modiferKeyCodesToIgnore.includes(event.keyCode))
+    // if(forceFocusItem != null && !modifierKeyCodesToIgnore.includes(event.keyCode))
     // {
     //   console.log("clearing forceFocus");
     //   clearInterval(forceFocusItemID);
