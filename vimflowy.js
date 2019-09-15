@@ -1003,7 +1003,7 @@ const modeClosure = (mainContainer, getState, setState) => {
 
           const currentOffset = state.get().anchorOffset
           // setCursorAt(currentOffset);
-          // WF.editItemName(selection[0]);
+          WF.editItemName(newParentItem);
 
           WF.editGroup(() => 
           {
