@@ -205,25 +205,26 @@ const modeClosure = (mainContainer, getState, setState) => {
             keyBuffer.pop();
           }
         }
-        else
+        else if(!keyBuffer.includes('Enter'))
+        // else
         {
           keyBuffer = [...keyBuffer, key];
+
+          const filteredKeys = keyBuffer.filter(function(value, index, arr)
+          {
+            return validSearchKeys.includes(value);
+          });
+
+          var slashIndex = filteredKeys.indexOf("/");
+          if (slashIndex > -1) {
+              filteredKeys.splice(slashIndex, 1);
+          }
+
+          const keyBufferStr = filteredKeys.join(""); 
+
+          WF.hideMessage();
+          WF.showMessage(keyBufferStr.bold(), false);
         }
-
-        const filteredKeys = keyBuffer.filter(function(value, index, arr)
-        {
-          return validSearchKeys.includes(value);
-        });
-
-        var slashIndex = filteredKeys.indexOf("/");
-        if (slashIndex > -1) {
-            filteredKeys.splice(slashIndex, 1);
-        }
-
-        const keyBufferStr = filteredKeys.join(""); 
-
-        WF.hideMessage();
-        WF.showMessage(keyBufferStr.bold(), false);
       }
       else if(key == key_Slash)
       {
@@ -266,13 +267,23 @@ const modeClosure = (mainContainer, getState, setState) => {
           WF.clearSearch();
           WF.editItemName(WF.currentItem());
         }
-        else if(searchQuery !== null && key == 'Enter')
+        else if(key == 'Enter' || keyBuffer.includes('Enter'))
+        // else if(searchQuery !== null && key == 'Enter' || keyBuffer.includes('Enter') )
         // else if(key == 'Enter')
         {
           // console.log(searchQuery);
-          WF.editItemName(WF.currentItem());
           WF.hideMessage();
-          keyBuffer = [];
+
+          if(searchQuery !== null)
+          {
+            WF.editItemName(WF.currentItem());
+            keyBuffer = [];
+          }
+          else
+          {
+            keyBuffer = [...keyBuffer, key];
+          }
+
         }
         else
         {
