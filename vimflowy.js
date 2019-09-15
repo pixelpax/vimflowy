@@ -1015,28 +1015,77 @@ const modeClosure = (mainContainer, getState, setState) => {
       'g': e => 
       {
         const focusedItem = WF.focusedItem();
-        if(focusedItem)
+        if(!focusedItem)
+          return;
+
+        const focusedItemParent = focusedItem.getParent();
+        if(!focusedItemParent)
+          return;
+
+        const currentOffset = state.get().anchorOffset
+
+        const bIsParentHomeRoot = WF.rootItem().equals(focusedItem.getParent()); 
+        if(bIsParentHomeRoot)
         {
-          WF.editItemName(focusedItem.getParent());
-          event.preventDefault()
-          event.stopPropagation()
+          const visibleChildren = WF.currentItem().getVisibleChildren();
+          if (visibleChildren !== undefined && visibleChildren.length != 0) 
+          {
+            WF.editItemName(visibleChildren[0]);
+          }
+          else
+          {
+            WF.editItemName(focusedItemParent);
+          }
         }
+        else
+        {
+          WF.editItemName(focusedItemParent);
+        }
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        setCursorAt(currentOffset);
       },
       'G': e => 
       {
-        children = WF.currentItem().getVisibleChildren();
-        if (children !== undefined && children.length != 0) 
+        const visibleChildren = WF.currentItem().getVisibleChildren();
+        if (visibleChildren !== undefined && visibleChildren.length != 0) 
         {
-          WF.editItemName(children[children.length - 1]);
+          const currentOffset = state.get().anchorOffset
+
+          WF.editItemName(visibleChildren[visibleChildren.length - 1]);
           event.preventDefault()
           event.stopPropagation()
+
+          setCursorAt(currentOffset);
         }
       },
       'gg': e => 
       {
+        const currentOffset = state.get().anchorOffset
+        const bIsCurrentItemHomeRoot = WF.rootItem().equals(WF.currentItem()); 
+        if(bIsCurrentItemHomeRoot)
+        {
+          const visibleChildren = WF.currentItem().getVisibleChildren();
+          if (visibleChildren !== undefined && visibleChildren.length != 0) 
+          {
+            WF.editItemName(visibleChildren[0]);
+          }
+          else
+          {
+            WF.editItemName(WF.currentItem());
+          }
+        }
+        else
+        {
           WF.editItemName(WF.currentItem());
-          event.preventDefault()
-          event.stopPropagation()
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        setCursorAt(currentOffset);
       },
       'dw': e => 
       {
