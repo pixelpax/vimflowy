@@ -272,16 +272,21 @@ const modeClosure = (mainContainer, getState, setState) => {
         // else if(key == 'Enter')
         {
           // console.log(searchQuery);
-          WF.hideMessage();
 
           if(searchQuery !== null)
           {
             WF.editItemName(WF.currentItem());
             keyBuffer = [];
+            WF.hideMessage();
           }
           else
           {
             keyBuffer = [...keyBuffer, key];
+            if(key == 'Enter')
+            {
+              WF.hideMessage();
+              WF.showMessage("Waiting for search Query to complete...".bold(), true);
+            }
           }
 
         }
