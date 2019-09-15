@@ -928,9 +928,13 @@ const modeClosure = (mainContainer, getState, setState) => {
         if(firstContentLink)
         {
           const contentHref = firstContentLink.getAttribute("href");
+          // console.log("href: " + contentHref);
           const strippedHref = contentHref.replace(/(^\w+:|^)\/\//, '');
-          const focusedItemName = focusedItem.getName();
-          const focusedItemNote = focusedItem.getNote();
+          // console.log("Stripped href: " + strippedHref);
+          const focusedItemName = focusedItem.getNameInPlainText();
+          // console.log("Name; " + focusedItemName);
+          const focusedItemNote = focusedItem.getNoteInPlainText();
+          // console.log("Note; " + focusedItemNote);
           if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
           {
             var win = window.open(contentHref, '_blank');
