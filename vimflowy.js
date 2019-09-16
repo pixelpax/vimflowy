@@ -650,7 +650,19 @@ const modeClosure = (mainContainer, getState, setState) => {
 
         WF.editGroup(() => 
         {
+          const yankParent = yankBuffer[0].getParent();
+          const yankPrio = yankBuffer[0].getPriority();
+
+          // we can only duplicate items that are "visible" 
+          // (they share the same WF.currentItem())
+          WF.moveItems([yankBuffer[0]], parentItem, 0);
+
           const createdItem = WF.duplicateItem(yankBuffer[0]);
+
+          // move the item back once we've duplicated it
+          const bCopyFromSameList = yankParent.equals(createdItem.getParent());
+
+          WF.moveItems([yankBuffer[0]], yankParent, bCopyFromSameList ? yankPrio+2 : yankPrio);
 
           if(createdItem == null || createdItem == undefined)
             return;
@@ -663,6 +675,8 @@ const modeClosure = (mainContainer, getState, setState) => {
             WF.moveItems([createdItem], focusedItem, 0);
           else
             WF.moveItems([createdItem], parentItem, focusedItem.getPriority());
+
+          // WF.zoomTo(parentItem);
 
           WF.editItemName(createdItem);
         });
@@ -684,7 +698,18 @@ const modeClosure = (mainContainer, getState, setState) => {
 
         WF.editGroup(() => 
         {
+          const yankParent = yankBuffer[0].getParent();
+          const yankPrio = yankBuffer[0].getPriority();
+
+          // we can only duplicate items that are "visible" 
+          // (they share the same WF.currentItem())
+          WF.moveItems([yankBuffer[0]], parentItem, 0);
+
           const createdItem = WF.duplicateItem(yankBuffer[0]);
+
+          // move the item back once we've duplicated it
+          const bCopyFromSameList = yankParent.equals(createdItem.getParent());
+          WF.moveItems([yankBuffer[0]], yankParent, bCopyFromSameList ? yankPrio+2 : yankPrio);
 
           if(createdItem  == null || createdItem === undefined)
             return;
@@ -1315,6 +1340,10 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       'jk': e => 
       {
+        // guard against accidently pressing jk while in the menu 
+        if(!WF.focusedItem())
+          return;
+
         goToNormalMode();
 
         // remove j from under the cursor

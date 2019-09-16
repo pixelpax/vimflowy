@@ -34,8 +34,8 @@ Disclaimer: for now, normal mode blocks unsupported keystrokes without alt/ctrl/
     - `dr`: cut from cursor location to the very end of line 
     - `u`: Undo
     - `y`: yank (copy) focused item (and children)
-    - `p`: paste yanked item below focused item (yanked item must be visible)
-    - `P`: paste yanked item above focused item (yanked item must be visible)
+    - `p`: paste yanked item below focused item 
+    - `P`: paste yanked item above focused item
     - `<Ctrl>r`: Redo
     - `<Ctrl>l`: Zoom in on focused node 1 step and retain focus on that node 
     - `<Ctrl>h`: Zoom out of focused node 1 step and retain focus on that node 
