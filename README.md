@@ -66,6 +66,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `Space`: toggle expande/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `<Ctrl>r`: Redo
+    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
 
 Mode indicator
 --------------

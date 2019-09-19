@@ -1888,6 +1888,18 @@ const modeClosure = (mainContainer, getState, setState) => {
     },
     [Mode.VISUAL]: 
     {
+      'ctrl-k': e => 
+      {
+        ExitVisualMode();
+        focusPreJumpToItemMenu = WF.focusedItem();
+        goToInsertMode();
+      },
+      'ctrl-Dead': e => 
+      {
+        ExitVisualMode();
+        focusPreJumpToItemMenu = WF.focusedItem();
+        goToInsertMode();
+      },
       Escape: e => 
       {
         if(WF.focusedItem())
