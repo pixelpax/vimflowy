@@ -19,21 +19,17 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `e`: move to end of word 
     - `w`: move forward one word 
     - `b`: move backwards 1 word 
-    - `0`: Move cursor to the first character of the line
-    - `^`: Move cursor to the first character of the line
-    - `B`: Move cursor to the first character of the line
-    - `E`: Move cursor to the last character on the line
-    - `$`: Move cursor to the last character on the line
+    - `0`,`B`,`^`: Move cursor to the first character of the line
+    - `E`,`$`: Move cursor to the last character on the line
     - `gg`: Go to top most root item on page 
     - `g`: Go to root item of the currently focused list
     - `G`: Go to the bottom most root item on the current page
     - `I`: Insert at the beginning of the line
     - `A`: Insert after the end of the line
     - `x`: remove character under cursor 
-    - `d$`: cut from cursor location to the very end of line 
-    - `dr`: cut from cursor location to the very end of line 
+    - `d$`, `dr`: cut from cursor location to the very end of line 
     - `u`: Undo
-    - `y`: yank (copy) focused item (and children)
+    - `y`,`Y`: yank (copy) focused item (and children)
     - `p`: paste yanked item below focused item 
     - `P`: paste yanked item above focused item
     - `<Ctrl>r`: Redo
@@ -42,7 +38,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `V`:  Add current item to Selection
     - `K`:  add below item to Selection 
     - `J`:  add above item to Selection
-    - `dd`: remove the current bullet(s)
+    - `dd`: delete the current bullet(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
     - `<Alt>J`: Move the current line down
@@ -55,13 +51,21 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `Enter`: Zoom in on focused node - and place current item in memory 
     - `Backspace`: zoom in on item which was place in memory when using 'Enter'
     - `§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
-    - `<Ctrl>k`: Use Workflowys JumpToItemMenu 
-    - `<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `V`,`v`: Enter visual mode 
 * insert mode
-    - `<Esc>`: Enter Normal mode
-    - `<jk>`: Enter Normal mode
-    - `<Ctrl>k`: Use Workflowys JumpToItemMenu 
-    - `<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `<Esc>`,`<jk>` : Enter Normal mode
+    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
+* visual mode
+    - `V`,`v`,`<Esc>`: Enter normal mode 
+    - `y`, `Y`: yank (copy) selected and enter normal mode 
+    - `d`: delete selected items and enter normal mode 
+    - `<Alt>J`: Move the current selection down 
+    - `<Alt>K`: Move the current selection up 
+    - `u`: Undo
+    - `Space`: toggle expande/collapse on focusedItem 
+    - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
+    - `<Ctrl>r`: Redo
 
 Mode indicator
 --------------
