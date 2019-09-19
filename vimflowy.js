@@ -138,27 +138,25 @@ const modeClosure = (mainContainer, getState, setState) => {
         //   return;
         // }
 
-        const focusedItem = WF.focusedItem();
+        var focusedItem = WF.focusedItem();
         const currentItem = WF.currentItem();
-        var currentSelection = WF.getSelection();
 
-        if(!containsItem(currentSelection, focusedItem) && !focusedItem.equals(currentItem))
+        const bFocusIsCurrent = focusedItem.equals(currentItem);
+        if(bFocusIsCurrent)
+        {
+          const visibleKids = focusedItem.getVisibleChildren(); 
+          if(visibleKids.length == 0)
+            return;
+
+          WF.editItemName(visibleKids[0]);
+          focusedItem = WF.focusedItem();
+        }
+
+        var currentSelection = WF.getSelection();
+        if(!containsItem(currentSelection, focusedItem))
           currentSelection.push(focusedItem);
 
-        if(focusedItem.getParent().equals(currentItem))
-        {
-          InitialSelectionItem = focusedItem;
-        }
-        else
-        {
-          // const anscestor = getChildOfCurrentItem(focusedItem);
-          // if(anscestor)
-          // {
-          //   InitialSelectionItem = anscestor;
-          // }
-          InitialSelectionItem = focusedItem;
-        }
-
+        InitialSelectionItem = focusedItem;
         VisualSelectionBuffer = currentSelection;
         WF.setSelection(currentSelection);
 
