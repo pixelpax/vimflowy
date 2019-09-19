@@ -53,10 +53,14 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
     - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
     - `V`,`v`: Enter visual mode 
+    - `Tab`,`>`: indent item(s)
+    - `<shift>Tab`,`<`: outdent item(s)
 * insert mode
     - `<Esc>`,`<jk>` : Enter Normal mode
     - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
 * visual mode
+    - `Tab`,`>`: indent item(s)
+    - `<shift>Tab`,`<`: outdent item(s)
     - `V`,`v`,`<Esc>`: Enter normal mode 
     - `y`, `Y`: yank (copy) selected and enter normal mode 
     - `d`: delete selected items and enter normal mode 

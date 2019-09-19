@@ -268,70 +268,100 @@ const modeClosure = (mainContainer, getState, setState) => {
       goToNormalMode();
     }
 
-    function dentItems(e)
+    function indentSelection(e)
     {
       var selection = WF.getSelection();
       if (selection === undefined || selection.length == 0) 
         selection = SelectionPreMove;
 
-      if (selection !== undefined && selection.length != 0)
+      if (selection === undefined || selection.length == 0)
+        return;
+
+      var prio = 0;
+      var newParentItem = null;
+      newParentItem = selection[0].getPreviousVisibleSibling();
+      if(newParentItem)
       {
-
-        var prio = 0;
-        var newParentItem = null;
-
-        if(e.shiftKey)
-        {
-          const currentItem = WF.currentItem();
-          const selectionsParent = selection[0].getParent();
-          if(selectionsParent && !currentItem.equals(selectionsParent))
-          {
-            const grandParent = selectionsParent.getParent();
-            if(grandParent)
-            {
-              newParentItem = grandParent;
-              prio = selectionsParent.getPriority() + 1; 
-            }
-          }
-        }
-        else
-        {
-          newParentItem = selection[0].getPreviousVisibleSibling();
-          if(newParentItem)
-          {
-            const kids = newParentItem.getChildren(); 
-            if(kids.length != 0)
-              prio = kids[kids.length-1].getPriority()+1;
-          }
-        }
-
-        if(newParentItem == null || newParentItem === undefined)
-          return;
-
-        SelectionPreMove = selection;
-
-        const currentOffset = state.get().anchorOffset
-        // setCursorAt(currentOffset);
-        WF.editItemName(newParentItem);
-
-        WF.editGroup(() => 
-        {
-          WF.moveItems(selection, newParentItem, prio);
-          VisualSelectionBuffer = selection;
-          WF.setSelection(selection);
-          if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
-            WF.expandItem(newParentItem);
-        });
-
-        WF.editItemName(selection[0]);
-        setCursorAt(currentOffset);
-
-        if(!WF.focusedItem())
-          requestAnimationFrame(fixFocus);
-
-        e.preventDefault()
-        e.stopPropagation()
+        const kids = newParentItem.getChildren(); 
+        if(kids.length != 0)
+          prio = kids[kids.length-1].getPriority()+1;
       }
+
+      if(newParentItem == null || newParentItem === undefined)
+        return;
+
+      SelectionPreMove = selection;
+
+      const currentOffset = state.get().anchorOffset
+      WF.editItemName(newParentItem);
+
+      WF.editGroup(() => 
+      {
+        WF.moveItems(selection, newParentItem, prio);
+        VisualSelectionBuffer = selection;
+        WF.setSelection(selection);
+        if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
+          WF.expandItem(newParentItem);
+      });
+
+      WF.editItemName(selection[0]);
+      setCursorAt(currentOffset);
+
+      if(!WF.focusedItem())
+        requestAnimationFrame(fixFocus);
+
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function outdentSelection(e)
+    {
+      var selection = WF.getSelection();
+      if (selection === undefined || selection.length == 0) 
+        selection = SelectionPreMove;
+
+      if (selection === undefined || selection.length == 0)
+        return;
+
+      var prio = 0;
+      var newParentItem = null;
+      const currentItem = WF.currentItem();
+      const selectionsParent = selection[0].getParent();
+      if(selectionsParent && !currentItem.equals(selectionsParent))
+      {
+        const grandParent = selectionsParent.getParent();
+        if(grandParent)
+        {
+          newParentItem = grandParent;
+          prio = selectionsParent.getPriority() + 1; 
+        }
+      }
+
+      if(newParentItem == null || newParentItem === undefined)
+        return;
+
+      SelectionPreMove = selection;
+
+      const currentOffset = state.get().anchorOffset
+      WF.editItemName(newParentItem);
+
+      WF.editGroup(() => 
+      {
+        WF.moveItems(selection, newParentItem, prio);
+        VisualSelectionBuffer = selection;
+        WF.setSelection(selection);
+        if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
+          WF.expandItem(newParentItem);
+      });
+
+      WF.editItemName(selection[0]);
+      setCursorAt(currentOffset);
+
+      if(!WF.focusedItem())
+        requestAnimationFrame(fixFocus);
+
+      e.preventDefault();
+      e.stopPropagation();
     }
 
     function deleteSelectedItems(e)
@@ -1655,10 +1685,6 @@ const modeClosure = (mainContainer, getState, setState) => {
         }
 
       },
-      Tab: e => 
-      {
-        dentItems(e);
-      },
       Enter: e => 
       {
         // console.log("NormalMode: pressing enter");
@@ -1884,10 +1910,55 @@ const modeClosure = (mainContainer, getState, setState) => {
           event.preventDefault()
           event.stopPropagation()
         }
+      },
+      '<': e => 
+      {
+        enterVisualMode();
+        outdentSelection(e);
+        ExitVisualMode();
+        event.preventDefault()
+        event.stopPropagation()
+      },
+      '>': e => 
+      {
+        enterVisualMode();
+        indentSelection(e);
+        ExitVisualMode();
+        event.preventDefault()
+        event.stopPropagation()
+      },
+      Tab: e => 
+      {
+        if(e.shiftKey)
+          outdentSelection(e);
+        else
+          indentSelection(e);
       }
     },
     [Mode.VISUAL]: 
     {
+      '<': e => 
+      {
+        outdentSelection(e);
+        event.preventDefault()
+        event.stopPropagation()
+        ExitVisualMode();
+      },
+      '>': e => 
+      {
+        indentSelection(e);
+        event.preventDefault()
+        event.stopPropagation()
+        ExitVisualMode();
+      },
+      Tab: e => 
+      {
+        if(e.shiftKey)
+          outdentSelection(e);
+        else
+          indentSelection(e);
+        ExitVisualMode();
+      },
       'ctrl-k': e => 
       {
         ExitVisualMode();
@@ -1920,10 +1991,6 @@ const modeClosure = (mainContainer, getState, setState) => {
         WF.hideMessage();
         WF.hideDialog();
         goToNormalMode();
-      },
-      Tab: e => 
-      {
-        dentItems(e);
       }
     },
     [Mode.INSERT]: 
