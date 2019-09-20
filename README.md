@@ -29,15 +29,12 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `x`: remove character under cursor 
     - `d$`, `dr`: cut from cursor location to the very end of line 
     - `u`: Undo
-    - `y`,`Y`: yank (copy) focused item (and children)
-    - `p`: paste yanked item below focused item 
-    - `P`: paste yanked item above focused item
+    - `y`,`Y`: yank (copy) focused items (and children)
+    - `p`: paste yanked items below focused item 
+    - `P`: paste yanked items above focused item
     - `<Ctrl>r`: Redo
     - `<Ctrl>l`: Zoom in on focused node 1 step and retain focus on that node 
     - `<Ctrl>h`: Zoom out of focused node 1 step and retain focus on that node 
-    - `V`:  Add current item to Selection
-    - `K`:  add below item to Selection 
-    - `J`:  add above item to Selection
     - `dd`: delete the current bullet(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
@@ -62,7 +59,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `Tab`,`>`: indent item(s)
     - `<shift>Tab`,`<`: outdent item(s)
     - `V`,`v`,`<Esc>`: Enter normal mode 
-    - `y`, `Y`: yank (copy) selected and enter normal mode 
+    - `y`, `Y`: yank (copy) selected items and enter normal mode 
     - `d`: delete selected items and enter normal mode 
     - `<Alt>J`: Move the current selection down 
     - `<Alt>K`: Move the current selection up 

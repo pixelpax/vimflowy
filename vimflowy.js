@@ -90,34 +90,48 @@ const modeClosure = (mainContainer, getState, setState) => {
 
       WF.editGroup(() => 
       {
+        // all items will have same parent
         const yankParent = yankBuffer[0].getParent();
         const yankPrio = yankBuffer[0].getPriority();
 
-        // we can only duplicate items that are "visible" 
-        // (they share the same WF.currentItem())
-        WF.moveItems([yankBuffer[0]], parentItem, 0);
+        // we can only duplicate items that are "visible",
+        // (they have to share the same WF.currentItem()?)
+        // so we'll move them here
+        WF.moveItems(yankBuffer, parentItem, 0);
 
-        const createdItem = WF.duplicateItem(yankBuffer[0]);
+        var createdItems = [];
+        for (var i = 0, len = yankBuffer.length; i < len; i++) 
+        {
+          const createdItem = WF.duplicateItem(yankBuffer[i]);
+          createdItems.push(createdItem);
+        }
 
-        // move the item back once we've duplicated it
-        const bCopyFromSameList = yankParent.equals(createdItem.getParent());
-        WF.moveItems([yankBuffer[0]], yankParent, bCopyFromSameList ? yankPrio+2 : yankPrio);
+        // move the items back once we've duplicated them
+        const bCopyFromSameList = yankParent.equals(createdItems[0].getParent());
+        const originPriority = bCopyFromSameList ? (yankPrio + (yankBuffer.length*2)) : yankPrio;
+        WF.moveItems(yankBuffer, yankParent, originPriority);
 
-        if(createdItem == null || createdItem == undefined)
+        if(createdItems[0] == null || createdItems[0] == undefined)
           return;
 
-        const createdItemName = createdItem.getName();
-        var nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
-        WF.setItemName(createdItem, nameWithoutCopyTag);
+        // remove the copy tag...
+        for (var i = 0, len = createdItems.length; i < len; i++) 
+        {
+          const createdItemName = createdItems[i].getName();
+          const nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
+          WF.setItemName(createdItems[i], nameWithoutCopyTag);
+        }
 
         if(focusedItem.equals(WF.currentItem()))
-          WF.moveItems([createdItem], focusedItem, 0);
+          WF.moveItems(createdItems, focusedItem, 0);
         else if(bAboveFocusedItem)
-          WF.moveItems([createdItem], parentItem, focusedItem.getPriority());
+          WF.moveItems(createdItems, parentItem, focusedItem.getPriority());
         else
-          WF.moveItems([createdItem], parentItem, focusedItem.getPriority()+1);
+          WF.moveItems(createdItems, parentItem, focusedItem.getPriority()+1);
 
-        WF.editItemName(createdItem);
+        // focus on top most pasted item
+        WF.editItemName(createdItems[0]);
+
       });
     }
 
@@ -305,7 +319,10 @@ const modeClosure = (mainContainer, getState, setState) => {
 
     function yankSelectedItems(t)
     {
-      if(WF.focusedItem())
+      const selection = WF.getSelection();
+      if (selection !== undefined && selection.length != 0) 
+        yankBuffer = selection;
+      else if(WF.focusedItem())
         yankBuffer = [WF.focusedItem()];
     }
 
