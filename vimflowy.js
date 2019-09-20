@@ -319,11 +319,22 @@ const modeClosure = (mainContainer, getState, setState) => {
 
     function yankSelectedItems(t)
     {
+      const focusedItem = WF.focusedItem();
+
+      if(!focusedItem)
+        return;
+
+      const currentItem = WF.currentItem();
+
+      if(focusedItem.equals(currentItem))
+        return;
+
       const selection = WF.getSelection();
       if (selection !== undefined && selection.length != 0) 
         yankBuffer = selection;
-      else if(WF.focusedItem())
+      else 
         yankBuffer = [WF.focusedItem()];
+      
     }
 
     function ExitVisualMode(t)
