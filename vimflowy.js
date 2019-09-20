@@ -70,6 +70,57 @@ const modeClosure = (mainContainer, getState, setState) => {
   $(() => 
   {
 
+    function pasteYankedItems(bAboveFocusedItem)
+    {
+      if (yankBuffer === undefined || yankBuffer.length == 0) 
+        return;
+
+      if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+        return;
+
+      const focusedItem = WF.focusedItem();
+      var parentItem = focusedItem.getParent();
+
+      if(parentItem == null)
+        return;
+
+      const currentItem = WF.currentItem();
+      if(focusedItem.equals(currentItem))
+        parentItem = currentItem;
+
+      WF.editGroup(() => 
+      {
+        const yankParent = yankBuffer[0].getParent();
+        const yankPrio = yankBuffer[0].getPriority();
+
+        // we can only duplicate items that are "visible" 
+        // (they share the same WF.currentItem())
+        WF.moveItems([yankBuffer[0]], parentItem, 0);
+
+        const createdItem = WF.duplicateItem(yankBuffer[0]);
+
+        // move the item back once we've duplicated it
+        const bCopyFromSameList = yankParent.equals(createdItem.getParent());
+        WF.moveItems([yankBuffer[0]], yankParent, bCopyFromSameList ? yankPrio+2 : yankPrio);
+
+        if(createdItem == null || createdItem == undefined)
+          return;
+
+        const createdItemName = createdItem.getName();
+        var nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
+        WF.setItemName(createdItem, nameWithoutCopyTag);
+
+        if(focusedItem.equals(WF.currentItem()))
+          WF.moveItems([createdItem], focusedItem, 0);
+        else if(bAboveFocusedItem)
+          WF.moveItems([createdItem], parentItem, focusedItem.getPriority());
+        else
+          WF.moveItems([createdItem], parentItem, focusedItem.getPriority()+1);
+
+        WF.editItemName(createdItem);
+      });
+    }
+
     function getChildOfCurrentItem(itemToQuery)
     {
       const currentItem = WF.currentItem();
@@ -1390,95 +1441,11 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       P: t => 
       {
-        if (yankBuffer === undefined || yankBuffer.length == 0) 
-          return;
-
-        if(yankBuffer[0] == null || yankBuffer[0] === undefined)
-          return;
-
-        const focusedItem = WF.focusedItem();
-        const parentItem = focusedItem.getParent();
-
-        if(parentItem == null)
-          return;
-
-        WF.editGroup(() => 
-        {
-          const yankParent = yankBuffer[0].getParent();
-          const yankPrio = yankBuffer[0].getPriority();
-
-          // we can only duplicate items that are "visible" 
-          // (they share the same WF.currentItem())
-          WF.moveItems([yankBuffer[0]], parentItem, 0);
-
-          const createdItem = WF.duplicateItem(yankBuffer[0]);
-
-          // move the item back once we've duplicated it
-          const bCopyFromSameList = yankParent.equals(createdItem.getParent());
-
-          WF.moveItems([yankBuffer[0]], yankParent, bCopyFromSameList ? yankPrio+2 : yankPrio);
-
-          if(createdItem == null || createdItem == undefined)
-            return;
-
-          const createdItemName = createdItem.getName();
-          var nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
-          WF.setItemName(createdItem, nameWithoutCopyTag);
-
-          if(focusedItem.equals(WF.currentItem()))
-            WF.moveItems([createdItem], focusedItem, 0);
-          else
-            WF.moveItems([createdItem], parentItem, focusedItem.getPriority());
-
-          // WF.zoomTo(parentItem);
-
-          WF.editItemName(createdItem);
-        });
-
+        pasteYankedItems(true);
       },
       p: t => 
       {
-        if (yankBuffer === undefined || yankBuffer.length == 0) 
-          return;
-
-        if(yankBuffer[0] == null || yankBuffer[0] === undefined)
-          return;
-
-        const focusedItem = WF.focusedItem();
-        const parentItem = focusedItem.getParent();
-
-        if(parentItem == null)
-          return;
-
-        WF.editGroup(() => 
-        {
-          const yankParent = yankBuffer[0].getParent();
-          const yankPrio = yankBuffer[0].getPriority();
-
-          // we can only duplicate items that are "visible" 
-          // (they share the same WF.currentItem())
-          WF.moveItems([yankBuffer[0]], parentItem, 0);
-
-          const createdItem = WF.duplicateItem(yankBuffer[0]);
-
-          // move the item back once we've duplicated it
-          const bCopyFromSameList = yankParent.equals(createdItem.getParent());
-          WF.moveItems([yankBuffer[0]], yankParent, bCopyFromSameList ? yankPrio+2 : yankPrio);
-
-          if(createdItem  == null || createdItem === undefined)
-            return;
-
-          const createdItemName = createdItem.getName();
-          var nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
-          WF.setItemName(createdItem, nameWithoutCopyTag);
-
-          if(focusedItem.equals(WF.currentItem()))
-            WF.moveItems([createdItem], focusedItem, 0);
-          else
-            WF.moveItems([createdItem], parentItem, focusedItem.getPriority()+1);
-
-          WF.editItemName(createdItem);
-        });
+        pasteYankedItems(false);
       },
       Y: t => 
       {
