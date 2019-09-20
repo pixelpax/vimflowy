@@ -1087,10 +1087,43 @@ const modeClosure = (mainContainer, getState, setState) => {
           else
           {
             keyBuffer = [...keyBuffer, key];
-            if(key == 'Enter')
+
+            // only show this message if you start hammering
+            // button while the search is doing its thing
+            if(key != 'Enter')
             {
               WF.hideMessage();
               WF.showMessage("Waiting for search Query to complete...".bold(), true);
+            }
+            else
+            {
+              const filteredKeys = keyBuffer.filter(function(value, index, arr)
+              {
+                return validSearchKeys.includes(value);
+              });
+
+              var slashIndex = filteredKeys.indexOf("/");
+              if (slashIndex > -1) {
+                  filteredKeys.splice(slashIndex, 1);
+              }
+
+              const keyBufferStr = filteredKeys.join(""); 
+
+              // cancel search upon searching for nothing and pressing enter
+              if(!keyBufferStr)
+              {
+                WF.search("");
+                WF.clearSearch();
+                keyBuffer = [];
+                WF.hideMessage();
+                WF.editItemName(WF.currentItem());
+              }
+              else
+              {
+                // hide the message to tell the user that 
+                // the search has begun
+                WF.hideMessage();
+              }
             }
           }
 
@@ -1102,8 +1135,6 @@ const modeClosure = (mainContainer, getState, setState) => {
             return validSearchKeys.includes(value);
           });
 
-          // console.log(filteredKeys);
-
           var slashIndex = filteredKeys.indexOf("/");
           if (slashIndex > -1) {
               filteredKeys.splice(slashIndex, 1);
@@ -1114,6 +1145,7 @@ const modeClosure = (mainContainer, getState, setState) => {
           WF.hideMessage();
           WF.showMessage(keyBufferStr.bold(), false);
           WF.search(keyBufferStr);
+
         }
       }
       else if(searchQuery !== null && key == 'Escape')
@@ -2074,6 +2106,7 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   WFEventListener = event => 
   {
+    // console.log(event);
     // fix for not landing in NormalMode when using the JumpToItemMenu
     if (event === 'locationChanged' 
       && state.get().mode === Mode.INSERT
