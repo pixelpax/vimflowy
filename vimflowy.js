@@ -2040,14 +2040,14 @@ const modeClosure = (mainContainer, getState, setState) => {
       {
         // console.log("insert ctrl k");
         focusPreJumpToItemMenu = WF.focusedItem();
-        goToNormalMode();
+        // goToNormalMode();
         goToInsertMode();
       },
       'ctrl-Dead': e => 
       {
         // console.log("insert ctrl dead");
         focusPreJumpToItemMenu = WF.focusedItem();
-        goToNormalMode();
+        // goToNormalMode();
         goToInsertMode();
       },
       'Enter': e => 
