@@ -9,6 +9,22 @@ const closest = (node, selector) => {
   return element
 }
 
+const offsetCalculator = state => (contentAbstraction, offset) => {
+  const maxOffset = contentAbstraction.length - 1
+  const bound = o => {
+    let inBounds = o
+    inBounds = Math.min(maxOffset, inBounds)
+    inBounds = Math.max(0, inBounds)
+    return inBounds
+  }
+
+    const currentOffset = state.get().anchorOffset
+
+  const effective = bound(offset(currentOffset))
+  state.set(_ => ({anchorOffset: effective}))
+  return effective
+}
+
 const NODE_TYPES = {
   ELEMENT: 1,
   TEXT: 3

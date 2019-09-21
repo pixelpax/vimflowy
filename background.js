@@ -11,10 +11,11 @@
   chrome.tabs.onActivated.addListener(function(activeInfo){
   tabId = activeInfo.tabId
 
-  chrome.tabs.sendMessage(tabId, {text: "are_you_there_content_script?"}, function(msg) {
-    msg = msg || {};
-    if (msg.status != 'yes') {
-      chrome.tabs.executeScript(tabId, {file: "contentscript.js"});
-    }
-  });
+  // chrome.tabs.sendMessage(tabId, {text: "are_you_there_content_script?"}, function(msg) {
+  //   msg = msg || {};
+  //   if (msg.status != 'yes') {
+  //     chrome.tabs.executeScript(tabId, {file: "contentscript.js"});
+  //   }
+  // });
+
 }); 

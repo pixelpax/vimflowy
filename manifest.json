@@ -17,7 +17,6 @@
   "background": {
       "scripts": 
       [
-        // "jquery.js",
         "background.js"
       ],
       "persistent": false 
@@ -46,11 +45,12 @@
   ],
 
   "web_accessible_resources": [ 
-    // "jquery.js",
     "state.js",
-    "search.js",
     "TimeTagCounter.js",
     "cursorMovement.js",
-    "vimflowy.js" 
+    "vimflowyFunctionLibrary.js",
+    "keybindings.js",
+    "transparentKeybindings.js",
+    "vimflowy.js"
   ]
 }

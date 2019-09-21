@@ -1,5 +1,6 @@
 
 var timeTagCounterTimeoutReference;
+let previousTimeTagCounterMsg;
 
 function clearTimeTagCounter(){
     clearTimeout(timeTagCounterTimeoutReference);
@@ -156,8 +157,6 @@ function updateTimeTagCounter()
     // toastMsg(msg, 3, false);
     // return void toastMsg("No Time Tags found.", 2, true);
 };
-
-let previousTimeTagCounterMsg;
 
 
 
