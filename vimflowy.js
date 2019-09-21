@@ -1981,11 +1981,37 @@ const modeClosure = (mainContainer, getState, setState) => {
         {
           const currentOffset = state.get().anchorOffset
 
-          WF.editItemName(visibleChildren[visibleChildren.length - 1]);
+          if(WF.focusedItem().equals(WF.currentItem()))
+            WF.editItemName(visibleChildren[0]);
+
+          const finalKid = visibleChildren[visibleChildren.length - 1];
+          WF.editItemName(finalKid);
+
+          setCursorAt(currentOffset);
+
           event.preventDefault()
           event.stopPropagation()
 
-          setCursorAt(currentOffset);
+          if(WF.focusedItem().equals(finalKid))
+            return;
+
+          var focusedItem = WF.focusedItem();
+          if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
+            WF.collapseItem(focusedItem);
+
+          var i = visibleChildren.length; 
+          while(i--)
+          {
+
+            if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
+              WF.collapseItem(focusedItem);
+
+            const index = visibleChildren.length - i - 1;
+            WF.editItemName(visibleChildren[index]);
+            focusedItem = WF.focusedItem();
+            setCursorAt(currentOffset);
+          }
+
         }
       },
       'gg': e => 
