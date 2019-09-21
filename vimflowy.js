@@ -70,6 +70,155 @@ const modeClosure = (mainContainer, getState, setState) => {
   $(() => 
   {
 
+    function deleteUntilLineEnd(e)
+    {
+      const focusedItem = WF.focusedItem();
+      if(!focusedItem)
+        return;
+
+      const itemName = focusedItem.getName();
+      const itemNameText = focusedItem.getNameInPlainText();
+      var currentOffset = state.get().anchorOffset
+
+      // Oh no, it has html tags, recalculate cursor offset
+      if(itemNameText.length != itemName.length)
+      {
+        var addedOffset = 0;
+        for (var i = 0; i < itemName.length; i++) 
+        {
+          const char_1 = itemNameText.charAt(i-addedOffset);
+          const char_2 = itemName.charAt(i);
+          if(char_1 != char_2)
+            ++addedOffset;
+
+          if(i-addedOffset == currentOffset)
+            break;
+        }
+
+        currentOffset += addedOffset;
+        // console.log("added offset: " + addedOffset);
+
+        if(itemName.charAt(currentOffset) == "<")
+        {
+          --currentOffset;
+          --addedOffset;
+        }
+      }
+
+      const substring_Start = itemName.substring(0, currentOffset);
+      const substring_End = itemName.substring(currentOffset);
+      var finalString = substring_Start;
+
+      // console.clear();
+      // console.log("substring_Start: " + substring_Start);
+      // console.log("substring_End: " + substring_End);
+
+      var htmlTags = substring_End.match(/(<\/b>)|(<\/u>)|(<\/i>)|(<i>)|(<u>)|(<b>)/g);
+      if(htmlTags != null)
+      {
+        var htmlEndTags = htmlTags.join("");
+
+        // console.log("htmlTags pre replace: " + htmlEndTags);
+        htmlEndTags = htmlEndTags.replace(/(<u><\/u>)/g, "");
+        // console.log("htmlEndTags post replace u: " + htmlEndTags);
+        htmlEndTags = htmlEndTags.replace(/(<i><\/i>)/g, "");
+        // console.log("htmlEndTags post replace i: " + htmlEndTags);
+        htmlEndTags = htmlEndTags.replace(/(<b><\/b>)/g, "");
+        // console.log("htmlEndTags post replace b: " + htmlEndTags);
+
+        finalString = substring_Start.concat(htmlEndTags);
+        // console.log("finalString pre replace: " + finalString);
+
+        finalString = finalString.replace(/(<u><\/u>)/g, "");
+        // console.log("finalString post replace u: " + finalString);
+        finalString = finalString.replace(/(<i><\/i>)/g, "");
+        // console.log("finalString post replace i: " + finalString);
+        finalString = finalString.replace(/(<b><\/b>)/g, "");
+        // console.log("finalString post replace b: " + finalString);
+      }
+
+      // console.log("finalString: " + finalString);
+      WF.setItemName(focusedItem, finalString);
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    function deleteWord(e, bToNextWord)
+    {
+      const focusedItem = WF.focusedItem();
+      if(!focusedItem)
+        return;
+
+      const itemName = focusedItem.getName();
+      const itemNameText = focusedItem.getNameInPlainText();
+      var currentOffset = state.get().anchorOffset
+
+      // Oh no, it has html tags, recalculate cursor offset
+      if(itemNameText.length != itemName.length)
+      {
+        var addedOffset = 0;
+        for (var i = 0; i < itemName.length; i++) 
+        {
+          const char_1 = itemNameText.charAt(i-addedOffset);
+          const char_2 = itemName.charAt(i);
+          if(char_1 != char_2)
+            ++addedOffset;
+
+          if(i-addedOffset == currentOffset)
+            break;
+        }
+
+        currentOffset += addedOffset;
+        // console.log("added offset: " + addedOffset);
+
+        if(itemName.charAt(currentOffset) == "<")
+        {
+          --currentOffset;
+          --addedOffset;
+        }
+      }
+
+      const substring_Start = itemName.substring(0, currentOffset);
+      const substring_End = itemName.substring(currentOffset);
+      const underCursorChar = itemName.charAt(currentOffset); 
+
+      // console.clear();
+      // console.log("itemNameText: " + itemNameText);
+      // console.log("itemName: " + itemName);
+      // console.log("under cursor char: " + underCursorChar);
+      // console.log("substring_Start: " + substring_Start);
+      // console.log("substring_End: " + substring_End);
+
+      const bNormalCharUnderCursor = /[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar);
+      const regexStringToUse = bNormalCharUnderCursor ? /([^a-zåäöA-ZÅÄÖ0-9])/ : /([a-zåäöA-ZÅÄÖ0-9</>])/
+      const subStrSplit_End = substring_End.split(regexStringToUse).filter(Boolean);
+
+      var modifiedStrEnd = substring_End.substring(subStrSplit_End[0].length);
+      if(bToNextWord)
+        modifiedStrEnd = modifiedStrEnd.trim();
+
+      var finalstring = substring_Start.concat(modifiedStrEnd);
+
+      // console.log("bNormalCharUnderCursor" + bNormalCharUnderCursor);
+      // console.log("regex being used: " + regexStringToUse);
+      // console.log("subStrSplit_End: " + subStrSplit_End);
+      // console.log("modifiedStrEnd: " + modifiedStrEnd);
+
+      const bRemovedEntireWord = substring_Start.charAt(substring_Start.length-1) == ">";
+      if(bRemovedEntireWord)
+      {
+        finalstring = finalstring.replace(/(<u><\/u>)/g, "");
+        finalstring = finalstring.replace(/(<i><\/i>)/g, "");
+        finalstring = finalstring.replace(/(<b><\/b>)/g, "");
+      }
+
+      // console.log("finalstring: " + finalstring);
+      WF.setItemName(focusedItem, finalstring);
+
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
     function pasteYankedItems(bAboveFocusedItem)
     {
       if (yankBuffer === undefined || yankBuffer.length == 0) 
@@ -152,8 +301,26 @@ const modeClosure = (mainContainer, getState, setState) => {
       return null;
     }
 
+    function toggleExpand(t)
+    {
+      // expansion/collapse isn't supported by WF when searching
+      if(WF.currentSearchQuery() !== null)
+        return;
+
+      const focusedItem = WF.focusedItem();
+      if(focusedItem.isExpanded())
+        WF.collapseItem(focusedItem);
+      else
+        WF.expandItem(focusedItem);
+    }
+
     function toggleExpandAll(t)
     {
+
+      // expansion/collapse isn't supported by WF when searching
+      if(WF.currentSearchQuery() !== null)
+        return;
+
       const currentItem = WF.currentItem();
       const currentRootItem = currentItem;
       const Children = currentRootItem.getVisibleChildren();
@@ -334,7 +501,7 @@ const modeClosure = (mainContainer, getState, setState) => {
         yankBuffer = selection;
       else 
         yankBuffer = [WF.focusedItem()];
-      
+
     }
 
     function ExitVisualMode(t)
@@ -444,6 +611,9 @@ const modeClosure = (mainContainer, getState, setState) => {
     function deleteSelectedItems(e)
     {
       const focusedItem = WF.focusedItem();
+      if(!focusedItem)
+        return;
+
       const bWasPreviousVisibleSiblingInvalid = focusedItem.getPreviousVisibleSibling() === null;
 
       var CurrentSelection = WF.getSelection();
@@ -926,7 +1096,7 @@ const modeClosure = (mainContainer, getState, setState) => {
        }
 
         // const input = ValidNormalKeys.includes(event.key);
-        const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
+        const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzåäöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
         const modified = (event.metaKey || event.altKey || event.ctrlKey)
         if (input && !modified)
         // const modified = (event.metaKey || event.altKey || event.ctrlKey || event.shiftKey)
@@ -981,12 +1151,12 @@ const modeClosure = (mainContainer, getState, setState) => {
     //     }, 10); 
     // }
 
-    function mouseClickIntoInsertMode()
+    function mouseClickIntoInsertMode(event)
     {
       if(state.get().mode !== Mode.INSERT)
       {
-
         goToInsertMode(true);
+        requestAnimationFrame(fixFocus);
 
         if(!WF.focusedItem())
         {
@@ -994,9 +1164,10 @@ const modeClosure = (mainContainer, getState, setState) => {
           WF.zoomTo(WF.currentItem());
           WF.editItemName(WF.currentItem());
           goToNormalMode();
+          // console.log("going to normal mode due to lack of focus: ");
         }
 
-      // console.log("mouse focus fix");
+        goToInsertMode(true);
         requestAnimationFrame(fixFocus);
 
         // only go into insert mode if we are clicking - NOT selecting
@@ -1006,6 +1177,7 @@ const modeClosure = (mainContainer, getState, setState) => {
         //   goToNormalMode();
         //   goToInsertMode(true);
         // }
+
       }
     }
 
@@ -1525,11 +1697,7 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       ' ': t => 
       {
-        const focusedItem = WF.focusedItem();
-        if(focusedItem.isExpanded())
-          WF.collapseItem(focusedItem);
-        else
-          WF.expandItem(focusedItem);
+        toggleExpand(t);
       },
       'v': t =>
       {
@@ -1588,11 +1756,7 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       ' ': t => 
       {
-        const focusedItem = WF.focusedItem();
-        if(focusedItem.isExpanded())
-          WF.collapseItem(focusedItem);
-        else
-          WF.expandItem(focusedItem);
+        toggleExpand(t);
       },
       'ctrl- ': t => 
       {
@@ -1852,89 +2016,19 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       'dw': e => 
       {
-        focusedItem = WF.focusedItem();
-        if(focusedItem)
-        {
-          const currentOffset = state.get().anchorOffset
-          const itemName = focusedItem.getNameInPlainText();
-          const substring_Start = itemName.substring(0, currentOffset);
-          const substring_End = itemName.substring(currentOffset);
-          const underCursorChar = itemName.charAt(currentOffset); 
-
-          if(/[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar))
-          {
-            const substringArray = substring_End.split(/([^a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
-            const modifiedEndString = substring_End.substring(substringArray[0].length).trim();
-            const finalString = substring_Start.concat(modifiedEndString);
-            WF.setItemName(focusedItem, finalString);
-          }
-          else
-          {
-            const substringArray = substring_End.split(/([a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
-            const modifiedEndString = substring_End.substring(substringArray[0].length).trim();
-            const finalString = substring_Start.concat(modifiedEndString);
-            WF.setItemName(focusedItem, finalString);
-          }
-
-          event.preventDefault()
-          event.stopPropagation()
-        }
-      },
-      'd$': e => 
-      {
-        focusedItem = WF.focusedItem();
-        if(focusedItem)
-        {
-          const currentOffset = state.get().anchorOffset
-          const itemName = focusedItem.getNameInPlainText();
-          const substring_Start = itemName.substring(0, currentOffset);
-          WF.setItemName(focusedItem, substring_Start);
-          event.preventDefault()
-          event.stopPropagation()
-        }
-      },
-      'dr': e => 
-      {
-        focusedItem = WF.focusedItem();
-        if(focusedItem)
-        {
-          const currentOffset = state.get().anchorOffset
-          const itemName = focusedItem.getNameInPlainText();
-          const substring_Start = itemName.substring(0, currentOffset);
-          WF.setItemName(focusedItem, substring_Start);
-          event.preventDefault()
-          event.stopPropagation()
-        }
+        deleteWord(e, true);
       },
       'de': e => 
       {
-        focusedItem = WF.focusedItem();
-        if(focusedItem)
-        {
-          const currentOffset = state.get().anchorOffset
-          const itemName = focusedItem.getNameInPlainText();
-          const substring_Start = itemName.substring(0, currentOffset);
-          const substring_End = itemName.substring(currentOffset);
-          const underCursorChar = itemName.charAt(currentOffset); 
-
-          if(/[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar))
-          {
-            const substringArray = substring_End.split(/([^a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
-            const modifiedEndString = substring_End.substring(substringArray[0].length);
-            const finalString = substring_Start.concat(modifiedEndString);
-            WF.setItemName(focusedItem, finalString);
-          }
-          else
-          {
-            const substringArray = substring_End.split(/([a-zåäöA-ZÅÄÖ0-9])/).filter(Boolean);
-            const modifiedEndString = substring_End.substring(substringArray[0].length);
-            const finalString = substring_Start.concat(modifiedEndString);
-            WF.setItemName(focusedItem, finalString);
-          }
-
-          event.preventDefault()
-          event.stopPropagation()
-        }
+        deleteWord(e, false);
+      },
+      'd$': e => 
+      {
+        deleteUntilLineEnd(e);
+      },
+      'dr': e => 
+      {
+        deleteUntilLineEnd(e);
       },
       '<': e => 
       {
@@ -2153,7 +2247,7 @@ const modeClosure = (mainContainer, getState, setState) => {
 
   mainContainer.addEventListener('mousedown', event => 
   { 
-    mouseClickIntoInsertMode();
+      mouseClickIntoInsertMode(event);
   });
 
   mainContainer.addEventListener('keyup', event => 
