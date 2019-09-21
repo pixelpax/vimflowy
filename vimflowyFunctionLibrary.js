@@ -250,8 +250,6 @@ function toggleExpandAll(t)
   if(WF.currentSearchQuery() !== null)
     return;
 
-  // console.clear();
-
   const currentItem = WF.currentItem();
   const Children = currentItem.getVisibleChildren();
   if (Children === undefined || Children.length == 0)
@@ -259,19 +257,25 @@ function toggleExpandAll(t)
 
   const focusedItem = WF.focusedItem();
 
-  bExpandAll = !bExpandAll;
+  var numExpanded = 0;
+  var numCollapsed = 0;
+	Children.forEach((item, i) => 
+	{
+		if(item.isExpanded())
+			++numExpanded;
+		else
+			++numCollapsed;
+	});
 
-  // decide if we are going to expand/collapse based on
-  // if the list of the focused item is expanded or not.
-  // otherwise we'll just use the global bExpanAll bool
-  if(focusedItem && !focusedItem.equals(currentItem))
-  {
-    const focusKids = focusedItem.getVisibleChildren();
-    if(focusKids !== undefined && focusKids.length != 0)
-    {
-      bExpandAll = !focusedItem.isExpanded();
-    }
-  }
+	bool bExpandAll = false;
+	if(numExpanded == 0)
+		bExpandAll = true;
+	else if(numCollapsed == 0)
+		bExpandAll = false;
+	else
+	{    
+		bExpandAll = numExpanded > numCollapsed;
+	}
 
   // fix focus loss problem when collapsing
   if(focusedItem.getParent().equals(currentItem) == false)

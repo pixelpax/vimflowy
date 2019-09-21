@@ -91,10 +91,8 @@ mainContainer.addEventListener('keydown', event =>
 // if they are children of any 
 // of the other items which were added
 let VisualSelectionBuffer = [];
-
 let PrevEnterItem = null;
 let SelectionPreMove = [];
-let bExpandAll = true;
 let InitialSelectionItem = null;
 let focusPreJumpToItemMenu = null;
 let bKeyDownHasFired = false;
