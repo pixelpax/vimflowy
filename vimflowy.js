@@ -402,6 +402,17 @@ const modeClosure = (mainContainer, getState, setState) => {
         if(nextItem == null)
           return;
 
+        const nextNextItem = nextItem.getNextVisibleSibling();
+        if(nextNextItem != null)
+        {
+          WF.editItemName(nextNextItem);
+          if(focusedItem.equals(WF.focusedItem()) && nextItem.isExpanded() && WF.currentSearchQuery() === null)
+              WF.collapseItem(nextItem);
+          WF.editItemName(focusedItem);
+        }
+
+        // console.log("nextItem: " + nextItem.getNameInPlainText());
+
         const parentItem = nextItem.getParent();
         WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
     }
@@ -434,10 +445,23 @@ const modeClosure = (mainContainer, getState, setState) => {
 
         const parentItem = nextItem.getParent();
 
+        // collapse the Item inbetween us and the destination
+        // if we can't "see" far enough to remain in focus
+        const nextNextItem = nextItem.getNextVisibleSibling();
+        if(nextNextItem != null)
+        {
+          const focusedItem = WF.focusedItem();
+          WF.editItemName(nextNextItem);
+          if(focusedItem.equals(WF.focusedItem()) && nextItem.isExpanded() && WF.currentSearchQuery() === null)
+              WF.collapseItem(nextItem);
+          WF.editItemName(focusedItem);
+        }
+
         WF.editGroup(() => 
         {
           WF.moveItems(selection, parentItem, nextItem.getPriority() + 1);
         });
+
       }
       else
       {
@@ -445,6 +469,18 @@ const modeClosure = (mainContainer, getState, setState) => {
         const nextItem = focusedItem.getNextVisibleSibling();
         if(nextItem)
         {
+
+          // collapse the Item inbetween us and the destination
+          // if we can't "see" far enough to remain in focus
+          const nextNextItem = nextItem.getNextVisibleSibling();
+          if(nextNextItem != null)
+          {
+            WF.editItemName(nextNextItem);
+            if(focusedItem.equals(WF.focusedItem()) && nextItem.isExpanded() && WF.currentSearchQuery() === null)
+                WF.collapseItem(nextItem);
+            WF.editItemName(focusedItem);
+          }
+
           const parentItem = nextItem.getParent();
           WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
         }
@@ -1717,7 +1753,7 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       'alt-J': t => 
       {
-        MoveSelectionDown(t);
+       MoveSelectionDown(t);
       },
       'alt-K': t => 
       {
@@ -1876,7 +1912,6 @@ const modeClosure = (mainContainer, getState, setState) => {
       },
       Enter: e => 
       {
-        // console.log("NormalMode: pressing enter");
         const focusedItem = WF.focusedItem();
         if(e.shiftKey && focusedItem)
         {
