@@ -267,7 +267,7 @@ function toggleExpandAll(t)
 			++numCollapsed;
 	});
 
-	bool bExpandAll = false;
+	var bExpandAll = false;
 	if(numExpanded == 0)
 		bExpandAll = true;
 	else if(numCollapsed == 0)
@@ -1282,8 +1282,7 @@ function updateKeyBuffer_Keyup(event)
   }
 }
 
-const onlyIfProjectCanBeEdited = command => target => 
-{
+const onlyIfProjectCanBeEdited = command => target => {
 	const targetProject = projectAncestor(target)
 	const isMainDotOfForeignSharedList = targetProject.className.includes('addedShared')
 	const isNotEditable = targetProject.getAttribute('data-tid') === '2'
