@@ -317,10 +317,6 @@ const actionMap =
 	      MoveSelectionUp(t);
 	    else
 	      MoveItemUp(t);
-	  },
-	  'ctrl- ': t => 
-	  {
-	    toggleExpandAll(t);
 	  }
 	},
 	[Mode.VISUAL]: 
@@ -336,10 +332,6 @@ const actionMap =
 	  ' ': t => 
 	  {
 	    toggleExpand(t);
-	  },
-	  'ctrl- ': t => 
-	  {
-	    toggleExpandAll(t);
 	  },
 	  'j': t =>
 	  {

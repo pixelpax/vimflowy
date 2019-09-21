@@ -237,29 +237,43 @@ function toggleExpand(t)
   if(WF.currentSearchQuery() !== null)
     return;
 
+  const currentItem = WF.currentItem();
   const focusedItem = WF.focusedItem();
+
+  if(focusedItem && focusedItem.equals(currentItem))
+    return;
+
   if(focusedItem.isExpanded())
     WF.collapseItem(focusedItem);
   else
     WF.expandItem(focusedItem);
 }
 
-function toggleExpandAll(t)
+function toggleExpandAll(e)
 {
+  const currentItem = WF.currentItem();
+  const focusedItem = WF.focusedItem();
+
+  // Let the workflowy binding handle it. 
+  // it uses expandOrCollapseAllDescendants() 
+  // which we can't call upon atm
+  if(focusedItem && focusedItem.equals(currentItem))
+    return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
   // expansion/collapse isn't supported by WF when searching
   if(WF.currentSearchQuery() !== null)
     return;
 
-  const currentItem = WF.currentItem();
-  const Children = currentItem.getVisibleChildren();
-  if (Children === undefined || Children.length == 0)
+  const children = currentItem.getVisibleChildren();
+  if (children === undefined || children.length == 0)
     return;
-
-  const focusedItem = WF.focusedItem();
 
   var numExpanded = 0;
   var numCollapsed = 0;
-	Children.forEach((item, i) => 
+  children.forEach((item, i) => 
 	{
 		if(item.isExpanded())
 			++numExpanded;
@@ -277,26 +291,12 @@ function toggleExpandAll(t)
 		bExpandAll = numExpanded > numCollapsed;
 	}
 
-  // fix focus loss problem when collapsing
-  if(focusedItem.getParent().equals(currentItem) == false)
-  {
-    if(bExpandAll)
-    {
-      if(focusedItem.getParent().getParent().equals(currentItem))
-        WF.editItemName(focusedItem.getParent());
-      else
-        WF.editItemName(currentItem);
-    }
-    else
-    {
-      const currentItemChildAncestor = getChildOfCurrentItem(focusedItem);
-      WF.editItemName(currentItemChildAncestor);
-    }
-  }
+  const currentItemChildAncestor = getChildOfCurrentItem(focusedItem);
+  WF.editItemName(currentItemChildAncestor);
 
   WF.editGroup(() => 
   {
-    Children.forEach((item, i) => 
+    children.forEach((item, i) => 
     {
       if(bExpandAll)
         WF.expandItem(item);
@@ -304,6 +304,15 @@ function toggleExpandAll(t)
         WF.collapseItem(item);
     });
   });
+
+  // fix focus loss problem when collapsing
+  if(!WF.focusedItem())
+  {
+    requestAnimationFrame(fixFocus);
+    WF.editItemName(currentItem);
+  }
+
+	setCursorAt(state.get().anchorOffset);
 
 }
 

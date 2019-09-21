@@ -249,10 +249,18 @@ const transparentActionMap =
 	      outdentSelection(e);
 	    else
 	      indentSelection(e);
+	  },
+	  'ctrl- ': e => 
+	  {
+	    toggleExpandAll(e);
 	  }
 	},
 	[Mode.VISUAL]: 
 	{
+	  'ctrl- ': e => 
+	  {
+	    toggleExpandAll(e);
+	  },
 	  '<': e => 
 	  {
 	    outdentSelection(e);
