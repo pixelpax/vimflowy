@@ -318,13 +318,11 @@ function toggleExpandAll(e)
 
 function enterVisualMode(t)
 {
-    // if(InitialSelectionItem != null)
-    // {
-    //   InitialSelectionItem = null;
-    //   return;
-    // }
-
     var focusedItem = WF.focusedItem();
+
+    if(focusedItem == null)
+      return;
+
     const currentItem = WF.currentItem();
 
     const bFocusIsCurrent = focusedItem.equals(currentItem);
@@ -421,6 +419,16 @@ function toggleCompletedOnSelection(e)
     });
   });
 
+}
+
+function RotateSelectionPreMoveBuffer()
+{
+		var selection = WF.getSelection();
+		if (selection === undefined || selection.length == 0) 
+			selection = SelectionPreMove;
+
+		if (selection !== undefined && selection.length != 0)
+			SelectionPreMove = selection;
 }
 
 function MoveSelectionDown(t)
@@ -710,6 +718,10 @@ function deleteSelectedItems(e)
 function visualMode_AddItemToSelection_Above(t)
 {
   const focusedItem = WF.focusedItem();
+
+  if(!focusedItem)
+    return;
+
   const currentItem = WF.currentItem();
 
   if(focusedItem.equals(currentItem))
@@ -867,8 +879,10 @@ function visualMode_AddItemToSelection_Above(t)
 
 function visualMode_AddItemToSelection_Below(t)
 {
-
   const focusedItem = WF.focusedItem();
+
+  if(!focusedItem)
+    return;
 
   if(focusedItem.getParent().equals(WF.currentItem()) && !focusedItem.getNextVisibleSibling())
     return;
@@ -1165,6 +1179,7 @@ function reselectItemsBeingMoved()
   {
     WF.setSelection(SelectionPreMove);
     SelectionPreMove = [];
+    console.log("reselectingItemBeingMoved");
   }
 }
 

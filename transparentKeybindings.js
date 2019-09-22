@@ -253,13 +253,47 @@ const transparentActionMap =
 	  'ctrl- ': e => 
 	  {
 	    toggleExpandAll(e);
+	  },
+	  'ctrl-i': e => 
+	  {
+		RotateSelectionPreMoveBuffer();
+	  },
+	  'ctrl-u': e => 
+	  {
+		RotateSelectionPreMoveBuffer();
+	  },
+	  'ctrl-b': e => 
+	  {
+		RotateSelectionPreMoveBuffer();
+	  },
+	  'ctrl-Enter': e => 
+	  {
+		  RotateSelectionPreMoveBuffer();
+		  toggleCompletedOnSelection(e);
+		  RotateSelectionPreMoveBuffer();
 	  }
 	},
 	[Mode.VISUAL]: 
 	{
+	  'ctrl-u': e => 
+	  {
+		RotateSelectionPreMoveBuffer();
+		goToNormalMode();
+	  },
+	  'ctrl-i': e => 
+	  {
+		RotateSelectionPreMoveBuffer();
+		goToNormalMode();
+	  },
+	  'ctrl-b': e => 
+	  {
+		RotateSelectionPreMoveBuffer();
+		goToNormalMode();
+	  },
 	  'ctrl-Enter': e => 
 	  {
 		  toggleCompletedOnSelection(e);
+		  RotateSelectionPreMoveBuffer();
 		  ExitVisualMode();
 	  },
 	  'ctrl- ': e => 

@@ -288,7 +288,8 @@ const actionMap =
 	    // const selection = WF.getSelection();
 	    // if(selection !== undefined && selection.length != 0)
 	    //   ExitVisualMode(t);
-	    // else
+		// else
+		  ExitVisualMode(t);
 	      enterVisualMode(t);
 	  },
 	  'V': t =>
@@ -297,6 +298,7 @@ const actionMap =
 	    // if(selection !== undefined && selection.length != 0)
 	    //   ExitVisualMode(t);
 	    // else
+		  ExitVisualMode(t);
 	      enterVisualMode(t);
 	  },
 	  'alt-J': t => 
