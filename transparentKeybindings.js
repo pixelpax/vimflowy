@@ -84,12 +84,6 @@ const transparentActionMap =
 	      WF.zoomTo(PrevEnterItem);
 	    }
 	  },
-	  'dd': e => 
-	  {
-	    deleteSelectedItems(e);
-	    e.preventDefault()
-	    e.stopPropagation()
-	  },
 	  Escape: e => 
 	  {
 	    if(WF.focusedItem())

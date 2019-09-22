@@ -324,6 +324,10 @@ const actionMap =
 	      MoveSelectionUp(t);
 	    else
 	      MoveItemUp(t);
+	  },
+	  'dd': t => 
+	  {
+	    deleteSelectedItems(t);
 	  }
 	},
 	[Mode.VISUAL]: 
@@ -361,9 +365,41 @@ const actionMap =
 	  {
 	    visualMode_AddItemToSelection_Above(t);
 	  },
-	  'd': e =>
+	  'd': t =>
 	  {
-	    deleteSelectedItems(e);
+	    deleteSelectedItems(t);
+	    ExitVisualMode();
+	  },
+	  P: t => 
+	  {
+		if (yankBuffer === undefined || yankBuffer.length == 0) 
+			return;
+
+		if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+			return;
+
+		WF.editGroup(() => 
+		{
+			deleteSelectedItems(t);
+			pasteYankedItems(true);
+		});
+
+	    ExitVisualMode();
+	  },
+	  p: t => 
+	  {
+		if (yankBuffer === undefined || yankBuffer.length == 0) 
+			return;
+
+		if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+			return;
+
+		WF.editGroup(() => 
+		{
+			deleteSelectedItems(t);
+			pasteYankedItems(false);
+		});
+
 	    ExitVisualMode();
 	  },
 	  'V': t =>

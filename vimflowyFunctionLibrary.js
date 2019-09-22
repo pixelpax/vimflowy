@@ -646,7 +646,7 @@ function outdentSelection(e)
   e.stopPropagation();
 }
 
-function deleteSelectedItems(e)
+function deleteSelectedItems(t)
 {
   const focusedItem = WF.focusedItem();
   if(!focusedItem)
@@ -657,21 +657,6 @@ function deleteSelectedItems(e)
   var CurrentSelection = WF.getSelection();
   if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
   {
-    // WF.editGroup(() => 
-    // {
-    //   if(bWasPreviousVisibleSiblingInvalid)
-    //   {
-    //     const selectedProject = e.target.parentNode.parentNode.parentNode.parentNode;
-    //     CurrentSelection.forEach((item, i) => { WF.deleteItem(item); });
-    //     setCursorAfterVerticalMove(offsetCalculator(state), selectedProject);
-    //   }
-    //   else
-    //   {
-    //     const prevTarget = e.target.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
-    //     CurrentSelection.forEach((item, i) => { WF.deleteItem(item); });
-    //     setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(prevTarget));
-    //   }
-    // });
 
     minNumAncestors = GetMinNumAncestors(CurrentSelection);
     var filteredSelection = CurrentSelection.filter(function(item, index, arr)
@@ -696,19 +681,23 @@ function deleteSelectedItems(e)
     else
       WF.editItemName(WF.currentItem());
 
-    CurrentSelection.forEach((item, i) => { WF.deleteItem(item); });
+    WF.editGroup(() => 
+    {
+      CurrentSelection.forEach((item, i) => { WF.deleteItem(item); });
+    });
+
   }
   else
   {
     if(bWasPreviousVisibleSiblingInvalid)
     {
-      const selectedProject = e.target.parentNode.parentNode.parentNode.parentNode;
+      const selectedProject = t.parentNode.parentNode.parentNode.parentNode;
       WF.deleteItem(focusedItem);
       setCursorAfterVerticalMove(offsetCalculator(state), selectedProject);
     }
     else
     {
-      const prevTarget = e.target.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
+      const prevTarget = t.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
       WF.deleteItem(focusedItem);
       setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(prevTarget));
     }
