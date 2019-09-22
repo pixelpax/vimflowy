@@ -1,3 +1,4 @@
+
 const stateClosure = (initialState = {}, stateChanged = () => {}) => {
   let s = initialState 
 

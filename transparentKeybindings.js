@@ -268,7 +268,8 @@ const transparentActionMap =
 	  },
 	  'dd': e => 
 	  {
-	    deleteSelectedItems(e.target);
+	    yankSelectedItems(e.target);
+		deleteSelectedItems(e.target);
 	    event.preventDefault();
 	    event.stopPropagation();
 	  }

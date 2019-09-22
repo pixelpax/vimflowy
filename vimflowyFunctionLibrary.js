@@ -149,6 +149,49 @@ function deleteWord(e, bToNextWord)
   event.stopPropagation()
 }
 
+function createItemFrom(itemToCopy, parent, prio)
+{
+  if(!parent)
+    return;
+
+  if(itemToCopy.equals(parent))
+    return;
+
+  var createdItem = WF.createItem(parent, prio);
+
+  WF.setItemName(createdItem, itemToCopy.getName());
+  WF.setItemNote(createdItem, itemToCopy.getNote());
+
+  if(itemToCopy.isCompleted())
+    WF.completeItem(createdItem);
+
+  // !!! this needs to be done before we process the kids
+  // there is a unhandled exception in WF otherwise 
+  // when copying completed items
+  if(itemToCopy.isExpanded())
+    WF.expandItem(createdItem);
+  else
+    WF.collapseItem(createdItem);
+
+  // @TODO: we could take all children by calling 
+  // getChildren() but then we'd run into potential
+  // problems down below when completing and expanding
+  var kids = itemToCopy.getChildren();
+  if (kids !== undefined && kids.length != 0) 
+  {
+    kids.forEach((item, i) =>  
+    {
+      createItemFrom(
+        item,
+        createdItem,
+        item.getPriority()
+      ); 
+    });
+  }
+
+  return createdItem;
+}
+
 function pasteYankedItems(bAboveFocusedItem)
 {
   if (yankBuffer === undefined || yankBuffer.length == 0) 
@@ -173,22 +216,51 @@ function pasteYankedItems(bAboveFocusedItem)
     const yankParent = yankBuffer[0].getParent();
     const yankPrio = yankBuffer[0].getPriority();
 
-    // we can only duplicate items that are "visible",
-    // (they have to share the same WF.currentItem()?)
-    // so we'll move them here
-    WF.moveItems(yankBuffer, parentItem, 0);
-
-    var createdItems = [];
-    for (var i = 0, len = yankBuffer.length; i < len; i++) 
+    // check if we are dealing with dead items..
+    // @TODO: we could just always create new items 
+    // and not duplicate them... we'd lose some 
+    // information but that is negligible?
+    var bPastingDeadItems = true;
+    const tempItem = WF.duplicateItem(yankBuffer[0]);
+    if(tempItem)
     {
-      const createdItem = WF.duplicateItem(yankBuffer[i]);
-      createdItems.push(createdItem);
+      WF.deleteItem(tempItem);
+      bPastingDeadItems = false;
     }
 
-    // move the items back once we've duplicated them
-    const bCopyFromSameList = yankParent.equals(createdItems[0].getParent());
-    const originPriority = bCopyFromSameList ? (yankPrio + (yankBuffer.length*2)) : yankPrio;
-    WF.moveItems(yankBuffer, yankParent, originPriority);
+    var createdItems = [];
+
+    if(bPastingDeadItems)
+    {
+      for (var i = 0, len = yankBuffer.length; i < len; i++) 
+      {
+        var createdItem = createItemFrom(
+          yankBuffer[i],
+          parentItem,
+          yankBuffer[i].getPriority() + 1,    // the +1 is for tricking workflowy
+        );
+        WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+        createdItems.push(createdItem);
+      }
+    }
+    else
+    {
+      // we can only duplicate items that are "visible",
+      // (they have to share the same WF.currentItem()?)
+      // so we'll move them here
+      WF.moveItems(yankBuffer, parentItem, 0);
+
+      for (var i = 0, len = yankBuffer.length; i < len; i++) 
+      {
+        var createdItem = WF.duplicateItem(yankBuffer[i]);
+        createdItems.push(createdItem);
+      }
+
+      // move the items back once we've duplicated them
+      const bCopyFromSameList = yankParent.equals(createdItems[0].getParent());
+      const originPriority = bCopyFromSameList ? (yankPrio + (yankBuffer.length*2)) : yankPrio;
+      WF.moveItems(yankBuffer, yankParent, originPriority);
+    }
 
     if(createdItems[0] == null || createdItems[0] == undefined)
       return;

@@ -365,6 +365,7 @@ const actionMap =
 	  },
 	  'd': t =>
 	  {
+	    yankSelectedItems(t);
 	    deleteSelectedItems(t);
 	    ExitVisualMode();
 	  },
@@ -378,8 +379,13 @@ const actionMap =
 
 		WF.editGroup(() => 
 		{
-			deleteSelectedItems(t);
+			const selection = WF.getSelection();
+			const lostFocusItem = WF.focusedItem();
 			pasteYankedItems(true);
+    		WF.editItemName(lostFocusItem);
+			WF.setSelection(selection);
+			yankSelectedItems(t);
+			deleteSelectedItems(t);
 		});
 
 	    ExitVisualMode();
@@ -394,8 +400,13 @@ const actionMap =
 
 		WF.editGroup(() => 
 		{
-			deleteSelectedItems(t);
+			const selection = WF.getSelection();
+			const lostFocusItem = WF.focusedItem();
 			pasteYankedItems(false);
+    		WF.editItemName(lostFocusItem);
+			WF.setSelection(selection);
+			yankSelectedItems(t);
+			deleteSelectedItems(t);
 		});
 
 	    ExitVisualMode();
