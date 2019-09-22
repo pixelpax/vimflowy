@@ -383,6 +383,46 @@ function MoveItemUp(t)
     WF.moveItems([focusedItem], parentItem, prevItem.getPriority());
 }
 
+function toggleCompletedOnSelection(e)
+{
+  var selection = WF.getSelection();
+  if (selection === undefined || selection.length == 0) 
+    return;
+
+  e.preventDefault()
+  e.stopPropagation()
+
+  var numCompleted = 0;
+  var numUncompleted = 0;
+  selection.forEach((item, i) => 
+	{
+		if(item.isCompleted())
+			++numCompleted;
+		else
+			++numUncompleted;
+  });
+  
+	var bCompleteAll = false;
+	if(numCompleted == 0)
+		bCompleteAll  = true;
+	else if(numUncompleted == 0)
+		bCompleteAll = false;
+	else
+	{    
+		bCompleteAll = numCompleted > numUncompleted;
+	}
+
+  WF.editGroup(() => 
+  {
+    selection.forEach((item, i) => 
+    {
+      if(item.isCompleted() != bCompleteAll)
+        WF.completeItem(item)
+    });
+  });
+
+}
+
 function MoveSelectionDown(t)
 {
   var selection = WF.getSelection();
@@ -1289,6 +1329,60 @@ function updateKeyBuffer_Keyup(event)
       WF.clearSearch();
       WF.editItemName(WF.currentItem());
   }
+}
+
+function sortCompletedItemsOnFocusParent(t)
+{
+  const focusedItem = WF.focusedItem();
+
+  if(!focusedItem)
+    return;
+
+  var parentItem = focusedItem.getParent();
+
+  if(!parentItem)
+    return;
+
+  const currentItem = WF.currentItem();
+
+  if(focusedItem.equals(currentItem))
+    parentItem = currentItem;
+
+  const visibleChildren = parentItem.getVisibleChildren();
+  if (visibleChildren === undefined || visibleChildren.length == 0) 
+    return;
+
+  var completedKids = [];
+  for (var i = 0; i < visibleChildren.length; i++) 
+  {
+    if(visibleChildren[i].isCompleted())
+      completedKids.push(visibleChildren[i]);
+  }
+
+  if(completedKids.length == 0)
+    return;
+
+  completedKids.sort((a, b) => b.getCompletedDate() - a.getCompletedDate());
+  WF.editGroup(() => 
+  {
+    completedKids.forEach((item, i) => 
+    {
+      if (item.getPriority() !== i) 
+        WF.moveItems([item], parentItem, i)
+    })
+
+    WF.moveItems(completedKids, parentItem, visibleChildren.length);
+
+  });
+
+  if(!containsItem(completedKids, focusedItem))
+    WF.editItemName(focusedItem);
+  else if(completedKids[0].getPreviousVisibleSibling())
+    WF.editItemName(completedKids[0].getPreviousVisibleSibling());
+  else
+    WF.editItemName(parentItem);
+
+  setCursorAt(state.get().anchorOffset);
 }
 
 const onlyIfProjectCanBeEdited = command => target => {

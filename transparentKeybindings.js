@@ -257,6 +257,11 @@ const transparentActionMap =
 	},
 	[Mode.VISUAL]: 
 	{
+	  'ctrl-Enter': e => 
+	  {
+		  toggleCompletedOnSelection(e);
+		  ExitVisualMode();
+	  },
 	  'ctrl- ': e => 
 	  {
 	    toggleExpandAll(e);

@@ -42,16 +42,18 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<Alt>K`: Move the current line up
     - `<Alt>h`: zoom out (identical to WF zoom out) 
     - `<Alt>l`: zoom in  (identical to WF zoom in) 
-    - `<Alt>Enter`: will open the first URL found in the focusedItems name or note 
-    - `Space`: toggle expande/collapse on focusedItem 
-    - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
-    - `Enter`: Zoom in on focused node - and place current item in memory 
-    - `Backspace`: zoom in on item which was place in memory when using 'Enter'
-    - `§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
-    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
     - `V`,`v`: Enter visual mode 
     - `Tab`,`>`: indent item(s)
     - `<shift>Tab`,`<`: outdent item(s)
+    - `<Alt>Enter`: will open the first URL found in the focusedItems name or note 
+    - `Space`: toggle expand/collapse on focusedItem 
+    - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
+    - `Enter`: Zoom in on focused node - and place current item in memory 
+    - `Backspace`: zoom in on item which was place in memory when using 'Enter'
+    - `<alt>§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
+    - `§`: sort completed items according to time and place them at the bottom 
+    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `<ctrl>Enter`: Toggle Completed on seletion 
 * insert mode
     - `<Esc>`,`<jk>` : Enter Normal mode
     - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
@@ -63,10 +65,11 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `d`: delete selected items and enter normal mode 
     - `<Alt>J`: Move the current selection down 
     - `<Alt>K`: Move the current selection up 
+    - `<ctrl>Enter`: Toggle Completed on seletion 
     - `u`: Undo
-    - `Space`: toggle expande/collapse on focusedItem 
-    - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `<Ctrl>r`: Redo
+    - `Space`: toggle expand/collapse on focusedItem 
+    - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
 
 Mode indicator

@@ -245,10 +245,15 @@ const actionMap =
 	    // goToNormalMode();
 	    // setCursorAt(currentOffset);
 	  },
-	  '§': t => {
+	  'alt-§': t => 
+	  {
 	      previousTimeTagCounterMsg = "";
 	      WF.hideMessage();
 	      bShowTimeCounter = !bShowTimeCounter;
+	  },
+	  '§': t => 
+	  {
+		  sortCompletedItemsOnFocusParent(t);
 	  },
 	  P: t => 
 	  {
@@ -321,6 +326,11 @@ const actionMap =
 	},
 	[Mode.VISUAL]: 
 	{
+	  '§': t => 
+	  {
+		sortCompletedItemsOnFocusParent(t);
+		ExitVisualMode();
+	  },
 	  u: t => 
 	  {
 	    WF.undo(); 
