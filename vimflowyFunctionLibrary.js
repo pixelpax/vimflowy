@@ -1179,7 +1179,7 @@ function reselectItemsBeingMoved()
   {
     WF.setSelection(SelectionPreMove);
     SelectionPreMove = [];
-    console.log("reselectingItemBeingMoved");
+    // console.log("reselectingItemBeingMoved");
   }
 }
 
