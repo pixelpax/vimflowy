@@ -366,22 +366,55 @@ const transparentActionMap =
 
 	    if(!WF.focusedItem())
 	    {
+		  // important that we don't stop propagation
+		  // when trying to escape the JumpToItemMenu
 	      if(focusPreJumpToItemMenu)
 	      {
+			//   console.log("applying focus pre jump to item menu");
+	        WF.editItemName(focusPreJumpToItemMenu);
+	        focusPreJumpToItemMenu = null;
+		  }
+		  else
+		  {
+			// assuming we are focusing on the searchbar
+			// in which case we'll have to stop the propagation
+	      	e.stopPropagation()
+		  }
+
+	      if(!WF.focusedItem())
+			WF.editItemName(WF.currentItem());
+
+	    }
+	    else
+	    {
+	      e.stopPropagation()
+	    }
+
+		goToNormalMode();
+	  },
+	  'Enter': e => 
+	  {
+	    // we are using the JumpToMenu to jump to the 
+	    // item which we are already standing on.
+	    // this means that "locationChanged" won't fire...
+	    // so we'll handle it here for now.. 
+	    if(!WF.focusedItem() && WF.currentItem())
+	    {
+	      if(focusPreJumpToItemMenu)
+	      {
+			//   console.log("applying focus pre jump to item menu");
 	        WF.editItemName(focusPreJumpToItemMenu);
 	        focusPreJumpToItemMenu = null;
 	      }
 
 	      if(!WF.focusedItem())
 	        WF.editItemName(WF.currentItem());
-	    }
-	    else
-	    {
-	      // console.log("stopping prop");
-	      e.stopPropagation()
-	    }
 
-	    goToNormalMode();
+	      goToNormalMode();
+	      event.preventDefault();
+
+	      requestAnimationFrame(fixFocus);
+	    }
 	  },
 	  'jk': e => 
 	  {
@@ -405,47 +438,19 @@ const transparentActionMap =
 	  },
 	  'ctrl-k': e => 
 	  {
-	    // console.log("insert ctrl k");
-	    focusPreJumpToItemMenu = WF.focusedItem();
-	    // goToNormalMode();
+		const focusedItem = WF.focusedItem();
+		if(focusedItem)
+			focusPreJumpToItemMenu = focusedItem;
+
 	    goToInsertMode();
 	  },
 	  'ctrl-Dead': e => 
 	  {
-	    // console.log("insert ctrl dead");
-	    focusPreJumpToItemMenu = WF.focusedItem();
-	    // goToNormalMode();
+		const focusedItem = WF.focusedItem();
+		if(focusedItem)
+			focusPreJumpToItemMenu = focusedItem;
+
 	    goToInsertMode();
-	  },
-	  'Enter': e => 
-	  {
-	    // we are using the JumpToMenu to jump to the 
-	    // item which we are already standing on.
-	    // this means that "locationChanged" won't fire...
-	    // so we'll handle it here for now.. 
-	    if(!WF.focusedItem() && WF.currentItem())
-	    {
-
-	      if(focusPreJumpToItemMenu)
-	      {
-	        WF.editItemName(focusPreJumpToItemMenu);
-	        focusPreJumpToItemMenu = null;
-	      }
-
-	      if(!WF.focusedItem())
-	        WF.editItemName(WF.currentItem());
-
-	      goToNormalMode();
-	      event.preventDefault();
-
-	      requestAnimationFrame(fixFocus);
-
-	      // console.log("exiting the bullet menu");
-	    }
-
-	    // console.log("(insert) Enter: focused item: " + WF.focusedItem().getNameInPlainText());
-	    // console.log("(insert) Enter: current item: " + WF.currentItem().getNameInPlainText());
-
 	  }
 	}
 }

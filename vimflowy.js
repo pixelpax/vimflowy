@@ -8,19 +8,20 @@ WFEventListener = event =>
   if(event === "documentReady")
     requestAnimationFrame(fixFocus);
 
-  // fix for not landing in NormalMode when using the JumpToItemMenu
-  if (event === 'locationChanged' 
-    && state.get().mode === Mode.INSERT
-    && !WF.focusedItem()
-  ) 
-  {
-    // console.log("going into normal mode post using JumpToItemMenu");
-    requestAnimationFrame(fixFocus);
-    goToNormalMode();
-    focusPreJumpToItemMenu = null;
-    event.preventDefault()
-    event.stopPropagation()
-  }
+  // // fix for not landing in NormalMode when using the JumpToItemMenu
+  // if (event === 'locationChanged' 
+  //   && state.get().mode === Mode.INSERT
+  //   && !WF.focusedItem()
+  //   && WF.currentSearchQuery() === null
+  // ) 
+  // {
+  //   console.log("going into normal mode post using JumpToItemMenu");
+  //   requestAnimationFrame(fixFocus);
+  //   goToNormalMode();
+  //   focusPreJumpToItemMenu = null;
+  //   event.preventDefault()
+  //   event.stopPropagation()
+  // }
 
 };
 
