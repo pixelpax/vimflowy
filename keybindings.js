@@ -2,6 +2,8 @@
 /*
 	keybindings that implicitly always 
 	call e.preventDefault() && e.stopPropagation()
+
+	!!! Sequences, such as 'dd' are only supported in the transparentKeybinding map ATM.
 */
 
 const actionMap = 
