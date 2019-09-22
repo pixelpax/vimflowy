@@ -35,7 +35,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<Ctrl>r`: Redo
     - `<Ctrl>l`: Zoom in on focused node 1 step and retain focus on that node 
     - `<Ctrl>h`: Zoom out of focused node 1 step and retain focus on that node 
-    - `dd`: delete the current bullet(s)
+    - `dd`: yank and delete the current item(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
     - `<Alt>J`: Move the current line down
@@ -62,7 +62,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<shift>Tab`,`<`: outdent item(s)
     - `V`,`v`,`<Esc>`: Enter normal mode 
     - `y`, `Y`: yank (copy) selected items and enter normal mode 
-    - `d`: delete selected items and enter normal mode 
+    - `d`: yank, delete selected items and enter normal mode 
     - `<Alt>J`: Move the current selection down 
     - `<Alt>K`: Move the current selection up 
     - `<ctrl>Enter`: Toggle Completed on seletion 
