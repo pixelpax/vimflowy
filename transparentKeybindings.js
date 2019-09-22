@@ -265,6 +265,12 @@ const transparentActionMap =
 		  RotateSelectionPreMoveBuffer();
 		  toggleCompletedOnSelection(e);
 		  RotateSelectionPreMoveBuffer();
+	  },
+	  'dd': e => 
+	  {
+	    deleteSelectedItems(e.target);
+	    event.preventDefault();
+	    event.stopPropagation();
 	  }
 	},
 	[Mode.VISUAL]: 

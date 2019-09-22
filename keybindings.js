@@ -324,10 +324,6 @@ const actionMap =
 	      MoveSelectionUp(t);
 	    else
 	      MoveItemUp(t);
-	  },
-	  'dd': t => 
-	  {
-	    deleteSelectedItems(t);
 	  }
 	},
 	[Mode.VISUAL]: 
