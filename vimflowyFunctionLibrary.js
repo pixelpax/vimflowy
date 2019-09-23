@@ -439,6 +439,7 @@ function MoveItemDown(t)
 
     const parentItem = nextItem.getParent();
     WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
+    setCursorAt(state.get().anchorOffset);
 }
 
 function MoveItemUp(t)
@@ -451,6 +452,7 @@ function MoveItemUp(t)
     const parentItem = prevItem.getParent();
 
     WF.moveItems([focusedItem], parentItem, prevItem.getPriority());
+    setCursorAt(state.get().anchorOffset);
 }
 
 function toggleCompletedOnSelection(e)
@@ -559,6 +561,8 @@ function MoveSelectionDown(t)
       WF.moveItems([nextItem], parentItem, focusedItem.getPriority());
     }
   }
+
+  setCursorAt(state.get().anchorOffset);
 }
 
 function MoveSelectionUp(t)
@@ -592,6 +596,8 @@ function MoveSelectionUp(t)
       WF.moveItems([focusedItem], parentItem, prevItem.getPriority());
     }
   }
+
+  setCursorAt(state.get().anchorOffset);
 }
 
 function yankSelectedItems(t)
@@ -1459,6 +1465,78 @@ function sortCompletedItemsOnFocusParent(t)
     WF.editItemName(parentItem);
 
   setCursorAt(state.get().anchorOffset);
+}
+
+function zoomInFocused()
+{
+  const focusedItem = WF.focusedItem();
+  if(focusedItem == null)
+    return;
+
+  const currentItem = WF.currentItem();
+
+  WF.editItemName(currentItem);
+
+  if(currentItem.getParent())
+  {
+    WF.zoomTo(currentItem.getParent());
+    if(!WF.focusedItem())
+    {
+      // console.log("ctrl-h focus lost after snap, fixing focus");
+      requestAnimationFrame(fixFocus);
+      goToNormalMode();
+      WF.editItemName(currentItem);
+    }
+  }
+  else
+  {
+    WF.zoomOut(currentItem);
+  }
+
+  if(WF.focusedItem())
+  {
+    WF.editItemName(focusedItem);
+  }
+  else
+  {
+    requestAnimationFrame(fixFocus);
+    goToNormalMode();
+  }
+
+  setCursorAt(state.get().anchorOffset);
+}
+
+function zoomOutFocused()
+{
+  const focusedItem = WF.focusedItem();
+  if(focusedItem == null)
+    return;
+
+  const focusedAncestors = focusedItem.getAncestors();
+  if(focusedAncestors.length == 0)
+    return;
+
+  if(focusedAncestors.length == 1)
+  {
+    WF.zoomTo(focusedItem);
+    setCursorAt(state.get().anchorOffset);
+  }
+  else
+  {
+    const currentItem = WF.currentItem();
+    focusedAncestors.forEach((item, i) => 
+    {
+      const itemParent = item.getParent();
+      if(itemParent && itemParent.equals(currentItem))
+      {
+        WF.zoomTo(item);
+        WF.editItemName(focusedItem);
+        setCursorAt(state.get().anchorOffset);
+        return;
+      }
+    });
+  }
+
 }
 
 const onlyIfProjectCanBeEdited = command => target => {

@@ -221,6 +221,22 @@ const transparentActionMap =
 	  {
 	    deleteUntilLineEnd(e);
 	  },
+	  'alt-H': e => 
+	  {
+	    enterVisualMode();
+	    outdentSelection(e);
+	    ExitVisualMode();
+	    event.preventDefault()
+	    event.stopPropagation()
+	  },
+	  'alt-L': e => 
+	  {
+	    enterVisualMode();
+	    indentSelection(e);
+	    ExitVisualMode();
+	    event.preventDefault()
+	    event.stopPropagation()
+	  },
 	  '<': e => 
 	  {
 	    enterVisualMode();
@@ -300,6 +316,20 @@ const transparentActionMap =
 	  'ctrl- ': e => 
 	  {
 	    toggleExpandAll(e);
+	  },
+	  'alt-H': e => 
+	  {
+	    outdentSelection(e);
+	    event.preventDefault()
+	    event.stopPropagation()
+	    ExitVisualMode();
+	  },
+	  'alt-L': e => 
+	  {
+	    indentSelection(e);
+	    event.preventDefault()
+	    event.stopPropagation()
+	    ExitVisualMode();
 	  },
 	  '<': e => 
 	  {

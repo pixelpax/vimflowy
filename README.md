@@ -33,18 +33,18 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `p`: paste yanked items below focused item 
     - `P`: paste yanked items above focused item
     - `<Ctrl>r`: Redo
-    - `<Ctrl>l`: Zoom in on focused node 1 step and retain focus on that node 
-    - `<Ctrl>h`: Zoom out of focused node 1 step and retain focus on that node 
+    - `<alt>l`: Zoom in on focused node 1 step and retain focus on that node 
+    - `<alt>h`: Zoom out of focused node 1 step and retain focus on that node 
     - `dd`: yank and delete the current item(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
-    - `<Alt>h`: zoom out (identical to WF zoom out) 
-    - `<Alt>l`: zoom in  (identical to WF zoom in) 
+    - `<ctrl>h`: zoom out (identical to WF zoom out) 
+    - `<ctrl>l`: zoom in  (identical to WF zoom in) 
     - `V`,`v`: Enter visual mode 
-    - `Tab`,`>`: indent item(s)
-    - `<shift>Tab`,`<`: outdent item(s)
+    - `Tab`,`>`,`<alt>L`: indent item(s)
+    - `<shift>Tab`,`<`,`<alt>H`: outdent item(s)
     - `<Alt>Enter`: will open the first URL found in the focusedItems name or note 
     - `Space`: toggle expand/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 

@@ -161,91 +161,27 @@ const actionMap =
 	    moveCursorToEnd(t, offsetCalculator(state))
 	    goToInsertMode(true)
 	  }),
-	  'alt-l': t => {
-	    WF.zoomIn(WF.focusedItem());
+	  'alt-l': t => 
+	  {
+		zoomOutFocused();
 	  },
-	  'alt-h': t => {
-	    WF.zoomOut(WF.currentItem());
+	  'alt-h': t => 
+	  {
+		zoomInFocused();
 	  },
 	  'ctrl-l': t => 
 	  {
-	    const focusedItem = WF.focusedItem();
-		if(focusedItem == null)
-			return;
-
-		const focusedAncestors = focusedItem.getAncestors();
-		if(focusedAncestors.length == 0)
-			return;
-
-		if(focusedAncestors.length == 1)
-		{
-			WF.zoomTo(focusedItem);
-			setCursorAt(state.get().anchorOffset);
-		}
-		else
-		{
-			const currentItem = WF.currentItem();
-			focusedAncestors.forEach((item, i) => 
-			{
-				const itemParent = item.getParent();
-				if(itemParent && itemParent.equals(currentItem))
-				{
-					WF.zoomTo(item);
-					WF.editItemName(focusedItem);
-					setCursorAt(state.get().anchorOffset);
-					return;
-				}
-			});
-		}
-
+	    WF.zoomIn(WF.focusedItem());
 	  },
 	  'ctrl-h': t => 
 	  {
-	    const currentItem = WF.currentItem();
-	    const focusedItem = WF.focusedItem();
-	    WF.editItemName(currentItem);
-
-	    if(currentItem.getParent())
-	    {
-	      WF.zoomTo(currentItem.getParent());
-	      if(!WF.focusedItem())
-	      {
-	        // console.log("ctrl-h focus lost after snap, fixing focus");
-	        requestAnimationFrame(fixFocus);
-	        goToNormalMode();
-	        WF.editItemName(currentItem);
-	        // WF.zoomOut(currentItem);
-	        // console.log("ctrl-h zoomOut: " + currentItem.getNameInPlainText());
-	      }
-	    }
-	    else
-	    {
-	      WF.zoomOut(currentItem);
-	    }
-
-	    if(WF.focusedItem())
-	    {
-	      WF.editItemName(focusedItem);
-	    }
-	    else
-	    {
-	      requestAnimationFrame(fixFocus);
-	      goToNormalMode();
-		}
-
-		setCursorAt(state.get().anchorOffset);
-
+	    WF.zoomOut(WF.currentItem());
 	  },
 	  x: t => 
 	  { 
 	    const currentOffset = state.get().anchorOffset;
 	    WF.insertText("");
 	    moveCursorTo(t, offsetCalculator(state), currentOffset);
-	    // setCursorAt(currentOffset);
-	    // goToInsertMode();
-	    // goToNormalMode();
-	    // goToNormalMode();
-	    // setCursorAt(currentOffset);
 	  },
 	  'alt-§': t => 
 	  {
@@ -305,7 +241,7 @@ const actionMap =
 	  },
 	  'alt-J': t => 
 	  {
-	   MoveSelectionDown(t);
+		MoveSelectionDown(t);
 	  },
 	  'alt-K': t => 
 	  {
