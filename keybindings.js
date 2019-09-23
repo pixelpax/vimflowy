@@ -163,19 +163,21 @@ const actionMap =
 	  }),
 	  'alt-l': t => 
 	  {
-		zoomOutFocused();
+		zoomInFocused();
 	  },
 	  'alt-h': t => 
 	  {
-		zoomInFocused();
+		zoomOutFocused();
 	  },
 	  'ctrl-l': t => 
 	  {
-	    WF.zoomIn(WF.focusedItem());
+		// WF.zoomIn(WF.focusedItem());
+		zoomInInstantly();
 	  },
 	  'ctrl-h': t => 
 	  {
-	    WF.zoomOut(WF.currentItem());
+		// WF.zoomOut(WF.currentItem());
+		zoomOutInstantly();
 	  },
 	  x: t => 
 	  { 

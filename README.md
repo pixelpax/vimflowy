@@ -40,8 +40,8 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `de`: cut from cursor location to the end of the current word
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
-    - `<ctrl>h`: zoom out (identical to WF zoom out) 
-    - `<ctrl>l`: zoom in  (identical to WF zoom in) 
+    - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant) 
+    - `<ctrl>l`: zoom in  (identical behaviour as WF zoom in  - but instant) 
     - `V`,`v`: Enter visual mode 
     - `Tab`,`>`,`<alt>L`: indent item(s)
     - `<shift>Tab`,`<`,`<alt>H`: outdent item(s)

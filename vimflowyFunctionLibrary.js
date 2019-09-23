@@ -305,12 +305,15 @@ function getChildOfCurrentItem(itemToQuery)
 
 function toggleExpand(t)
 {
+  const focusedItem = WF.focusedItem();
+  if(focusedItem == null)
+    return;
+
   // expansion/collapse isn't supported by WF when searching
   if(WF.currentSearchQuery() !== null)
     return;
 
   const currentItem = WF.currentItem();
-  const focusedItem = WF.focusedItem();
 
   if(focusedItem && focusedItem.equals(currentItem))
     return;
@@ -1467,7 +1470,7 @@ function sortCompletedItemsOnFocusParent(t)
   setCursorAt(state.get().anchorOffset);
 }
 
-function zoomInFocused()
+function zoomOutFocused()
 {
   const focusedItem = WF.focusedItem();
   if(focusedItem == null)
@@ -1482,7 +1485,6 @@ function zoomInFocused()
     WF.zoomTo(currentItem.getParent());
     if(!WF.focusedItem())
     {
-      // console.log("ctrl-h focus lost after snap, fixing focus");
       requestAnimationFrame(fixFocus);
       goToNormalMode();
       WF.editItemName(currentItem);
@@ -1506,7 +1508,7 @@ function zoomInFocused()
   setCursorAt(state.get().anchorOffset);
 }
 
-function zoomOutFocused()
+function zoomInFocused()
 {
   const focusedItem = WF.focusedItem();
   if(focusedItem == null)
@@ -1536,7 +1538,40 @@ function zoomOutFocused()
       }
     });
   }
+}
 
+function zoomOutInstantly()
+{
+  const currentItem = WF.currentItem();
+  const currentItemParent = currentItem.getParent();
+  if(currentItemParent)
+  {
+    WF.zoomTo(currentItemParent);
+    WF.editItemName(currentItem);
+    setCursorAt(state.get().anchorOffset);
+  }
+  else
+  {
+    WF.zoomOut(WF.currentItem());
+  }
+
+}
+
+function zoomInInstantly()
+{
+		const focusedItem = WF.focusedItem();
+    if(focusedItem)
+    {
+      WF.zoomTo(focusedItem);
+
+      const kids = focusedItem.getVisibleChildren();
+      if(kids !== undefined && kids.length != 0)
+        WF.editItemName(kids[0]);
+      else
+        WF.editItemName(focusedItem);
+
+      setCursorAt(state.get().anchorOffset);
+    }
 }
 
 const onlyIfProjectCanBeEdited = command => target => {
