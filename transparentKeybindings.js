@@ -215,11 +215,9 @@ const transparentActionMap =
 	  },
 	  'd$': e => 
 	  {
-	    deleteUntilLineEnd(e);
-	  },
-	  'dr': e => 
-	  {
-	    deleteUntilLineEnd(e);
+	    deleteUntilLineEnd();
+		e.preventDefault()
+		e.stopPropagation()
 	  },
 	  'alt-H': e => 
 	  {

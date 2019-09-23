@@ -211,6 +211,10 @@ const actionMap =
 	  {
 	    yankSelectedItems(t);
 	  },
+	  'D': e => 
+	  {
+	    deleteUntilLineEnd();
+	  },
 	  u: t => 
 	  {
 	    WF.undo(); 

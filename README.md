@@ -27,7 +27,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `I`: Insert at the beginning of the line
     - `A`: Insert after the end of the line
     - `x`: remove character under cursor 
-    - `d$`, `dr`: cut from cursor location to the very end of line 
+    - `d$`, `D`: cut from cursor location to the very end of line 
     - `u`: Undo
     - `y`,`Y`: yank (copy) focused items (and children)
     - `p`: paste yanked items below focused item 

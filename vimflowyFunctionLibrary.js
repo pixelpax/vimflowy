@@ -1,6 +1,6 @@
 const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.key && event.key}`
 
-function deleteUntilLineEnd(e)
+function deleteUntilLineEnd()
 {
   const focusedItem = WF.focusedItem();
   if(!focusedItem)
@@ -69,8 +69,7 @@ function deleteUntilLineEnd(e)
 
   // console.log("finalString: " + finalString);
   WF.setItemName(focusedItem, finalString);
-  event.preventDefault()
-  event.stopPropagation()
+  setCursorAt(state.get().anchorOffset);
 }
 
 function deleteWord(e, bToNextWord)
