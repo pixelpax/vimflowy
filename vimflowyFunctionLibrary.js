@@ -1573,6 +1573,49 @@ function zoomInInstantly()
     }
 }
 
+function deleteNote(item)
+{
+		if(!item)
+      return;
+
+    WF.editGroup(() => 
+    {
+      WF.setItemNote(item, "");
+      WF.editItemName(item);
+      setCursorAt(state.get().anchorOffset);
+    });
+
+}
+
+function changeNote(item)
+{
+		if(!item)
+      return;
+
+    WF.editGroup(() => 
+    {
+      WF.editItemName(WF.currentItem());
+      WF.setItemNote(item, "");
+      WF.editItemNote(item);
+
+      WF.insertText("");
+
+      WF.editItemName(WF.currentItem());
+      WF.setItemNote(item, "");
+      WF.editItemNote(item);
+
+    });
+
+    goToInsertMode();
+}
+
+function deleteUnderCursor(t)
+{
+  const currentOffset = state.get().anchorOffset;
+  WF.insertText("");
+  moveCursorTo(t, offsetCalculator(state), currentOffset);
+}
+
 const onlyIfProjectCanBeEdited = command => target => {
 	const targetProject = projectAncestor(target)
 	const isMainDotOfForeignSharedList = targetProject.className.includes('addedShared')

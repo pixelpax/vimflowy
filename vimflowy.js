@@ -54,8 +54,9 @@ mainContainer.addEventListener('keydown', event =>
 
       // @TODO: check if we have triple and quad 
       // sequences in the if statement instead
-      keyBuffer.pop();
-      keyBuffer.pop();
+      // keyBuffer.pop();
+      // keyBuffer.pop();
+      keyBuffer = [];
       // console.log("-- Sequence Map -- ")
     }
     else if (actionMap[state.get().mode][keyFrom(event)]) 

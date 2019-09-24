@@ -213,6 +213,18 @@ const transparentActionMap =
 	  {
 	    deleteWord(e, false);
 	  },
+	  'dn': e => 
+	  {
+		deleteNote(WF.focusedItem());
+		e.preventDefault()
+		e.stopPropagation()
+	  },
+	  'cn': e => 
+	  {
+		changeNote(WF.focusedItem());
+		e.preventDefault()
+		e.stopPropagation()
+	  },
 	  'd$': e => 
 	  {
 	    deleteUntilLineEnd();

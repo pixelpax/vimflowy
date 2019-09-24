@@ -19,9 +19,6 @@ const actionMap =
 	  l: t => moveCursorRight(t, offsetCalculator(state)),
 	  i: onlyIfProjectCanBeEdited(() => goToInsertMode()),
 	  a: onlyIfProjectCanBeEdited(() => goToInsertMode(true)),
-	  // '/': t => { WF.search("test"); },
-	  //'/': searchCommand,
-	  //'?': searchCommand,
 	  e: t => 
 	  {
 	    const focusedItem = WF.focusedItem();
@@ -181,9 +178,12 @@ const actionMap =
 	  },
 	  x: t => 
 	  { 
-	    const currentOffset = state.get().anchorOffset;
-	    WF.insertText("");
-	    moveCursorTo(t, offsetCalculator(state), currentOffset);
+		deleteUnderCursor(t);
+	  },
+	  s: t => 
+	  { 
+		deleteUnderCursor(t);
+		goToInsertMode();
 	  },
 	  'alt-§': t => 
 	  {
@@ -211,17 +211,44 @@ const actionMap =
 	  {
 	    yankSelectedItems(t);
 	  },
-	  'D': e => 
+	  'D': t => 
 	  {
 	    deleteUntilLineEnd();
 	  },
+	  'C': t => 
+	  {
+	    deleteUntilLineEnd();
+		goToInsertMode();
+	  },
+	  'S': t => 
+	  {
+		  const focusedItem = WF.focusedItem();
+		  if(focusedItem)
+		  {
+			WF.setItemName(focusedItem, "");
+			WF.editItemName(focusedItem);
+			setCursorAt(state.get().anchorOffset);
+			goToInsertMode();
+		  }
+	  },
 	  u: t => 
 	  {
-	    WF.undo(); 
+		const focusedItem = WF.focusedItem();
+
+		WF.undo(); 
+
+		if(focusedItem)
+			WF.editItemName(focusedItem);
+
+		setCursorAt(state.get().anchorOffset);
 	  },
 	  'ctrl-r': t => 
 	  {
 	    WF.redo();
+	  },
+	  z: t => 
+	  {
+	    toggleExpand(t);
 	  },
 	  ' ': t => 
 	  {
@@ -276,6 +303,24 @@ const actionMap =
 	  {
 		sortCompletedItemsOnFocusParent(t);
 		ExitVisualMode();
+	  },
+	  D: t => 
+	  {
+		var selection = WF.getSelection();
+		if (selection === undefined || selection.length == 0) 
+			return;
+
+		WF.editGroup(() => 
+		{
+			selection.forEach((item, i) => 
+			{
+				deleteNote(item);
+			});
+		});
+
+		RotateSelectionPreMoveBuffer();
+
+	    ExitVisualMode();
 	  },
 	  u: t => 
 	  {

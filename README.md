@@ -27,7 +27,10 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `I`: Insert at the beginning of the line
     - `A`: Insert after the end of the line
     - `x`: remove character under cursor 
-    - `d$`, `D`: cut from cursor location to the very end of line 
+    - `s`: remove character under cursor + insert mode
+    - `S`: substitute entire line - deletes line, enters insertion mode
+    - `C`: change to end of line
+    - `d$`, `D`: delete to end of line
     - `u`: Undo
     - `y`,`Y`: yank (copy) focused items (and children)
     - `p`: paste yanked items below focused item 
@@ -38,6 +41,8 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `dd`: yank and delete the current item(s)
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
+    - `dn`: delete note 
+    - `cn`: change note == delete note + insert mode
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
     - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant) 
@@ -46,7 +51,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `Tab`,`>`,`<alt>L`: indent item(s)
     - `<shift>Tab`,`<`,`<alt>H`: outdent item(s)
     - `<Alt>Enter`: will open the first URL found in the focusedItems name or note 
-    - `Space`: toggle expand/collapse on focusedItem 
+    - `Space`, `z`: toggle expand/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `Enter`: Zoom in on focused node - and place current item in memory 
     - `Backspace`: zoom in on item which was place in memory when using 'Enter'
@@ -63,6 +68,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `V`,`v`,`<Esc>`: Enter normal mode 
     - `y`, `Y`: yank (copy) selected items and enter normal mode 
     - `d`: yank, delete selected items and enter normal mode 
+    - `D`: delete notes on all selected items
     - `<Alt>J`: Move the current selection down 
     - `<Alt>K`: Move the current selection up 
     - `<ctrl>Enter`: Toggle Completed on seletion 
