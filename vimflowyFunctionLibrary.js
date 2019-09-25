@@ -799,8 +799,12 @@ function visualMode_AddItemToSelection_Above(t)
   if(focusedItem.getPriority() == 0 && focusedItem.getParent().equals(currentItem))
     return;
 
+  // fix for invisible siblings that are placed at the top
+  if(currentItem.getVisibleChildren()[0].equals(focusedItem))
+    return;
+
   const previousVisibleSibling = focusedItem.getPreviousVisibleSibling();
-  if(!previousVisibleSibling || previousVisibleSibling && previousVisibleSibling.equals(currentItem))
+  if(previousVisibleSibling && previousVisibleSibling.equals(currentItem))
     return;
 
   var currentSelection = VisualSelectionBuffer.length != 0 ? VisualSelectionBuffer : WF.getSelection();
@@ -809,7 +813,13 @@ function visualMode_AddItemToSelection_Above(t)
   if(itemAtStart && !containsItem(currentSelection, itemAtStart))
     currentSelection.unshift(itemAtStart);
 
+  // console.clear();
+  // console.log("focusedItem before move: " + WF.focusedItem().getNameInPlainText());
+
   setCursorAfterVerticalMove(offsetCalculator(state), moveCursorUp(t));
+
+  // console.log("focusedItem after move: " + WF.focusedItem().getNameInPlainText());
+  // console.log("child of focusedItem after move: " + getChildOfCurrentItem(WF.focusedItem()).getNameInPlainText());
 
   const initialSelectionItemAncestors = InitialSelectionItem.getAncestors();
 
