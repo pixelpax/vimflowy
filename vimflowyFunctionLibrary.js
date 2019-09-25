@@ -800,7 +800,7 @@ function visualMode_AddItemToSelection_Above(t)
     return;
 
   const previousVisibleSibling = focusedItem.getPreviousVisibleSibling();
-  if(previousVisibleSibling && previousVisibleSibling.equals(currentItem))
+  if(!previousVisibleSibling || previousVisibleSibling && previousVisibleSibling.equals(currentItem))
     return;
 
   var currentSelection = VisualSelectionBuffer.length != 0 ? VisualSelectionBuffer : WF.getSelection();
@@ -816,7 +816,7 @@ function visualMode_AddItemToSelection_Above(t)
   // if (YoungerThenInitial || SameAgeButDifferentBranch || bDifferentTree)
   if(  (WF.focusedItem().getAncestors().length > InitialSelectionItem.getAncestors().length)
     || (WF.focusedItem().getAncestors().length == InitialSelectionItem.getAncestors().length) && (!WF.focusedItem().getParent().equals(InitialSelectionItem.getParent()))
-    || (WF.focusedItem().getParent() != WF.currentItem()) && (!getChildOfCurrentItem(WF.focusedItem()).equals(getChildOfCurrentItem(InitialSelectionItem))))
+    || (!WF.focusedItem().getParent().equals(WF.currentItem())) && (!getChildOfCurrentItem(WF.focusedItem()).equals(getChildOfCurrentItem(InitialSelectionItem))))
   {
     const prevSibling = focusedItem.getPreviousVisibleSibling(); 
     const bSharesTheSameTreeAsNewFocus = containsItem(WF.focusedItem().getAncestors(), InitialSelectionItem);
@@ -972,7 +972,7 @@ function visualMode_AddItemToSelection_Below(t)
   // if (YoungerThenInitial || SameAgeButDifferentBranch || bDifferentTree)
   if(  (WF.focusedItem().getAncestors().length > InitialSelectionItem.getAncestors().length)
     || (WF.focusedItem().getAncestors().length == InitialSelectionItem.getAncestors().length) && (!WF.focusedItem().getParent().equals(InitialSelectionItem.getParent()))
-    || (WF.focusedItem().getParent() != WF.currentItem()) && (!getChildOfCurrentItem(WF.focusedItem()).equals(getChildOfCurrentItem(InitialSelectionItem))))
+    || (!WF.focusedItem().getParent().equals(WF.currentItem())) && (!getChildOfCurrentItem(WF.focusedItem()).equals(getChildOfCurrentItem(InitialSelectionItem))))
   {
     const nextSibling = focusedItem.getNextVisibleSibling(); 
     if(nextSibling)
