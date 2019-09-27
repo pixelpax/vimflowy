@@ -361,7 +361,7 @@ const transparentActionMap =
 	      outdentSelection(e);
 	    else
 	      indentSelection(e);
-	    ExitVisualMode();
+	    // ExitVisualMode();
 	  },
 	  'ctrl-k': e => 
 	  {

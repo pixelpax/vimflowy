@@ -57,26 +57,28 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `Backspace`: zoom in on item which was place in memory when using 'Enter'
     - `<alt>§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
     - `§`: sort completed items according to time and place them at the bottom 
-    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
-    - `<ctrl>Enter`: Toggle Completed on seletion 
 * insert mode
-    - `<Esc>`,`<jk>` : Enter Normal mode
-    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `<jk>` : Enter Normal mode
 * visual mode
-    - `Tab`,`>`: indent item(s)
-    - `<shift>Tab`,`<`: outdent item(s)
+    - `>`,`<alt>L`: indent item(s) + enter normal mode
+    - `<`,`<alt>H`: outdent item(s) +  enter normal mode
+    - `Tab`: indent item(s), stays in visual mode
+    - `<shift>Tab`: outdent item(s), stays in visual mode
     - `V`,`v`,`<Esc>`: Enter normal mode 
     - `y`, `Y`: yank (copy) selected items and enter normal mode 
     - `d`: yank, delete selected items and enter normal mode 
     - `D`: delete notes on all selected items
     - `<Alt>J`: Move the current selection down 
     - `<Alt>K`: Move the current selection up 
-    - `<ctrl>Enter`: Toggle Completed on seletion 
     - `u`: Undo
     - `<Ctrl>r`: Redo
     - `Space`: toggle expand/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
+* all modes
+    - `<Esc>`: Enter Normal mode
     - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `<ctrl>Enter`: Toggle Completed on seletion 
+
 
 Mode indicator
 --------------
