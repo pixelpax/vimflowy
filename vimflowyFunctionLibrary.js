@@ -662,8 +662,11 @@ function indentSelection(e)
     WF.moveItems(selection, newParentItem, prio);
     VisualSelectionBuffer = selection;
     WF.setSelection(selection);
-    if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
-      WF.expandItem(newParentItem);
+
+    // @TODO: this will only work if the expansion is instant
+    // if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
+    //   WF.expandItem(newParentItem);
+
   });
 
   WF.editItemName(selection[0]);
@@ -709,11 +712,15 @@ function outdentSelection(e)
 
   WF.editGroup(() => 
   {
+
     WF.moveItems(selection, newParentItem, prio);
     VisualSelectionBuffer = selection;
     WF.setSelection(selection);
-    if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
-      WF.expandItem(newParentItem);
+
+    // @TODO: this will only work if the expansion is instant
+    // if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
+    //   WF.expandItem(newParentItem);
+
   });
 
   WF.editItemName(selection[0]);
