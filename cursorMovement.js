@@ -119,10 +119,19 @@ const moveCursorDown = startElement =>
 {
   const project = projectAncestor(startElement)
 
-  //if (project.className.includes('open')) {
-  if (project.className.includes('open') || project.className.includes('selected')) 
-  {
+  if (project.className.includes('selected')) 
     return project.querySelector('.project')
+
+  if (project.className.includes('open')) 
+  {
+    const querySelectedProject = project.querySelector('.project');
+
+      // need to guard against the case of a sibling with hidden items in it
+    if(querySelectedProject)
+    {
+      return querySelectedProject;
+    }
+
   }
 
   let cursorTargetProject = project
@@ -162,14 +171,18 @@ const moveCursorUp = t =>
     if (cursorTarget.className.includes('open')) 
     {
       const textContainers = cursorTarget.querySelectorAll('.project')
-      cursorTarget = textContainers[textContainers.length - 1]
+
+      // need to guard against the case of a sibling with hidden items in it
+      if(textContainers[textContainers.length - 1] !== undefined)
+      {
+        cursorTarget = textContainers[textContainers.length - 1]
+      }
+
     }
   }
 
   if (!cursorTarget) 
-  {
     cursorTarget = projectAncestor(project) 
-  }
 
 /*    return cursorTarget.className.includes('mainTreeRoot')
     ? project

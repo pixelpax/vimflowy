@@ -973,10 +973,6 @@ function visualMode_AddItemToSelection_Below(t)
   if(focusedItem.getParent().equals(WF.currentItem()) && !focusedItem.getNextVisibleSibling())
     return;
 
-  // console.clear();
-  // console.log("////////////////////////////");
-  // console.log("going down");
-
   const itemAtStart = focusedItem; 
 
   var currentSelection = VisualSelectionBuffer.length != 0 ? VisualSelectionBuffer : WF.getSelection();
