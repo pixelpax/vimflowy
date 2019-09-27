@@ -971,7 +971,13 @@ function visualMode_AddItemToSelection_Below(t)
     return;
 
   if(focusedItem.getParent().equals(WF.currentItem()) && !focusedItem.getNextVisibleSibling())
-    return;
+  {
+    const focusKids = focusedItem.getVisibleChildren();
+    if(focusKids.length == 0 || (!focusedItem.equals(InitialSelectionItem) && !containsItem(InitialSelectionItem.getAncestors(), focusedItem)))
+    {
+      return;
+    }
+  }
 
   const itemAtStart = focusedItem; 
 
