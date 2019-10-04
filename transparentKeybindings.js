@@ -12,6 +12,11 @@ const transparentActionMap =
 	    focusPreJumpToItemMenu = WF.focusedItem();
 	    goToInsertMode();
 	  },
+	  'ctrl-;': e => 
+	  {
+	    focusPreJumpToItemMenu = WF.focusedItem();
+	    goToInsertMode();
+	  },
 	  'ctrl-Dead': e => 
 	  {
 	    focusPreJumpToItemMenu = WF.focusedItem();
@@ -369,6 +374,12 @@ const transparentActionMap =
 	    focusPreJumpToItemMenu = WF.focusedItem();
 	    goToInsertMode();
 	  },
+	  'ctrl-;': e => 
+	  {
+	    ExitVisualMode();
+	    focusPreJumpToItemMenu = WF.focusedItem();
+	    goToInsertMode();
+	  },
 	  'ctrl-Dead': e => 
 	  {
 	    ExitVisualMode();
@@ -477,6 +488,14 @@ const transparentActionMap =
 	    event.preventDefault();
 	  },
 	  'ctrl-k': e => 
+	  {
+		const focusedItem = WF.focusedItem();
+		if(focusedItem)
+			focusPreJumpToItemMenu = focusedItem;
+
+	    goToInsertMode();
+	  },
+	  'ctrl-;': e => 
 	  {
 		const focusedItem = WF.focusedItem();
 		if(focusedItem)

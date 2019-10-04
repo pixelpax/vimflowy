@@ -185,11 +185,21 @@ const actionMap =
 		deleteUnderCursor(t);
 		goToInsertMode();
 	  },
+	  'alt-`': t => 
+	  {
+	      previousTimeTagCounterMsg = "";
+	      WF.hideMessage();
+	      bShowTimeCounter = !bShowTimeCounter;
+	  },
 	  'alt-§': t => 
 	  {
 	      previousTimeTagCounterMsg = "";
 	      WF.hideMessage();
 	      bShowTimeCounter = !bShowTimeCounter;
+	  },
+	  '`': t => 
+	  {
+		  sortCompletedItemsOnFocusParent(t);
 	  },
 	  '§': t => 
 	  {
@@ -299,6 +309,11 @@ const actionMap =
 	},
 	[Mode.VISUAL]: 
 	{
+	  '`': t => 
+	  {
+		sortCompletedItemsOnFocusParent(t);
+		ExitVisualMode();
+	  },
 	  '§': t => 
 	  {
 		sortCompletedItemsOnFocusParent(t);

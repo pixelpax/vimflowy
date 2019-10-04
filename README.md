@@ -55,8 +55,8 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `Enter`: Zoom in on focused node - and place current item in memory 
     - `Backspace`: zoom in on item which was place in memory when using 'Enter'
-    - `<alt>§`: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
-    - `§`: sort completed items according to time and place them at the bottom 
+    - `<alt>§`, ``<alt>```: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
+    - `§`, `` ` ``: sort completed items according to time and place them at the bottom 
 * insert mode
     - `<jk>` : Enter Normal mode
 * visual mode
@@ -76,7 +76,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
 * all modes
     - `<Esc>`: Enter Normal mode
-    - `<Ctrl>k`,`<Ctrl>~`: Use Workflowys JumpToItemMenu 
+    - `<Ctrl>k`,`<Ctrl>Dead`, `<Ctrl>;`: Use Workflowys JumpToItemMenu 
     - `<ctrl>Enter`: Toggle Completed on seletion 
 
 
