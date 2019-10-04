@@ -55,7 +55,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
     - `Enter`: Zoom in on focused node - and place current item in memory 
     - `Backspace`: zoom in on item which was place in memory when using 'Enter'
-    - `<alt>§`, `` <alt>` ``: toggle time counter. (use #1d, #2h, #30m tags for it to count) 
+    - `<alt>§`, `` <alt>` ``: toggle work time counter; displaying num (8 hour) days and num (5 day) Weeks worth of tags. (use #1d, #2h, #30m tags for it to count) 
     - `§`, `` ` ``: sort completed items according to time and place them at the bottom 
 * insert mode
     - `<jk>` : Enter Normal mode

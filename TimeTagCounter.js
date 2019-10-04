@@ -45,8 +45,8 @@ function updateTimeTagCounter()
     function convertMinsToStr(mins) {
         const hours = Math.floor(mins / 60);
         const netMins = mins - hours * 60;
-        const days = hours / 8;
-        const weeks = (days / 3).toFixed(2);
+        const days = (hours / 8).toFixed(2);
+        const weeks = (days / 5).toFixed(2);
         return `${hours.toString().padStart(4," ")}h ${netMins.toString().padStart(2," ")}m | ${days.toString().padStart(2," ")} days | ${weeks.toString().padStart(2," ")} weeks`
     }
 
@@ -76,9 +76,9 @@ function updateTimeTagCounter()
 
     function convertTimeToStr(mins) {
         const hours = Math.floor(mins / 60);
-        const netMins = mins - hours * 60;
-        const days = hours / 8;
-        const weeks = (days / 3).toFixed(2);
+        const days = (hours / 8).toFixed(2);
+        const weeks = (days / 5).toFixed(2);
+        // return `${days.toString()} days // ${weeks.toString()} weeks // ${workDays.toString()} days(8h) // ${workWeeks.toString()} weeks(5d)`
         return `${days.toString()} days // ${weeks.toString()} weeks`
     }
 
