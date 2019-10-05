@@ -76,7 +76,7 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
 * all modes
     - `<Esc>`: Enter Normal mode
-    - `<Ctrl>k`,`<Ctrl>Dead`, `<Ctrl>;`: Use Workflowys JumpToItemMenu 
+    - `<Ctrl>k`,`<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu 
     - `<ctrl>Enter`: Toggle Completed on seletion 
 
 
