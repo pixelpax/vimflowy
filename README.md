@@ -48,8 +48,9 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant) 
     - `<ctrl>l`: zoom in  (identical behaviour as WF zoom in  - but instant) 
     - `V`,`v`: Enter visual mode 
-    - `Tab`,`>`,`<alt>L`: indent item(s)
-    - `<shift>Tab`,`<`,`<alt>H`: outdent item(s)
+    - `>`,`<alt>L`,`Tab`: indent item(s)
+    - `<alt>H`,`<shift>Tab`: outdent items
+    - `<`: outdent items (and selected kids once the parent item hits the wall)
     - `<Alt>Enter`: will open the first URL found in the focusedItems name or note 
     - `Space`, `z`: toggle expand/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
@@ -60,10 +61,9 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
 * insert mode
     - `<jk>` : Enter Normal mode
 * visual mode
-    - `>`,`<alt>L`: indent item(s) + enter normal mode
-    - `<`,`<alt>H`: outdent item(s) +  enter normal mode
-    - `Tab`: indent item(s), stays in visual mode
-    - `<shift>Tab`: outdent item(s), stays in visual mode
+    - `>`,`<alt>L`,`Tab`: indent item(s) + enter normal mode
+    - `<alt>H`,`<shift>Tab`: outdent items +  enter normal mode
+    - `<`: outdent items (and selected kids once the parent item hits the wall) +  enter normal mode
     - `V`,`v`,`<Esc>`: Enter normal mode 
     - `y`, `Y`: yank (copy) selected items and enter normal mode 
     - `d`: yank, delete selected items and enter normal mode 

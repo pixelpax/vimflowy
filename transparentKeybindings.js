@@ -259,26 +259,44 @@ const transparentActionMap =
 	  },
 	  '<': e => 
 	  {
-	    enterVisualMode();
-	    outdentSelection(e);
-	    ExitVisualMode();
-	    event.preventDefault()
-	    event.stopPropagation()
+		  if(WF.getSelection().length <= 0)
+		  {
+			  outdentFocusedItem(e);
+		  }
+		  else
+		  {
+			enterVisualMode();
+			outdentSelection(e, true);
+			ExitVisualMode();
+			event.preventDefault();
+			event.stopPropagation();
+		  }
 	  },
 	  '>': e => 
 	  {
-	    enterVisualMode();
-	    indentSelection(e);
-	    ExitVisualMode();
-	    event.preventDefault()
-	    event.stopPropagation()
+		if(WF.getSelection().length <= 0)
+		{
+			indentFocusedItem(e);
+		}
+		else
+		{
+			enterVisualMode();
+			indentSelection(e);
+			ExitVisualMode();
+			event.preventDefault();
+			event.stopPropagation();
+		}
 	  },
 	  Tab: e => 
 	  {
 	    if(e.shiftKey)
-	      outdentSelection(e);
+		{
+			outdentSelection(e, false);
+		}
 	    else
-	      indentSelection(e);
+		{
+	    	indentSelection(e);
+		}
 	  },
 	  'ctrl- ': e => 
 	  {
@@ -358,7 +376,7 @@ const transparentActionMap =
 	  },
 	  '<': e => 
 	  {
-	    outdentSelection(e);
+	    outdentSelection(e, true);
 	    event.preventDefault()
 	    event.stopPropagation()
 	    ExitVisualMode();
@@ -379,10 +397,14 @@ const transparentActionMap =
 	  Tab: e => 
 	  {
 	    if(e.shiftKey)
-	      outdentSelection(e);
-	    else
-	      indentSelection(e);
-	    // ExitVisualMode();
+		{
+			outdentSelection(e, false);
+		}
+		else
+		{
+	    	indentSelection(e);
+		}
+	    ExitVisualMode();
 	  },
 	  'ctrl-k': e => 
 	  {

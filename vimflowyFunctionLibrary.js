@@ -649,10 +649,10 @@ function indentSelection(e)
       prio = kids[kids.length-1].getPriority()+1;
   }
 
+  SelectionPreMove = selection;
+
   if(newParentItem == null || newParentItem === undefined)
     return;
-
-  SelectionPreMove = selection;
 
   const currentOffset = state.get().anchorOffset
   WF.editItemName(newParentItem);
@@ -679,58 +679,157 @@ function indentSelection(e)
   e.stopPropagation();
 }
 
-function outdentSelection(e)
+function indentFocusedItem(e)
 {
-  var selection = WF.getSelection();
-  if (selection === undefined || selection.length == 0) 
-    selection = SelectionPreMove;
+	e.preventDefault();
+	e.stopPropagation();
 
-  if (selection === undefined || selection.length == 0)
-    return;
+	const focusedItem = WF.focusedItem();
+	if(!focusedItem)
+		return;
 
-  var prio = 0;
-  var newParentItem = null;
-  const currentItem = WF.currentItem();
-  const selectionsParent = selection[0].getParent();
-  if(selectionsParent && !currentItem.equals(selectionsParent))
-  {
-    const grandParent = selectionsParent.getParent();
-    if(grandParent)
-    {
-      newParentItem = grandParent;
-      prio = selectionsParent.getPriority() + 1; 
-    }
-  }
+	const focusPrevSibling = focusedItem.getPreviousVisibleSibling();
+	if(!focusPrevSibling)
+		return;
 
-  if(newParentItem == null || newParentItem === undefined)
-    return;
+	var prio = 0;
+    const kids = focusPrevSibling.getChildren(); 
+    if(kids.length != 0)
+      prio = kids[kids.length-1].getPriority()+1;
 
-  SelectionPreMove = selection;
+	const currentOffset = state.get().anchorOffset
 
-  const currentOffset = state.get().anchorOffset
-  WF.editItemName(newParentItem);
+	// focus on new parent in case re-focusing fails after move.
+	WF.editItemName(focusPrevSibling);
 
-  WF.editGroup(() => 
-  {
+	WF.editGroup(() => 
+	{
+		WF.moveItems([focusedItem], focusPrevSibling, prio);
+	});
 
-    WF.moveItems(selection, newParentItem, prio);
-    VisualSelectionBuffer = selection;
-    WF.setSelection(selection);
+	WF.editItemName(focusedItem);
 
-    // @TODO: this will only work if the expansion is instant
-    // if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
-    //   WF.expandItem(newParentItem);
+	setCursorAt(currentOffset);
 
-  });
+	if(!WF.focusedItem())
+		requestAnimationFrame(fixFocus);
+}
 
-  WF.editItemName(selection[0]);
-  setCursorAt(currentOffset);
+function outdentFocusedItem(e)
+{
+	e.preventDefault();
+	e.stopPropagation();
 
-  if(!WF.focusedItem())
-    requestAnimationFrame(fixFocus);
+	const focusedItem = WF.focusedItem();
+	if(!focusedItem)
+		return;
 
-  e.preventDefault();
-  e.stopPropagation();
+	const focusParent = focusedItem.getParent();
+	if(!focusParent)
+		return;
+
+	const currentItem = WF.currentItem();
+	if(currentItem.equals(focusParent))
+		return;
+
+	var newPriority = focusParent.getPriority() + 1;
+	const newParent = focusParent.getParent();
+
+	const currentOffset = state.get().anchorOffset
+
+	// focus on new parent in case re-focusing fails after move.
+	WF.editItemName(newParent);
+
+	WF.editGroup(() => 
+	{
+		WF.moveItems([focusedItem], newParent, newPriority);
+	});
+
+	WF.editItemName(focusedItem);
+
+	setCursorAt(currentOffset);
+
+	if(!WF.focusedItem())
+		requestAnimationFrame(fixFocus);
+}
+
+function outdentSelection(e, bIncludingChildren = false)
+{
+	var selection = WF.getSelection();
+	if (selection === undefined || selection.length == 0) 
+		selection = SelectionPreMove;
+
+	if (selection === undefined || selection.length == 0)
+		return;
+
+	const selectionParent = selection[0].getParent();
+	if(!selectionParent)
+		return;
+
+	var prio = 0;
+	var newParentItem = null;
+
+	const currentItem = WF.currentItem();
+	if(!currentItem.equals(selectionParent))
+	{
+		const grandParent = selectionParent.getParent();
+		if(grandParent)
+		{
+			newParentItem = grandParent;
+			prio = selectionParent.getPriority() + 1; 
+		}
+	}
+	else if(bIncludingChildren)
+	{
+		WF.editGroup(() => 
+		{
+			selection.forEach((item, i) => 
+			{
+				const kids = item.getVisibleChildren();
+				if (kids !== undefined && kids.length != 0) 
+				{
+					const destinationParent = item.getParent();
+					const destinationPriority = item.getPriority() + 1;
+					WF.moveItems(kids, destinationParent, destinationPriority);
+
+					// the kids have to be added to the selection
+					// now that they have been outdented
+					selection = selection.concat(kids);
+					WF.setSelection(selection);
+				}
+			});
+		});
+	}
+
+	SelectionPreMove = selection;
+
+	if(newParentItem == null || newParentItem === undefined)
+		return;
+
+	const currentOffset = state.get().anchorOffset
+	WF.editItemName(newParentItem);
+
+	WF.editGroup(() => 
+	{
+		WF.moveItems(selection, newParentItem, prio);
+		VisualSelectionBuffer = selection;
+		WF.setSelection(selection);
+
+		// @TODO: this will only work if the expansion is instant
+		// if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
+		//   WF.expandItem(newParentItem);
+	});
+
+	WF.editItemName(selection[0]);
+	setCursorAt(currentOffset);
+
+	if(!WF.focusedItem())
+		requestAnimationFrame(fixFocus);
+
+	// we've placed these down here due to "TAB"
+	// if this fails then wimflowys TAB will take over.
+	e.preventDefault();
+	e.stopPropagation();
 }
 
 function deleteSelectedItems(t)
