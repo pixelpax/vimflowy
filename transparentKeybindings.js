@@ -302,6 +302,11 @@ const transparentActionMap =
 		  toggleCompletedOnSelection(e);
 		  RotateSelectionPreMoveBuffer();
 	  },
+	  'ctrl-c': t => 
+	  {
+	    yankSelectedItems(t);
+    	requestAnimationFrame(fixFocus);
+	  },
 	  'dd': e => 
 	  {
 	    yankSelectedItems(e.target);
@@ -364,6 +369,12 @@ const transparentActionMap =
 	    event.preventDefault()
 	    event.stopPropagation()
 	    ExitVisualMode();
+	  },
+	  'ctrl-c': t => 
+	  {
+	    yankSelectedItems(t);
+		goToNormalMode();
+    	requestAnimationFrame(fixFocus);
 	  },
 	  Tab: e => 
 	  {
