@@ -335,6 +335,18 @@ const transparentActionMap =
 	},
 	[Mode.VISUAL]: 
 	{
+	  'GG': t => 
+	  {
+		addSiblingsFromCurrentList(false);
+		event.preventDefault();
+		event.stopPropagation();
+	  },
+	  'gg': t => 
+	  {
+		addSiblingsFromCurrentList(true);
+		event.preventDefault();
+		event.stopPropagation();
+	  },
 	  'ctrl-u': e => 
 	  {
 		RotateSelectionPreMoveBuffer();

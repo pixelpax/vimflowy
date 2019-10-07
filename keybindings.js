@@ -309,6 +309,14 @@ const actionMap =
 	},
 	[Mode.VISUAL]: 
 	{
+	  'G': t => 
+	  {
+		  addSiblingsFromInitList(false);
+	  },
+	  'g': t => 
+	  {
+		  addSiblingsFromInitList(true);
+	  },
 	  '`': t => 
 	  {
 		sortCompletedItemsOnFocusParent(t);
@@ -340,6 +348,7 @@ const actionMap =
 	  u: t => 
 	  {
 	    WF.undo(); 
+	    ExitVisualMode();
 	  },
 	  'ctrl-r': t => 
 	  {

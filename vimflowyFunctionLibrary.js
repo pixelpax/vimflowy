@@ -795,6 +795,7 @@ function outdentSelection(e, bIncludingChildren = false)
 					// the kids have to be added to the selection
 					// now that they have been outdented
 					selection = selection.concat(kids);
+					VisualSelectionBuffer = selection;
 					WF.setSelection(selection);
 				}
 			});
@@ -1702,6 +1703,150 @@ function deleteNote(item)
       WF.editItemName(item);
       setCursorAt(state.get().anchorOffset);
     });
+
+}
+
+function addSiblingsFromInitList(bSiblingsAboveInitItem = true)
+{
+	if(!InitialSelectionItem)
+		return;
+
+	var selection = WF.getSelection();
+	if (selection === undefined || selection.length == 0) 
+		selection = SelectionPreMove;
+
+	if (selection === undefined || selection.length == 0)
+		return;
+
+	const initParent = InitialSelectionItem.getParent();
+	const initPrio = InitialSelectionItem.getPriority();
+	const siblings = initParent.getVisibleChildren();
+	if (siblings === undefined || siblings.length == 0) 
+		return;
+
+	WF.editGroup(() => 
+	{
+		var siblingsToBeAdded = [];
+		var siblingsToBeRemoved = [];
+		if(bSiblingsAboveInitItem)
+		{
+			siblings.forEach((item, i) => 
+			{
+				if(item.getPriority() < initPrio)
+				{
+					siblingsToBeAdded.push(item);
+				}
+				else if(item.getPriority() != initPrio)
+				{
+					siblingsToBeRemoved.push(item);
+				}
+			});
+		}
+		else
+		{
+			siblings.forEach((item, i) => 
+			{
+				if(item.getPriority() > initPrio)
+				{
+					siblingsToBeAdded.push(item);
+				}
+				else if(item.getPriority() != initPrio)
+				{
+					siblingsToBeRemoved.push(item);
+				}
+			});
+		}
+
+		if(bSiblingsAboveInitItem)
+			selection = siblingsToBeAdded.concat(selection);
+		else
+			selection = selection.concat(siblingsToBeAdded);
+
+		selection = selection.filter(x => 
+			!containsItem(siblingsToBeRemoved, x)
+		);
+
+		const currentOffset = state.get().anchorOffset
+		VisualSelectionBuffer = selection;
+		SelectionPreMove = selection;
+		WF.setSelection(selection);
+		WF.editItemName(selection[bSiblingsAboveInitItem ? 0 : selection.length - 1]);
+		setCursorAt(currentOffset);
+	});
+}
+
+function addSiblingsFromCurrentList(bAbove = true)
+{
+	if(!InitialSelectionItem)
+		return;
+
+	var selection = WF.getSelection();
+	if (selection === undefined || selection.length == 0) 
+		selection = SelectionPreMove;
+
+	if (selection === undefined || selection.length == 0)
+		return;
+
+	const initsCurrentItemAncestor = getChildOfCurrentItem(InitialSelectionItem);
+	const initPrio = initsCurrentItemAncestor.getPriority();
+	const siblings = WF.currentItem().getVisibleChildren();
+
+	WF.editGroup(() => 
+	{
+		var siblingsToBeAdded = [];
+		var siblingsToBeRemoved = [];
+		if(bAbove)
+		{
+			siblings.forEach((item, i) => 
+			{
+				if(item.getPriority() < initPrio)
+				{
+					siblingsToBeAdded.push(item);
+				}
+				else if(item.getPriority() != initPrio)
+				{
+					siblingsToBeRemoved.push(item);
+				}
+			});
+		}
+		else
+		{
+			siblings.forEach((item, i) => 
+			{
+				if(item.getPriority() > initPrio)
+				{
+					siblingsToBeAdded.push(item);
+				}
+				else if(item.getPriority() != initPrio)
+				{
+					siblingsToBeRemoved.push(item);
+				}
+			});
+		}
+
+		if(bAbove)
+		{
+			selection = siblingsToBeAdded.concat(selection);
+			selection.push(initsCurrentItemAncestor);
+		}
+		else
+		{
+			selection = selection.concat(siblingsToBeAdded);
+			selection.unshift(initsCurrentItemAncestor);
+		}
+
+		selection = selection.filter(x => 
+			!containsItem(siblingsToBeRemoved, x)
+		);
+
+
+		const currentOffset = state.get().anchorOffset
+		VisualSelectionBuffer = selection;
+		SelectionPreMove = selection;
+		WF.setSelection(selection);
+		WF.editItemName(selection[bAbove ? 0 : selection.length - 1]);
+		setCursorAt(currentOffset);
+	});
 
 }
 

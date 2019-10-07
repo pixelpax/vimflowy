@@ -68,9 +68,13 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `y`, `Y`: yank (copy) selected items and enter normal mode 
     - `d`: yank, delete selected items and enter normal mode 
     - `D`: delete notes on all selected items
+    - `G`: Adds the siblings below to the selection
+    - `g`: Adds the siblings above to the selection
+    - `GG`: Adds the ancestors below to the selection
+    - `gg`: Adds the ancestors above to the selection
     - `<Alt>J`: Move the current selection down 
     - `<Alt>K`: Move the current selection up 
-    - `u`: Undo
+    - `u`: Undo + exit visual mode
     - `<Ctrl>r`: Redo
     - `Space`: toggle expand/collapse on focusedItem 
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot 
