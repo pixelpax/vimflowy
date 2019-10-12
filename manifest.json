@@ -1,6 +1,6 @@
 {
   "name": "Vimflowy",
-  "version": "0.2.0",
+  "version": "0.0.0.1",
   "manifest_version": 2,
 
   "description": "Vim shortcuts for Workflowy",
@@ -9,10 +9,19 @@
   "permissions": 
   [
     "tabs",
+	"activeTab",
     "http://*/*",
     "https://*/*", 
+	"webNavigation",
     "storage"
   ],
+
+  "options_ui": 
+  {
+    "page": "options.html",
+    "open_in_tab": false,
+	"chrome_style": true
+  },
 
   "background": {
       "scripts": 
@@ -41,6 +50,8 @@
     "vimflowyFunctionLibrary.js",
     "keybindings.js",
     "transparentKeybindings.js",
-    "vimflowy.js"
+    "vimflowy.js",
+	"WorkflowySolarized_Dark.css",
+	"WorkflowySolarized_Light.css"
   ]
 }
