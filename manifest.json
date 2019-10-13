@@ -1,27 +1,10 @@
 {
   "name": "Vimflowy",
-  "version": "0.2.0",
-  "manifest_version": 2,
-
+  "short_name": "Vimflowy",
   "description": "Vim shortcuts for Workflowy",
+  "version": "0.0.0.1",
+  "manifest_version": 2,
   "icons": { "48": "icon48.png", "128": "icon128.png" },
-
-  "permissions": 
-  [
-    "tabs",
-    "http://*/*",
-    "https://*/*", 
-    "storage"
-  ],
-
-  "background": {
-      "scripts": 
-      [
-        "background.js"
-      ],
-      "persistent": false 
-    },
-
   "content_scripts": 
   [
     {
@@ -33,7 +16,6 @@
       ]
     } 
   ],
-
   "web_accessible_resources": [ 
     "state.js",
     "TimeTagCounter.js",
