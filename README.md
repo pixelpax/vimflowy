@@ -4,7 +4,7 @@ Vimflowy: Vim shortcuts for Workflowy
 Keybindings
 -----------
 
-Disclaimer: normal mode blocks unsupported keystrokes which haven't been modified by alt, ctrl, or meta. So for example it will block `<Shift>d` but allow `<Ctrl>d` or `<alt>d` to pass through. 
+All modes (except insert) block unsupported keystrokes which haven't been modified by alt, ctrl, or meta. So for example `<Shift>d` will be blocked but `<Ctrl>d` or `<alt>d` will be allowed to pass through. 
 
 * Normal mode
     - `j`: Move down one item
@@ -83,11 +83,15 @@ Disclaimer: normal mode blocks unsupported keystrokes which haven't been modifie
     - `<Ctrl>k`,`<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu 
     - `<ctrl>Enter`: Toggle Completed on seletion 
 
-
 Mode indicator
 --------------
 
 In the bottom left corner there is a mode indicator that shows what mode you are in currently. 
+
+Rebinding keys
+--------------
+
+I plan to make the shortcuts rebindable in the future, via the options menu - but for now you'll have to edit [keybinding](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) and [transparentKeybindings](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind anything. 
 
 Usage tips
 ----------
@@ -104,10 +108,10 @@ Installation
   2. go to `chrome://extensions/`
   3. click 'Load unpacked extension...' button right below 'Extensions' header in the top left corner of the page
   4. point at the vimflowy repo directory
-  5. ...
-  6. profit
+  5. refresh workflowy page
 
 Tested on
 ---------
 
-Only tested on window 10 so far. Some keybindings might differ on MAC - so let me know if something isn't working!
+The extension has mainly been tested on nordic qwerty keyboards running windows 10, but it should work on most other keyboard configurations as well. Please report any bugs you might find at [Issues](https://github.com/Wojnach/vimflowy/issues)
+
