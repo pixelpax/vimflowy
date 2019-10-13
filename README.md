@@ -1,10 +1,12 @@
+
+
+
 Vimflowy: Vim shortcuts for Workflowy
 =====================================
 
 Keybindings
 -----------
-
-All modes (except insert) block unsupported keystrokes which haven't been modified by alt, ctrl, or meta. So for example `<Shift>d` will be blocked but `<Ctrl>d` or `<alt>d` will be allowed to pass through. 
+Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be blocked in all modes, except insert. For example `<Shift>d` will be blocked but `<Ctrl>d` or `<alt>d` will be allowed to pass through. 
     
 * Normal mode
     - `j`: Move down one item
@@ -91,33 +93,28 @@ In the bottom left corner there is a mode indicator that shows what mode you are
 Rebinding keys
 --------------
 
-The plan is to make keys easily rebindable in the future, via the options menu, but for now you'll have to edit [keybinding.js](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) and [transparentKeybindings.js](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind anything. 
+There is a plan to make shortcuts rebindable in the future, via the options menu - but for now you'll have to edit [keybinding.js](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) and [transparentKeybindings.js](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind anything. 
 
 Usage tips
 ----------
-
-If you are on Windows I'd recommend you [increase your keyboard rate](https://superuser.com/a/509811) beyond what Windows constrains you to.
 
 If you're using [cvim](https://chrome.google.com/webstore/detail/cvim/ihlenndgcmojhcghmfjfneahoeklbjjh) (or any other Chrome extensions that install modal keybindings), make sure you add `http*://*.workflowy.com/*`to the excluded URLs.
 
 Installation
 ------------
 
-* The extension is available on the [chrome web store](https://chrome.google.com/webstore/detail/vimflowy/jhoonlfajlaihdlcocigbpeacapaepng)
-* But you can also download and install an unofficial version from github:
-    1. Clone this repo (or your fork) somewhere on your filesystem. 
-    2. go to `chrome://extensions/`
-    3. click 'Load unpacked extension...' button right below 'Extensions' header in the top left corner of the page
-    4. point at the vimflowy repo directory
-    5. refresh workflowy page
+The extension is available on the [chrome web store](https://chrome.google.com/webstore/detail/vimflowy/jhoonlfajlaihdlcocigbpeacapaepng)
+
+But you can also download and install an unofficial version:
+1. Clone this repo (or your fork) somewhere on your filesystem. 
+2. go to `chrome://extensions/`
+3. click 'Load unpacked extension...' button right below 'Extensions' header in the top left corner of the page
+4. point at the vimflowy repo directory
+5. refresh workflowy page
 
 Tested on
 ---------
 
-The extension has mainly been tested on nordic qwerty keyboards running windows 10, but it should work on most other keyboard configurations as well. Please report any bugs you might find at [Issues](https://github.com/Wojnach/vimflowy/issues)
+The extension has mainly been tested on nordic QWERTY keyboards running windows 10, but it should work on other keyboard configurations as well. Please report any bugs you might find at [Issues](https://github.com/Wojnach/vimflowy/issues)
 
-Donations
----------
-And as always [donations](https://www.paypal.me/wojnach) are greatly appreciated!
-
-
+<a href="https://www.buymeacoffee.com/Wojnach" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
