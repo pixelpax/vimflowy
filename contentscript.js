@@ -2,6 +2,7 @@
 var scripts = [ 
     "state.js",
     "TimeTagCounter.js",
+    "easyMotion.js",
     "cursorMovement.js",
     "vimflowyFunctionLibrary.js",
     "keybindings.js",

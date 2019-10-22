@@ -19,6 +19,7 @@
   "web_accessible_resources": [ 
     "state.js",
     "TimeTagCounter.js",
+    "easyMotion.js",
     "cursorMovement.js",
     "vimflowyFunctionLibrary.js",
     "keybindings.js",

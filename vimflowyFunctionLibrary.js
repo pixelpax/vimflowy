@@ -1327,7 +1327,7 @@ function preventKeystrokesWhileNavigating(event)
       // console.log("blocking modifier keys");
    }
 
-    const input = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzåäöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ'.includes(event.key);
+    const input = validInputKeys.includes(event.key);
     const modified = (event.metaKey || event.altKey || event.ctrlKey)
     if (input && !modified)
     {

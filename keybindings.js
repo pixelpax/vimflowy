@@ -176,6 +176,13 @@ const actionMap =
 		// WF.zoomOut(WF.currentItem());
 		zoomOutInstantly();
 	  },
+	  'ctrl-j': t => 
+	  {
+		  if(!WF.focusedItem())
+		  	return;
+
+		  InitEasyMotionMap();
+	  },
 	  x: t => 
 	  { 
 		deleteUnderCursor(t);

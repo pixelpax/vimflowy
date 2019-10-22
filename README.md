@@ -49,6 +49,7 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `<Alt>K`: Move the current line up
     - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant) 
     - `<ctrl>l`: zoom in  (identical behaviour as WF zoom in  - but instant) 
+    - `<ctrl>j`: Jump to node via EasyMotion 
     - `V`,`v`: Enter visual mode 
     - `>`,`<alt>L`,`Tab`: indent item(s)
     - `<alt>H`,`<shift>Tab`: outdent items

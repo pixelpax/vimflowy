@@ -32,17 +32,26 @@ mainContainer.addEventListener('mousedown', event =>
 
 mainContainer.addEventListener('keyup', event => 
 { 
+  HandleEasyMotion_KeyUp();
   reselectItemsBeingMoved();
   updateKeyBuffer_Keyup(event);
 });
 
 mainContainer.addEventListener('keydown', event => 
 { 
-    if(updateKeyBuffer_Keydown(event))
+    if(HandleEasyMotion_KeyDown(event))
     {
+      // console.log("-- HandleEasyMotion early out -- ")
       event.preventDefault()
       event.stopPropagation()
+      return;
+    }
+
+    if(updateKeyBuffer_Keydown(event))
+    {
       // console.log("-- KeybufferDownKey early out -- ")
+      event.preventDefault()
+      event.stopPropagation()
       return;
     }
 
@@ -51,11 +60,6 @@ mainContainer.addEventListener('keydown', event =>
     {
       // handle sequence bindings
       transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]](event);
-
-      // @TODO: check if we have triple and quad 
-      // sequences in the if statement instead
-      // keyBuffer.pop();
-      // keyBuffer.pop();
       keyBuffer = [];
       // console.log("-- Sequence Map -- ")
     }
@@ -79,9 +83,6 @@ mainContainer.addEventListener('keydown', event =>
       // console.log("-- Preventing defaults -- ")
     }
 
-    // console.log(WF.currentItem().getNameInPlainText());
-    // console.log(WF.focusedItem().getNameInPlainText());
-
     if(bShowTimeCounter)
         updateTimeTagCounter();
 
@@ -102,6 +103,7 @@ let bShowTimeCounter = false;
 let keyBuffer = [];
 let yankBuffer = [];
 const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
+const validInputKeys =  '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzåäöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ';
 const key_Slash = "/"//55;
 const key_Esc = "Escape"//27;
 const modifierKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
