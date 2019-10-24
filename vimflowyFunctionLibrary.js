@@ -1897,3 +1897,68 @@ const onlyIfProjectCanBeEdited = command => target => {
 	}
 	command(target)
 }
+
+function goToListBottom(event, listRootItem)
+{
+  var focusedItem = WF.focusedItem();
+
+  if(!focusedItem)
+    return;
+
+  if(!listRootItem)
+    return;
+
+  const visibleChildren = listRootItem.getVisibleChildren();
+  if (visibleChildren === undefined || visibleChildren.length == 0) 
+    return;
+
+  const currentOffset = state.get().anchorOffset
+
+  // edge case; we would teleport outside of the visible list without this!
+  if(focusedItem.equals(WF.currentItem()))
+    WF.editItemName(visibleChildren[0]);
+
+  const finalKid = visibleChildren[visibleChildren.length - 1];
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  // check if we are at the very bottom.
+  if(containsItem(focusedItem.getAncestors(), finalKid))
+    return;
+
+  WF.editItemName(finalKid);
+  setCursorAt(currentOffset);
+
+  // did we make the jump?
+  if(WF.focusedItem().equals(finalKid))
+  {
+    // do a recursive jump if we were standing on the bottom kid when we started
+    if(finalKid.isExpanded() && focusedItem.equals(finalKid))
+      goToListBottom(event, finalKid);
+    return;
+  }
+
+  // The jump failed because there are to many items 
+  // in the way. We'll start collapsing all items
+  // and start marching down.
+  focusedItem = WF.focusedItem();
+  if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
+    WF.collapseItem(focusedItem);
+
+  var i = visibleChildren.length; 
+  while(i--)
+  {
+    if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
+      WF.collapseItem(focusedItem);
+
+    const index = visibleChildren.length - i - 1;
+    WF.editItemName(visibleChildren[index]);
+    focusedItem = WF.focusedItem();
+    setCursorAt(currentOffset);
+  }
+
+}
+
+
+

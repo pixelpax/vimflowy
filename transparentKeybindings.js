@@ -151,43 +151,18 @@ const transparentActionMap =
 	  },
 	  'G': e => 
 	  {
-	    const visibleChildren = WF.currentItem().getVisibleChildren();
-	    if (visibleChildren !== undefined && visibleChildren.length != 0) 
-	    {
-	      const currentOffset = state.get().anchorOffset
+		const focusedItem = WF.focusedItem();
 
-	      if(WF.focusedItem().equals(WF.currentItem()))
-	        WF.editItemName(visibleChildren[0]);
+		if(!focusedItem)
+			return;
 
-	      const finalKid = visibleChildren[visibleChildren.length - 1];
-	      WF.editItemName(finalKid);
-
-	      setCursorAt(currentOffset);
-
-	      event.preventDefault()
-	      event.stopPropagation()
-
-	      if(WF.focusedItem().equals(finalKid))
-	        return;
-
-	      var focusedItem = WF.focusedItem();
-	      if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
-	        WF.collapseItem(focusedItem);
-
-	      var i = visibleChildren.length; 
-	      while(i--)
-	      {
-
-	        if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
-	          WF.collapseItem(focusedItem);
-
-	        const index = visibleChildren.length - i - 1;
-	        WF.editItemName(visibleChildren[index]);
-	        focusedItem = WF.focusedItem();
-	        setCursorAt(currentOffset);
-	      }
-
-	    }
+		const currentItem = WF.currentItem();
+		const itemRoot = focusedItem.equals(currentItem) ? WF.currentItem() : focusedItem.getParent();
+		goToListBottom(e, itemRoot);
+	  },
+	  'GG': e => 
+	  {
+		goToListBottom(e, WF.currentItem());
 	  },
 	  'gg': e => 
 	  {
