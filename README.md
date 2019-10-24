@@ -25,7 +25,8 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `E`,`$`: Move cursor to the last character on the line
     - `gg`: Go to top most root item on page 
     - `g`: Go to root item of the currently focused list
-    - `G`: Go to the bottom most root item on the current page
+    - `G`: Go to the bottom of focused list 
+    - `GG`: Go to the bottom of current list, recursivly 
     - `I`: Insert at the beginning of the line
     - `A`: Insert after the end of the line
     - `x`: remove character under cursor 
