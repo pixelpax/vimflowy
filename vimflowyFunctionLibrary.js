@@ -341,7 +341,9 @@ function toggleExpandAll(e)
   if(WF.currentSearchQuery() !== null)
     return;
 
-  const children = currentItem.getVisibleChildren();
+  const focusedItemParent = focusedItem.getParent();
+  const children = focusedItemParent.getVisibleChildren();
+  // const children = currentItem.getVisibleChildren();
   if (children === undefined || children.length == 0)
     return;
 
@@ -365,8 +367,8 @@ function toggleExpandAll(e)
 		bExpandAll = numExpanded > numCollapsed;
 	}
 
-  const currentItemChildAncestor = getChildOfCurrentItem(focusedItem);
-  WF.editItemName(currentItemChildAncestor);
+  // const currentItemChildAncestor = getChildOfCurrentItem(focusedItem);
+  // WF.editItemName(currentItemChildAncestor);
 
   WF.editGroup(() => 
   {
@@ -378,12 +380,16 @@ function toggleExpandAll(e)
         WF.collapseItem(item);
     });
   });
-
+  
   // fix focus loss problem when collapsing
   if(!WF.focusedItem())
   {
     requestAnimationFrame(fixFocus);
-    WF.editItemName(currentItem);
+    WF.editItemName(focusedItemParent);
+    if(!WF.focusedItem())
+    {
+      WF.editItemName(currentItem);
+    }
   }
 
 	setCursorAt(state.get().anchorOffset);
