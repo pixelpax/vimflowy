@@ -351,11 +351,19 @@ function toggleExpandAll(e)
   var numCollapsed = 0;
   children.forEach((item, i) => 
 	{
-		if(item.isExpanded())
-			++numExpanded;
-		else
-			++numCollapsed;
+    const itemKids = item.getVisibleChildren();
+    const bHasKids = itemKids !== undefined && itemKids.length != 0;
+    if(bHasKids)
+    {
+      if(item.isExpanded())
+        ++numExpanded;
+      else
+        ++numCollapsed;
+    }
 	});
+
+  if(numExpanded == 0 && numCollapsed == 0)
+    return;
 
 	var bExpandAll = false;
 	if(numExpanded == 0)
