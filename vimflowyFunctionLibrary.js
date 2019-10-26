@@ -347,33 +347,44 @@ function toggleExpandAll(e)
   if (children === undefined || children.length == 0)
     return;
 
-  var numExpanded = 0;
-  var numCollapsed = 0;
-  children.forEach((item, i) => 
-	{
-    const itemKids = item.getVisibleChildren();
-    const bHasKids = itemKids !== undefined && itemKids.length != 0;
-    if(bHasKids)
-    {
-      if(item.isExpanded())
-        ++numExpanded;
-      else
-        ++numCollapsed;
-    }
-	});
-
-  if(numExpanded == 0 && numCollapsed == 0)
-    return;
-
 	var bExpandAll = false;
-	if(numExpanded == 0)
-		bExpandAll = true;
-	else if(numCollapsed == 0)
-		bExpandAll = false;
-	else
-	{    
-		bExpandAll = numExpanded > numCollapsed;
-	}
+
+  const focusKids = focusedItem.getVisibleChildren(); 
+  if(focusKids !== undefined && focusKids.length != 0)
+  {
+    bExpandAll = !focusedItem.isExpanded();
+  }
+  else
+  {
+    var numExpanded = 0;
+    var numCollapsed = 0;
+    children.forEach((item, i) => 
+    {
+      const itemKids = item.getVisibleChildren();
+      const bHasKids = itemKids !== undefined && itemKids.length != 0;
+      if(bHasKids)
+      {
+        if(item.isExpanded())
+          ++numExpanded;
+        else
+          ++numCollapsed;
+      }
+    });
+
+    // none of the items have any kids => nothing to expand or collapse
+    if(numExpanded == 0 && numCollapsed == 0)
+      return;
+
+    if(numExpanded == 0)
+      bExpandAll = true;
+    else if(numCollapsed == 0)
+      bExpandAll = false;
+    else
+    {    
+      bExpandAll = numExpanded > numCollapsed;
+    }
+
+  }
 
   // const currentItemChildAncestor = getChildOfCurrentItem(focusedItem);
   // WF.editItemName(currentItemChildAncestor);
