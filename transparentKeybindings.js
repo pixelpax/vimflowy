@@ -204,6 +204,16 @@ const transparentActionMap =
 		e.preventDefault()
 		e.stopPropagation()
 	  },
+	  'cw': e => 
+	  {
+		deleteWord(e, true);
+		goToInsertMode();
+	  },
+	  'ce': e => 
+	  {
+	    deleteWord(e, false);
+		goToInsertMode();
+	  },
 	  'cn': e => 
 	  {
 		changeNote(WF.focusedItem());

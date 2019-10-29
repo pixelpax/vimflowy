@@ -45,6 +45,8 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `dw`: cut from cursor location to next word
     - `de`: cut from cursor location to the end of the current word
     - `dn`: delete note 
+    - `cw`: dw + goToInsertMode
+    - `ce`: de + goToInsertMode
     - `cn`: change note == delete note + insert mode
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
