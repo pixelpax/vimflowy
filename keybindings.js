@@ -271,6 +271,18 @@ const actionMap =
 	  {
 	    toggleExpand(t);
 	  },
+	  'r': t =>
+	  {
+		if(WF.focusedItem())
+		{
+			// Clearing the keyBuffer ensures that the keybufferUpdater filters
+			// out unwanted chars for us during the next keypress
+			// @TODO: remove this once we starting using R replace. 
+			keyBuffer = [];
+
+			goToReplaceMode();
+		}
+	  },
 	  'v': t =>
 	  {
 	    // const selection = WF.getSelection();

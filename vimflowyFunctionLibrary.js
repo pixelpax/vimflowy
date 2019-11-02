@@ -1904,6 +1904,31 @@ function deleteUnderCursor(t)
   moveCursorTo(t, offsetCalculator(state), currentOffset);
 }
 
+function handleReplaceMode(e)
+{
+  if(event.key != key_Esc)
+  {
+    const filteredKeys = keyBuffer.filter(function(value, index, arr)
+    {
+      // @TODO: switch to a common 'validKeys' instead
+      // which both replace and search uses
+      return validSearchKeys.includes(value);
+    });
+
+    // @TODO: remove this once we implement 'R'
+    keyBuffer = [];
+
+    if(filteredKeys.length > 0)
+    {
+      const currentOffset = state.get().anchorOffset;
+      WF.insertText(filteredKeys[filteredKeys.length-1]);
+      moveCursorTo(e.target, offsetCalculator(state), currentOffset);
+    }
+  }
+
+  goToNormalMode();
+}
+
 const onlyIfProjectCanBeEdited = command => target => {
 	const targetProject = projectAncestor(target)
 	const isMainDotOfForeignSharedList = targetProject.className.includes('addedShared')

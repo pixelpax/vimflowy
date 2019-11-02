@@ -14,7 +14,8 @@ const stateClosure = (initialState = {}, stateChanged = () => {}) => {
 const Mode = {
   NORMAL: 'NORMAL',
   INSERT: 'INSERT',
-  VISUAL: 'VISUAL'
+  VISUAL: 'VISUAL',
+  REPLACE: 'REPLACE'
 }
 
 const state = stateClosure({
@@ -78,6 +79,16 @@ const modeClosure = (mainContainer, getState, setState) => {
 
       setState(s => ({mode: Mode.VISUAL}))
       setMode(Mode.VISUAL)
+    },
+    goToReplaceMode: () => 
+    {
+      if(state.get().mode === Mode.REPLACE)
+        setCursorAt(a => a)
+      else
+        setCursorAt(document.getSelection().getRangeAt(0).startOffset);
+
+      setState(s => ({mode: Mode.REPLACE}))
+      setMode(Mode.REPLACE)
     }
   }
 }
