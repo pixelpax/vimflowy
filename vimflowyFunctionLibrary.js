@@ -1616,33 +1616,32 @@ function sortCompletedItemsOnFocusParent(t)
 function zoomOutFocused()
 {
   const focusedItem = WF.focusedItem();
+
   if(focusedItem == null)
     return;
 
   const currentItem = WF.currentItem();
+  const currentItemParent = currentItem.getParent();
 
-  WF.editItemName(currentItem);
-
-  if(currentItem.getParent())
+  if(currentItemParent)
   {
-    WF.zoomTo(currentItem.getParent());
-    if(!WF.focusedItem())
-    {
-      requestAnimationFrame(fixFocus);
-      goToNormalMode();
-      WF.editItemName(currentItem);
-    }
+    // Zoom out instantly by targeting current item parent
+    WF.zoomTo(currentItemParent);
+
+    // refocus on currentItem because ZoomTo stole it. 
+    WF.editItemName(currentItem);
   }
   else
   {
+    // worse case; fallback to animated zoomOut 
     WF.zoomOut(currentItem);
   }
 
-  if(WF.focusedItem())
-  {
-    WF.editItemName(focusedItem);
-  }
-  else
+  // refocus on the item we focused in the beginning.
+  WF.editItemName(focusedItem);
+
+  // we might lose focus during the above operations due to various reasons. 
+  if(!WF.focusedItem())
   {
     requestAnimationFrame(fixFocus);
     goToNormalMode();
