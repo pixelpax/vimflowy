@@ -86,8 +86,7 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `Space`: toggle expand/collapse on focusedItem
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot
 * all modes
-    - `<Esc>`: Enter Normal mode
-        -'<Ctrl>[': also works as an alternative to Esc
+    - `<Esc>`, `<ctrl>[`: Enter Normal mode
     - `<Ctrl>k`,`<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu
     - `<ctrl>Enter`: Toggle Completed on seletion
 
@@ -99,7 +98,7 @@ In the bottom left corner there is a mode indicator that shows what mode you are
 Rebinding keys
 --------------
 
-There is a plan to make shortcuts rebindable in the future, via the options menu - but for now you'll have to edit [keybinding.js](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) and [transparentKeybindings.js](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind anything.
+You'll have to edit [keybinding.js](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) and [transparentKeybindings.js](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind anything.
 
 Usage tips
 ----------
