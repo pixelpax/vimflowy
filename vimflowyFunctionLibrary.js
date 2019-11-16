@@ -1941,6 +1941,138 @@ const onlyIfProjectCanBeEdited = command => target => {
 	command(target)
 }
 
+function SimulateEscapeInsertMode(e)
+{
+  // it will not work while we are in the JumpToItem menu
+  if(!WF.focusedItem())
+    return;
+
+  e.preventDefault()
+  e.stopPropagation()
+
+  goToNormalMode();
+}
+
+// assumes Escape is actually being pressed
+function HandleEscapeInsertMode(e)
+{
+  // prevent it from focusing on the search bar
+  e.preventDefault()
+
+  if(!WF.focusedItem())
+  {
+    // important that we don't stop propagation
+    // when trying to escape the JumpToItemMenu
+    if(focusPreJumpToItemMenu)
+    {
+      WF.editItemName(focusPreJumpToItemMenu);
+      focusPreJumpToItemMenu = null;
+    }
+    else
+    {
+      // assuming we are focusing on the searchbar
+      // in which case we'll have to stop the propagation
+      e.stopPropagation()
+    }
+
+    if(!WF.focusedItem())
+      WF.editItemName(WF.currentItem());
+
+  }
+  else
+  {
+    e.stopPropagation()
+  }
+
+  goToNormalMode();
+}
+
+function SimulateEscapeVisualMode(e)
+{
+  if(WF.focusedItem())
+  {
+      const selection = WF.getSelection();
+      if (selection !== undefined && selection.length != 0)
+      {
+        VisualSelectionBuffer = [];
+        WF.setSelection([]);
+      }
+
+      e.preventDefault()
+      e.stopPropagation()
+  }
+
+  InitialSelectionItem = null;
+
+  WF.hideMessage();
+  WF.hideDialog();
+  goToNormalMode();
+}
+
+// assumes Escape is actually being pressed
+function HandleEscapeVisualMode(e)
+{
+  if(WF.focusedItem())
+  {
+      const selection = WF.getSelection();
+      if (selection !== undefined && selection.length != 0)
+      {
+        VisualSelectionBuffer = [];
+        WF.setSelection([]);
+      }
+
+      e.preventDefault()
+      e.stopPropagation()
+  }
+
+  InitialSelectionItem = null;
+
+  WF.hideMessage();
+  WF.hideDialog();
+  goToNormalMode();
+}
+
+function SimulateEscapeNormalMode(e)
+{
+  if(WF.focusedItem())
+  {
+      const selection = WF.getSelection();
+      if (selection !== undefined && selection.length != 0)
+      {
+        VisualSelectionBuffer = [];
+        WF.setSelection([]);
+      }
+
+      e.preventDefault()
+      e.stopPropagation()
+  }
+
+  WF.hideMessage();
+  WF.hideDialog();
+  goToNormalMode();
+}
+
+// assumes Escape is actually being pressed
+function HandleEscapeNormalMode(e)
+{
+  if(WF.focusedItem())
+  {
+      const selection = WF.getSelection();
+      if (selection !== undefined && selection.length != 0)
+      {
+        VisualSelectionBuffer = [];
+        WF.setSelection([]);
+      }
+
+      e.preventDefault()
+      e.stopPropagation()
+  }
+
+  WF.hideMessage();
+  WF.hideDialog();
+  goToNormalMode();
+}
+
 function goToListBottom(event, listRootItem)
 {
   var focusedItem = WF.focusedItem();

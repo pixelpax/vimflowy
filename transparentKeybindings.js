@@ -94,45 +94,17 @@ const transparentActionMap =
 	      WF.zoomTo(PrevEnterItem);
 	    }
 	  },
-	  Escape: e => 
-	  {
-	    if(WF.focusedItem())
-	    {
-	        // console.log("transparent Escape (NORMAL)");
-	        const selection = WF.getSelection();
-	        if (selection !== undefined && selection.length != 0)
-	        {
-	          VisualSelectionBuffer = [];
-	          WF.setSelection([]);
-	        }
-
-	        e.preventDefault()
-	        e.stopPropagation()
-	    }
-
-	    WF.hideMessage();
-	    WF.hideDialog();
-	    goToNormalMode();
-	  },
 	  'ctrl-[': e => 
 	  {
-	    if(WF.focusedItem())
-	    {
-	        // console.log("transparent Escape (NORMAL)");
-	        const selection = WF.getSelection();
-	        if (selection !== undefined && selection.length != 0)
-	        {
-	          VisualSelectionBuffer = [];
-	          WF.setSelection([]);
-	        }
-
-	        e.preventDefault()
-	        e.stopPropagation()
-	    }
-
-	    WF.hideMessage();
-	    WF.hideDialog();
-	    goToNormalMode();
+		SimulateEscapeNormalMode(e);
+	  },
+	  Esc: e => 
+	  {
+		HandleEscapeNormalMode(e);
+	  },
+	  Escape: e => 
+	  {
+		HandleEscapeNormalMode(e);
 	  },
 	  'g': e => 
 	  {
@@ -447,62 +419,32 @@ const transparentActionMap =
 	    focusPreJumpToItemMenu = WF.focusedItem();
 	    goToInsertMode();
 	  },
+	  'ctrl-[': e => 
+	  {
+		SimulateEscapeVisualMode(e);
+	  },
+	  Esc: e => 
+	  {
+		HandleEscapeVisualMode(e);
+	  },
 	  Escape: e => 
 	  {
-	    if(WF.focusedItem())
-	    {
-	        const selection = WF.getSelection();
-	        if (selection !== undefined && selection.length != 0)
-	        {
-	          VisualSelectionBuffer = [];
-	          WF.setSelection([]);
-	        }
-
-	        e.preventDefault()
-	        e.stopPropagation()
-	    }
-
-	    InitialSelectionItem = null;
-
-	    WF.hideMessage();
-	    WF.hideDialog();
-		goToNormalMode();
+		HandleEscapeVisualMode(e);
 	  }
 	},
 	[Mode.INSERT]: 
 	{
+	  'ctrl-[': e => 
+	  {
+		SimulateEscapeInsertMode(e);
+	  },
+	  Esc: e =>
+	  {
+		HandleEscapeInsertMode(e);
+	  },
 	  Escape: e =>
 	  {
-	    // prevent it from focusing on the search bar
-	    e.preventDefault()
-
-	    if(!WF.focusedItem())
-	    {
-		  // important that we don't stop propagation
-		  // when trying to escape the JumpToItemMenu
-	      if(focusPreJumpToItemMenu)
-	      {
-			//   console.log("applying focus pre jump to item menu");
-	        WF.editItemName(focusPreJumpToItemMenu);
-	        focusPreJumpToItemMenu = null;
-		  }
-		  else
-		  {
-			// assuming we are focusing on the searchbar
-			// in which case we'll have to stop the propagation
-	      	e.stopPropagation()
-		  }
-
-	      if(!WF.focusedItem())
-			WF.editItemName(WF.currentItem());
-
-	    }
-	    else
-	    {
-	      e.stopPropagation()
-	    }
-
-		goToNormalMode();
+		HandleEscapeInsertMode(e);
 	  },
 	  'Enter': e => 
 	  {
