@@ -1,4 +1,4 @@
-const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.key && event.key}`
+const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.metaKey ? 'meta-' : ''}${event.key && event.key}`
 
 function deleteUntilLineEnd()
 {
