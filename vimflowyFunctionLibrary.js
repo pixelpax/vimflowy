@@ -1345,7 +1345,7 @@ function preventKeystrokesWhileNavigating(event)
   if (state.get().mode !== Mode.INSERT)
   {
 
-   if(modifierKeyCodesToIgnore.includes(event.keyCode))
+   if(modifierKeyCodesToIgnore.includes(event.key))
    {
       event.preventDefault();
       event.stopPropagation();
