@@ -1398,7 +1398,7 @@ function reselectItemsBeingMoved()
 
 function updateKeyBuffer_Keydown(event)
 {
-  if(modifierKeyCodesToIgnore.includes(event.keyCode))
+  if(modifierKeyCodesToIgnore.includes(event.key))
     return true;
 
   const key = event.key;

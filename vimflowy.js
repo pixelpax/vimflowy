@@ -111,4 +111,4 @@ const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijkl
 const validInputKeys =  '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzåäöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ';
 const key_Slash = "/"//55;
 const key_Esc = "Escape"//27;
-const modifierKeyCodesToIgnore = [17, 16, 18];   // shift, ctrl, alt
+const modifierKeyCodesToIgnore = ['Shift', 'Control', 'Alt', 'Meta'];  
