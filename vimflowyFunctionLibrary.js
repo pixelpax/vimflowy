@@ -1911,8 +1911,18 @@ function changeNote(item)
 function deleteUnderCursor(t)
 {
   const currentOffset = state.get().anchorOffset;
+
+  // delete under cursor
   WF.insertText("");
-  moveCursorTo(t, offsetCalculator(state), currentOffset);
+
+  let desiredOffset = currentOffset;
+  const maxLen = WF.focusedItem().getNameInPlainText().length;
+  if(maxLen == currentOffset)
+    desiredOffset -= 1;
+
+  moveCursorTo(t, offsetCalculator(state), desiredOffset);
+
+}
 
 function handleFindMode(e)
 {
