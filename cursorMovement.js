@@ -9,19 +9,21 @@ const closest = (node, selector) => {
   return element
 }
 
-const offsetCalculator = state => (contentAbstraction, offset) => {
-  const maxOffset = contentAbstraction.length - 1
-  const bound = o => {
+const offsetCalculator = state => (contentAbstraction, offset) => 
+{
+  const maxOffset = contentAbstraction.length - 1;
+  const bound = o => 
+  {
     let inBounds = o
     inBounds = Math.min(maxOffset, inBounds)
     inBounds = Math.max(0, inBounds)
     return inBounds
   }
 
-    const currentOffset = state.get().anchorOffset
-
+  const currentOffset = state.get().anchorOffset;
   const effective = bound(offset(currentOffset))
   state.set(_ => ({anchorOffset: effective}))
+
   return effective
 }
 
@@ -30,20 +32,22 @@ const NODE_TYPES = {
   TEXT: 3
 }
 
-const getContentAbstraction = node => {
+const getNodes = element => [...element.childNodes].reduce((accu, current) => 
+{
+  if (current.nodeType === NODE_TYPES.TEXT) {
+    return [...accu, current]
+  }
+
+  if (current.nodeType === NODE_TYPES.ELEMENT) {
+    return [...accu, ...getNodes(current)]
+  }
+
+  console.log(`I did not expect this nodetype: ${current.nodeType} in this element`, current)
+}, [])
+
+const getContentAbstraction = node => 
+{
   const contentElement = closest(node, '.content')
-
-  const getNodes = element => [...element.childNodes].reduce((accu, current) => {
-    if (current.nodeType === NODE_TYPES.TEXT) {
-      return [...accu, current]
-    }
-
-    if (current.nodeType === NODE_TYPES.ELEMENT) {
-      return [...accu, ...getNodes(current)]
-    }
-
-    console.log(`I did not expect this nodetype: ${current.nodeType} in this element`, current)
-  }, [])
 
   const nodes = getNodes(contentElement)
 
