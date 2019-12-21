@@ -1,5 +1,68 @@
 const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.metaKey ? 'meta-' : ''}${event.key && event.key}`
 
+function calculateCursorOffset(bHtmlTagsIncluded = false)
+{
+  let currentOffset = state.get().anchorOffset
+
+  const focusedItem = WF.focusedItem();
+  if(!focusedItem)
+    return currentOffset;
+
+  const itemName = focusedItem.getName();
+  const itemNameText = focusedItem.getNameInPlainText();
+
+  // Oh no, it has html tags, recalculate cursor offset
+  if(itemNameText.length != itemName.length)
+  {
+    // remove any html tags from the "plain text name" before we start the counting
+    let ItemNameTextPreCleanupSubStringStart = itemNameText.substring(0, currentOffset+1); 
+    let itemNameCleaned = ItemNameTextPreCleanupSubStringStart;
+    itemNameCleaned = itemNameCleaned.replace(/(<u>)/g, "");
+    itemNameCleaned = itemNameCleaned.replace(/(<\/u>)/g, "");
+    itemNameCleaned = itemNameCleaned.replace(/(<i>)/g, "");
+    itemNameCleaned = itemNameCleaned.replace(/(<\/i>)/g, "");
+    itemNameCleaned = itemNameCleaned.replace(/(<b>)/g, "");
+    itemNameCleaned = itemNameCleaned.replace(/(<\/b>)/g, "");
+    const lenDiff = ItemNameTextPreCleanupSubStringStart.length - itemNameCleaned.length;
+    let offsetThreshold = currentOffset - lenDiff;
+
+    let addedOffset = 0;
+    for (let i = 0; i < itemName.length; i++) 
+    {
+      const char_1 = itemNameCleaned.charAt(i-addedOffset);
+      const char_2 = itemName.charAt(i);
+      if(char_1 != char_2)
+        ++addedOffset;
+
+      if (i - addedOffset == offsetThreshold)
+        break;
+    }
+
+    currentOffset += addedOffset;
+    currentOffset -= lenDiff;
+
+    if(itemName.charAt(currentOffset) == "<")
+    {
+      --currentOffset;
+      --addedOffset;
+    }
+
+    if(bHtmlTagsIncluded)
+    {
+      // cursor offset (with html tags accounted for)
+      return currentOffset;
+    }
+    else
+    {
+      // cursor offset (without html tags)
+      const accurateCursorOffset = currentOffset - addedOffset;
+      return accurateCursorOffset;
+    }
+
+  }
+
+  return currentOffset;
+}
 function deleteUntilLineEnd()
 {
   const focusedItem = WF.focusedItem();
@@ -7,33 +70,7 @@ function deleteUntilLineEnd()
     return;
 
   const itemName = focusedItem.getName();
-  const itemNameText = focusedItem.getNameInPlainText();
-  var currentOffset = state.get().anchorOffset
-
-  // Oh no, it has html tags, recalculate cursor offset
-  if(itemNameText.length != itemName.length)
-  {
-    var addedOffset = 0;
-    for (var i = 0; i < itemName.length; i++) 
-    {
-      const char_1 = itemNameText.charAt(i-addedOffset);
-      const char_2 = itemName.charAt(i);
-      if(char_1 != char_2)
-        ++addedOffset;
-
-      if(i-addedOffset == currentOffset)
-        break;
-    }
-
-    currentOffset += addedOffset;
-    // console.log("added offset: " + addedOffset);
-
-    if(itemName.charAt(currentOffset) == "<")
-    {
-      --currentOffset;
-      --addedOffset;
-    }
-  }
+  let currentOffset = calculateCursorOffset(true);
 
   const substring_Start = itemName.substring(0, currentOffset);
   const substring_End = itemName.substring(currentOffset);
@@ -78,40 +115,15 @@ function deleteWord(e, bToNextWord)
   if(!focusedItem)
     return;
 
+  // console.clear();
+
   const itemName = focusedItem.getName();
-  const itemNameText = focusedItem.getNameInPlainText();
-  var currentOffset = state.get().anchorOffset
-
-  // Oh no, it has html tags, recalculate cursor offset
-  if(itemNameText.length != itemName.length)
-  {
-    var addedOffset = 0;
-    for (var i = 0; i < itemName.length; i++) 
-    {
-      const char_1 = itemNameText.charAt(i-addedOffset);
-      const char_2 = itemName.charAt(i);
-      if(char_1 != char_2)
-        ++addedOffset;
-
-      if(i-addedOffset == currentOffset)
-        break;
-    }
-
-    currentOffset += addedOffset;
-    // console.log("added offset: " + addedOffset);
-
-    if(itemName.charAt(currentOffset) == "<")
-    {
-      --currentOffset;
-      --addedOffset;
-    }
-  }
+  var currentOffset = calculateCursorOffset(true);
 
   const substring_Start = itemName.substring(0, currentOffset);
   const substring_End = itemName.substring(currentOffset);
   const underCursorChar = itemName.charAt(currentOffset); 
 
-  // console.clear();
   // console.log("itemNameText: " + itemNameText);
   // console.log("itemName: " + itemName);
   // console.log("under cursor char: " + underCursorChar);
