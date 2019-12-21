@@ -1207,11 +1207,11 @@ function visualMode_AddItemToSelection_Below(t)
       else if(itemAfterMove.equals(item))
       // else 
       {
-        console.log("checking kids");
+        // console.log("checking kids");
         var childrenRemaining = item.getVisibleChildren().length;
         if(childrenRemaining <= 1)
         {
-          console.log("no multi kids, removing: " + item.getNameInPlainText())
+          // console.log("no multi kids, removing: " + item.getNameInPlainText())
           return false;
         }
 
@@ -1225,12 +1225,12 @@ function visualMode_AddItemToSelection_Below(t)
 
         if(childrenRemaining == 0)
         {
-          console.log("all kids included");
+          // console.log("all kids included");
           return true;
         }
         else
         {
-          console.log("all kids were not included, removing:  " + item.getNameInPlainText());
+          // console.log("all kids were not included, removing:  " + item.getNameInPlainText());
           return false;
         }
       }
