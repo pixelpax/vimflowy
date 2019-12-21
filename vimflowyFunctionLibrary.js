@@ -2045,6 +2045,22 @@ function HandleEscapeInsertMode(e)
   else
   {
     e.stopPropagation()
+
+    // Update cursor pos because it doesn't get updated during insert mode
+    let extraLength = 0;
+    const nodes = getNodes(WF.focusedItem().getElement());
+    for(let i = 0; i < nodes.length; ++i) 
+    {
+      if(!window.getSelection().containsNode(nodes[i]))
+        extraLength += nodes[i].length;
+      else
+        // only count length up to the focused node
+        break;
+    }
+    const cursorOffsetReset = document.getSelection().getRangeAt(0).startOffset; 
+    setCursorAt(cursorOffsetReset);
+    const targetOffset = state.get().anchorOffset + extraLength;
+    moveCursorTo(e.target, offsetCalculator(state), targetOffset);
   }
 
   goToNormalMode();
@@ -2195,6 +2211,7 @@ function goToListBottom(event, listRootItem)
     focusedItem = WF.focusedItem();
     setCursorAt(currentOffset);
   }
+
 
 }
 
