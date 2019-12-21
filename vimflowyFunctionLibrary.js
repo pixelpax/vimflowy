@@ -1901,6 +1901,69 @@ function deleteUnderCursor(t)
   const currentOffset = state.get().anchorOffset;
   WF.insertText("");
   moveCursorTo(t, offsetCalculator(state), currentOffset);
+
+function handleFindMode(e)
+{
+  goToNormalMode();
+
+  const focusedItem = WF.focusedItem();
+  if(!focusedItem)
+    return;
+
+  if(event.key == key_Esc)
+    return;
+
+  const filteredKeys = keyBuffer.filter(function(value, index, arr)
+  {
+    return validSearchKeys.includes(value);
+  });
+
+  if(filteredKeys.length <= 0)
+    return;
+
+  keyBuffer = [];
+
+  // check if we pressed 't' / 'f' or 'F' / 'T'
+  let bSearchForwards = true;
+  if(filteredKeys.length > 1)
+    bSearchForwards = filteredKeys[filteredKeys.length-2] == filteredKeys[filteredKeys.length-2].toLowerCase(); 
+
+  const keyToFind = filteredKeys[filteredKeys.length-1];
+  const currentOffset = state.get().anchorOffset;
+  const itemNameText = focusedItem.getNameInPlainText();
+
+  let newOffset = bSearchForwards 
+  ? itemNameText.indexOf(keyToFind, currentOffset+1) 
+  : itemNameText.lastIndexOf(keyToFind, currentOffset-1);
+
+  if(newOffset != -1)
+  {
+    if(filteredKeys.length > 2 && !isNaN(filteredKeys[filteredKeys.length-3]))
+    {
+      const iterNum = parseInt(filteredKeys[filteredKeys.length-3]);
+      for (let i = 1; i < iterNum; ++i) 
+      {
+        let iterNewOffset = bSearchForwards 
+        ? itemNameText.indexOf(keyToFind, newOffset+1) 
+        : itemNameText.lastIndexOf(keyToFind, newOffset-1);
+
+        if(iterNewOffset != -1)
+          newOffset = iterNewOffset;
+      }
+    }
+
+    // offset if its a 't' or 'T'
+    let targetOffset = newOffset; 
+    if(filteredKeys.length > 1 && filteredKeys[filteredKeys.length-2].toLowerCase() == "t")
+      targetOffset -= 1;
+
+    moveCursorTo(
+      e.target,
+      offsetCalculator(state),
+      targetOffset
+    );
+  }
+
 }
 
 function handleReplaceMode(e)

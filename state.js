@@ -15,7 +15,8 @@ const Mode = {
   NORMAL: 'NORMAL',
   INSERT: 'INSERT',
   VISUAL: 'VISUAL',
-  REPLACE: 'REPLACE'
+  REPLACE: 'REPLACE',
+  FIND: 'FIND'
 }
 
 const state = stateClosure({
@@ -44,51 +45,40 @@ const modeClosure = (mainContainer, getState, setState) => {
   }
 
   return {
-    flashMode: (temporaryMode, duration = 1000) => {
+    flashMode: (temporaryMode, duration = 1000) => 
+    {
       setMode(temporaryMode)
-      timerId = setTimeout(() => {
-        indicatorElement.innerHTML = getState().mode
-      }, duration)
+      timerId = setTimeout(() => { indicatorElement.innerHTML = getState().mode }, duration)
     },
-    goToInsertMode: (cursorRight = false) => {
+    goToInsertMode: (cursorRight = false) => 
+    {
       setState(s => ({mode: Mode.INSERT}))
       setMode(Mode.INSERT)
       document.getSelection().modify('extend', 'left', 'character')
-      if (cursorRight) {
+      if (cursorRight) 
+      {
         document.getSelection().modify('move', 'right', 'character')
       }
     },
     goToNormalMode: () => 
     {
-      if(state.get().mode === Mode.NORMAL)
-        setCursorAt(a => a)
-      if(state.get().mode === Mode.INSERT)
-        setCursorAt(document.getSelection().getRangeAt(0).startOffset-1);
-      else
-        setCursorAt(document.getSelection().getRangeAt(0).startOffset);
-
       setState(s => ({mode: Mode.NORMAL}))
       setMode(Mode.NORMAL)
     },
     goToVisualMode: () => 
     {
-      if(state.get().mode === Mode.VISUAL)
-        setCursorAt(a => a)
-      else
-        setCursorAt(document.getSelection().getRangeAt(0).startOffset);
-
       setState(s => ({mode: Mode.VISUAL}))
       setMode(Mode.VISUAL)
     },
     goToReplaceMode: () => 
     {
-      if(state.get().mode === Mode.REPLACE)
-        setCursorAt(a => a)
-      else
-        setCursorAt(document.getSelection().getRangeAt(0).startOffset);
-
       setState(s => ({mode: Mode.REPLACE}))
       setMode(Mode.REPLACE)
+    },
+    goToFindMode: () => 
+    {
+      setState(s => ({mode: Mode.FIND}))
+      setMode(Mode.FIND)
     }
   }
 }

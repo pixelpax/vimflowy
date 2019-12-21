@@ -1,6 +1,6 @@
 
 const mainContainer = document.getElementById('app');
-const {flashMode, goToInsertMode, goToNormalMode, goToVisualMode, goToReplaceMode} = modeClosure(mainContainer, state.get, state.set);
+const {flashMode, goToInsertMode, goToNormalMode, goToVisualMode, goToReplaceMode, goToFindMode} = modeClosure(mainContainer, state.get, state.set);
 
 WFEventListener = event => 
 {
@@ -55,7 +55,13 @@ mainContainer.addEventListener('keydown', event =>
       return;
     }
 
-    if (state.get().mode === Mode.REPLACE)
+    if (state.get().mode === Mode.FIND)
+    {
+      event.preventDefault()
+      event.stopPropagation()
+      handleFindMode(event);
+    }
+    else if (state.get().mode === Mode.REPLACE)
     {
       event.preventDefault()
       event.stopPropagation()

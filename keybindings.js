@@ -271,6 +271,30 @@ const actionMap =
 	  {
 	    toggleExpand(t);
 	  },
+	  't': t =>
+	  {
+		if(!WF.focusedItem())
+			return;
+		goToFindMode();
+	  },
+	  'T': t =>
+	  {
+		if(!WF.focusedItem())
+			return;
+		goToFindMode();
+	  },
+	  'F': t =>
+	  {
+		if(!WF.focusedItem())
+			return;
+		goToFindMode();
+	  },
+	  'f': t =>
+	  {
+		if(!WF.focusedItem())
+			return;
+		goToFindMode();
+	  },
 	  'r': t =>
 	  {
 		if(WF.focusedItem())
