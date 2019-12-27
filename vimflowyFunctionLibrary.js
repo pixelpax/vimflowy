@@ -494,17 +494,44 @@ function MoveItemUp(t)
     setCursorAt(state.get().anchorOffset);
 }
 
+function addKidsRecursively(itemContainer, item, bOnlyExpanded = true)
+{
+  if (!item)
+    return;
+
+  // hmmm performance...
+  // if (!containsItem(itemContainer, item))
+  itemContainer.push(item); 
+
+  if (bOnlyExpanded && !item.isExpanded())
+    return;
+
+  let kids = item.getChildren();
+  if (kids !== undefined && kids.length != 0) 
+  {
+    kids.forEach((kid, i) =>  
+    {
+      addKidsRecursively
+      (
+        itemContainer,
+        kid,
+        bOnlyExpanded
+      );
+    });
+  }
+}
+
 function toggleCompletedOnSelection(e)
 {
-  var selection = WF.getSelection();
+  let selection = WF.getSelection();
   if (selection === undefined || selection.length == 0) 
     return;
 
   e.preventDefault()
   e.stopPropagation()
 
-  var numCompleted = 0;
-  var numUncompleted = 0;
+  let numCompleted = 0;
+  let numUncompleted = 0;
   selection.forEach((item, i) => 
 	{
 		if(item.isCompleted())
@@ -513,7 +540,7 @@ function toggleCompletedOnSelection(e)
 			++numUncompleted;
   });
   
-	var bCompleteAll = false;
+	let bCompleteAll = false;
 	if(numCompleted == 0)
 		bCompleteAll  = true;
 	else if(numUncompleted == 0)
@@ -522,6 +549,16 @@ function toggleCompletedOnSelection(e)
 	{    
 		bCompleteAll = numCompleted > numUncompleted;
 	}
+
+  // add all visible kids to the selection
+  selection.forEach((item, i) => 
+  {
+    addKidsRecursively(
+      selection,
+      item,
+      true
+    );
+  });
 
   WF.editGroup(() => 
   {
