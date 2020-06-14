@@ -2,7 +2,7 @@
   "name": "Vimflowy",
   "short_name": "Vimflowy",
   "description": "Vim shortcuts for Workflowy",
-  "version": "0.0.1.2",
+  "version": "0.0.1.3",
   "manifest_version": 2,
   "icons": { "48": "icon48.png", "128": "icon128.png" },
   "content_scripts": 
@@ -33,5 +33,8 @@
     "keybindings.js",
     "transparentKeybindings.js",
     "vimflowy.js"
-  ]
+  ],
+  "permissions": [
+    "https://workflowy.com/*"
+	]
 }
