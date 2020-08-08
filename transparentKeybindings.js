@@ -31,27 +31,38 @@ const transparentActionMap =
 	  {
 	    var focusedItem = WF.focusedItem();
 	    if(!focusedItem)
-	      return;
+		  return;
 
-	    focusedItem = WF.getItemById(focusedItem.getId());
+		focusedItem = WF.getItemById(focusedItem.getId());
+		const element = focusedItem.getElement();
 
-	    const element = focusedItem.getElement();
-	    const firstContentLink = element.getElementsByClassName('contentLink')[0]; 
+		const firstContentLink = element.getElementsByClassName('contentLink')[0]; 
 	    if(firstContentLink)
 	    {
-	      const contentHref = firstContentLink.getAttribute("href");
-	      // console.log("href: " + contentHref);
-	      const strippedHref = contentHref.replace(/(^\w+:|^)\/\//, '');
-	      // console.log("Stripped href: " + strippedHref);
-	      const focusedItemName = focusedItem.getNameInPlainText();
-	      // console.log("Name; " + focusedItemName);
-	      const focusedItemNote = focusedItem.getNoteInPlainText();
-	      // console.log("Note; " + focusedItemNote);
-	      if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
-	      {
-	        var win = window.open(contentHref, '_blank');
-	        win.focus();
-	      }
+			const contentHref = firstContentLink.getAttribute("href");
+			// console.log("href: " + contentHref);
+			const strippedHref = contentHref.replace(/(^\w+:|^)\/\//, '');
+			// console.log("Stripped href: " + strippedHref);
+			const focusedItemName = focusedItem.getName();
+			// console.log("Name; " + focusedItemName);
+			const focusedItemNote = focusedItem.getNote();
+			// console.log("Note; " + focusedItemNote);
+			if(strippedHref.includes("workflowy.com/#/"))
+			{
+				const shortID = strippedHref.substring(strippedHref.lastIndexOf("/") + 1, strippedHref.length);
+				const itemID = WF.shortIdToId(shortID);
+				const desiredItem = WF.getItemById(itemID);
+				if(desiredItem)
+				{
+					WF.zoomTo(desiredItem);
+				}
+			}
+			else if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
+			{
+				var win = window.open(contentHref, '_blank');
+				win.focus();
+			}
+
 	    }
 
 	  },
