@@ -945,8 +945,6 @@ function deleteSelectedItems(t)
   if(!focusedItem)
     return;
 
-  const bWasPreviousVisibleSiblingInvalid = focusedItem.getPreviousVisibleSibling() === null;
-
   var CurrentSelection = WF.getSelection();
   if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
   {
@@ -958,7 +956,7 @@ function deleteSelectedItems(t)
     });
 
     var topMostItem = null;
-    var minIndex= Number.MAX_SAFE_INTEGER;
+    var minIndex = Number.MAX_SAFE_INTEGER;
     for (var i = 0, len = filteredSelection.length; i < len; i++) 
     {
       const prio = filteredSelection[i].getPriority();  
@@ -971,17 +969,23 @@ function deleteSelectedItems(t)
 
     if(topMostItem && topMostItem.getPriority() != 0 && topMostItem.getPreviousVisibleSibling())
       WF.editItemName(topMostItem.getPreviousVisibleSibling());
+    else if(topMostItem && topMostItem.getParent())
+      WF.editItemName(topMostItem.getParent());
     else
       WF.editItemName(WF.currentItem());
 
     WF.editGroup(() => 
     {
-      CurrentSelection.forEach((item, i) => { WF.deleteItem(item); });
+      CurrentSelection.forEach((item, i) => 
+      {
+         WF.deleteItem(item); 
+      });
     });
 
   }
   else
   {
+    const bWasPreviousVisibleSiblingInvalid = focusedItem.getPreviousVisibleSibling() === null;
     if(bWasPreviousVisibleSiblingInvalid)
     {
       const selectedProject = t.parentNode.parentNode.parentNode.parentNode;
