@@ -775,6 +775,21 @@ function indentSelection(e)
 
   });
 
+  // we need to focus on the newly created mirrors..
+  if(!IsItemOriginal(newParentItem))
+  {
+    const numItemsIndented = selection.length;
+    const newParentKids = newParentItem.getChildren();
+    const numItemsOnNewParent = newParentKids.length;
+    selection = [];
+    for (i = numItemsOnNewParent - numItemsIndented; i < numItemsOnNewParent; i++) 
+      selection.push(newParentKids[i]);
+    
+    // ...maybe not needed!?
+    VisualSelectionBuffer = selection;
+    SelectionPreMove = selection;
+  }
+
   WF.editItemName(selection[0]);
   setCursorAt(currentOffset);
 
@@ -790,7 +805,7 @@ function indentFocusedItem(e)
 	e.preventDefault();
 	e.stopPropagation();
 
-	const focusedItem = WF.focusedItem();
+	var focusedItem = WF.focusedItem();
 	if(!focusedItem)
 		return;
 
@@ -811,7 +826,17 @@ function indentFocusedItem(e)
 	WF.editGroup(() => 
 	{
 		WF.moveItems([focusedItem], focusPrevSibling, prio);
-	});
+  });
+  
+  // we need to focus on the newly created mirror
+  if (!IsItemOriginal(focusPrevSibling))
+  {
+    const kids = focusPrevSibling.getChildren();
+    if(kids.length > 0)
+    {
+      focusedItem = kids[kids.length-1];
+    }
+  }
 
 	WF.editItemName(focusedItem);
 
@@ -826,7 +851,7 @@ function outdentFocusedItem(e)
 	e.preventDefault();
 	e.stopPropagation();
 
-	const focusedItem = WF.focusedItem();
+	var focusedItem = WF.focusedItem();
 	if(!focusedItem)
 		return;
 
@@ -849,7 +874,12 @@ function outdentFocusedItem(e)
 	WF.editGroup(() => 
 	{
 		WF.moveItems([focusedItem], newParent, newPriority);
-	});
+  });
+  
+  // we need to replace the mirrored item with the original, 
+  // if we try to move it out of the parent, which also is a mirror.
+  if(!IsItemOriginal(focusedItem))
+    focusedItem = GetOriginalItem(focusedItem);
 
 	WF.editItemName(focusedItem);
 
@@ -925,16 +955,30 @@ function outdentSelection(e, bIncludingChildren = false)
 		// @TODO: this will only work if the expansion is instant
 		// if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
 		//   WF.expandItem(newParentItem);
-	});
+  });
 
-	WF.editItemName(selection[0]);
+  // we need to replace the mirrored items with 
+  // the originals if we try to move out mirrored
+  // items outside of the topmost mirror
+  if(!IsItemOriginal(selection[0]))
+  {
+    const theMirrorsParent = selection[0].getParent();
+    if(theMirrorsParent && !IsItemOriginal(theMirrorsParent))
+    {
+      ReplaceMirroredItems(selection);
+      WF.setSelection(selection);
+    }
+  }
+
+  WF.editItemName(selection[0]);
+
 	setCursorAt(currentOffset);
 
 	if(!WF.focusedItem())
 		requestAnimationFrame(fixFocus);
 
 	// we've placed these down here due to "TAB"
-	// if this fails then wimflowys TAB will take over.
+	// if this fails then workflowys TAB will take over.
 	e.preventDefault();
 	e.stopPropagation();
 }
