@@ -63,6 +63,7 @@ function calculateCursorOffset(bHtmlTagsIncluded = false)
 
   return currentOffset;
 }
+
 function deleteUntilLineEnd()
 {
   const focusedItem = WF.focusedItem();
@@ -694,6 +695,37 @@ function yankSelectedItems(t)
   else 
     yankBuffer = [WF.focusedItem()];
 
+  // replace any mirrors with the original item
+  ReplaceMirroredItems(yankBuffer);
+}
+
+function ReplaceMirroredItems(itemContainer)
+{
+  for (i = itemContainer.length-1; i >= 0; i--) 
+  {
+    if (IsItemOriginal(itemContainer[i]) == false)
+    {
+      itemContainer[i] = GetOriginalItem(itemContainer[i]);
+    }
+  }
+}
+
+// get original item from mirror
+function GetOriginalItem(mirroredItem)
+{
+  return WF.getItemById(mirroredItem.data.metadata.originalId);
+}
+
+// check whether an item is a mirror or original
+function IsItemOriginal(itemToQuery)
+{
+   return itemToQuery.data.metadata.originalId === undefined;
+}
+
+// get original ID from mirror
+function GetOriginalID(mirroredItem)
+{
+   return mirroredItem.data.metadata.originalId;
 }
 
 function ExitVisualMode(t)
