@@ -54,6 +54,7 @@ const transparentActionMap =
 				const desiredItem = WF.getItemById(itemID);
 				if(desiredItem)
 				{
+	    			PrevEnterItem = WF.currentItem();
 					WF.zoomTo(desiredItem);
 				}
 			}
