@@ -169,7 +169,11 @@ function createItemFrom(itemToCopy, parent, prio)
   if(itemToCopy.equals(parent))
     return;
 
-  var createdItem = WF.createItem(parent, prio);
+  var originalParent = parent;
+  if (!IsItemOriginal(parent))
+    originalParent = GetOriginalItem(parent);
+
+  var createdItem = WF.createItem(originalParent, prio);
 
   WF.setItemName(createdItem, itemToCopy.getName());
   WF.setItemNote(createdItem, itemToCopy.getNote());
@@ -184,6 +188,11 @@ function createItemFrom(itemToCopy, parent, prio)
     WF.expandItem(createdItem);
   else
     WF.collapseItem(createdItem);
+
+  // creating mirrored items recurisvely requires their parent to be the original item
+  // (needed when yanking and pasting mirrored items within a mirror)
+  if (!IsItemOriginal(createdItem))
+    createdItem = GetOriginalItem(createdItem);
 
   // @TODO: we could take all children by calling 
   // getChildren() but then we'd run into potential
@@ -293,7 +302,16 @@ function pasteYankedItems(bAboveFocusedItem)
       WF.moveItems(createdItems, parentItem, focusedItem.getPriority()+1);
 
     // focus on top most pasted item
-    WF.editItemName(createdItems[0]);
+    if(bAboveFocusedItem)
+    {
+      const newKidsOnTheBlock = focusedItem.getParent().getChildren();
+      const topMostPastedItemIndex = focusedItem.getPriority() - createdItems.length;
+      WF.editItemName(newKidsOnTheBlock[topMostPastedItemIndex]);
+    }
+    else
+    {
+      WF.editItemName(focusedItem.getNextVisibleSibling());
+    }
 
   });
 }
