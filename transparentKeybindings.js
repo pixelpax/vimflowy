@@ -232,19 +232,33 @@ const transparentActionMap =
 	  },
 	  'alt-H': e => 
 	  {
-	    enterVisualMode();
-	    outdentSelection(e);
-	    ExitVisualMode();
-	    event.preventDefault()
-	    event.stopPropagation()
+		if(WF.getSelection().length <= 0)
+		{
+			outdentFocusedItem(e);
+		}
+		else
+		{
+			enterVisualMode();
+			outdentSelection(e);
+			ExitVisualMode();
+			event.preventDefault()
+			event.stopPropagation()
+		}
 	  },
 	  'alt-L': e => 
 	  {
-	    enterVisualMode();
-	    indentSelection(e);
-	    ExitVisualMode();
-	    event.preventDefault()
-	    event.stopPropagation()
+		if(WF.getSelection().length <= 0)
+		{
+			indentFocusedItem(e);
+		}
+		else
+		{
+			enterVisualMode();
+			indentSelection(e);
+			ExitVisualMode();
+			event.preventDefault()
+			event.stopPropagation()
+		}
 	  },
 	  '<': e => 
 	  {
