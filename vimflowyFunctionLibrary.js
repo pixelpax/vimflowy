@@ -757,6 +757,7 @@ function ExitVisualMode(t)
 function indentSelection(e)
 {
   var selection = WF.getSelection();
+
   if (selection === undefined || selection.length == 0) 
     selection = SelectionPreMove;
 
@@ -899,7 +900,8 @@ function outdentFocusedItem(e)
   if(!IsItemOriginal(focusedItem))
     focusedItem = GetOriginalItem(focusedItem);
 
-	WF.editItemName(focusedItem);
+	// WF.editItemName(focusedItem);
+  WF.editItemName(focusParent.getNextVisibleSibling());
 
 	setCursorAt(currentOffset);
 
@@ -914,7 +916,7 @@ function outdentSelection(e, bIncludingChildren = false)
 		selection = SelectionPreMove;
 
 	if (selection === undefined || selection.length == 0)
-		return;
+    return;
 
 	const selectionParent = selection[0].getParent();
 	if(!selectionParent)
@@ -962,7 +964,7 @@ function outdentSelection(e, bIncludingChildren = false)
 		return;
 
 	const currentOffset = state.get().anchorOffset
-	WF.editItemName(newParentItem);
+  WF.editItemName(newParentItem);
 
 	WF.editGroup(() => 
 	{
@@ -972,11 +974,11 @@ function outdentSelection(e, bIncludingChildren = false)
 
 		// @TODO: this will only work if the expansion is instant
 		// if(newParentItem.getChildren().length != 0 && !newParentItem.isExpanded())
-		//   WF.expandItem(newParentItem);
+    //   WF.expandItem(newParentItem);
   });
 
   // we need to replace the mirrored items with 
-  // the originals if we try to move out mirrored
+  // the originals if we try to move mirrored
   // items outside of the topmost mirror
   if(!IsItemOriginal(selection[0]))
   {
@@ -985,10 +987,12 @@ function outdentSelection(e, bIncludingChildren = false)
     {
       ReplaceMirroredItems(selection);
       WF.setSelection(selection);
+      VisualSelectionBuffer = selection;
     }
   }
 
-  WF.editItemName(selection[0]);
+  WF.editItemName(selectionParent.getNextVisibleSibling());
+  // WF.editItemName(selection[0]);
 
 	setCursorAt(currentOffset);
 
