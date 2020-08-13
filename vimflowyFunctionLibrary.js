@@ -169,6 +169,13 @@ function createItemFrom(itemToCopy, parent, prio)
   if(itemToCopy.equals(parent))
     return;
 
+  const focusParent = WF.focusedItem().getParent();
+
+  // always expand the parent in case we might be creating
+  // completed items down the recursive chain.
+  const bWasParentExpanded = parent.isExpanded();
+  WF.expandItem(parent);
+
   var originalParent = parent;
   if (!IsItemOriginal(parent))
     originalParent = GetOriginalItem(parent);
@@ -178,25 +185,18 @@ function createItemFrom(itemToCopy, parent, prio)
   WF.setItemName(createdItem, itemToCopy.getName());
   WF.setItemNote(createdItem, itemToCopy.getNote());
 
-  if(itemToCopy.isCompleted())
-    WF.completeItem(createdItem);
-
-  // !!! this needs to be done before we process the kids
-  // there is a unhandled exception in WF otherwise 
-  // when copying completed items
-  if(itemToCopy.isExpanded())
-    WF.expandItem(createdItem);
-  else
-    WF.collapseItem(createdItem);
-
   // creating mirrored items recurisvely requires their parent to be the original item
   // (needed when yanking and pasting mirrored items within a mirror)
   if (!IsItemOriginal(createdItem))
     createdItem = GetOriginalItem(createdItem);
 
-  // @TODO: we could take all children by calling 
-  // getChildren() but then we'd run into potential
-  // problems down below when completing and expanding
+  // Always expand before dealing with the kids.
+  // Close afterwards, if needed.
+  WF.expandItem(createdItem);
+
+  if(itemToCopy.isCompleted())
+    WF.completeItem(createdItem);
+
   var kids = itemToCopy.getChildren();
   if (kids !== undefined && kids.length != 0) 
   {
@@ -208,6 +208,31 @@ function createItemFrom(itemToCopy, parent, prio)
         item.getPriority()
       ); 
     });
+  }
+
+  // collapse it after we are done with the creation of the kids
+  if(!itemToCopy.isExpanded())
+  {
+    WF.editItemName(createdItem);
+    WF.collapseItem(createdItem);
+  }
+
+  // close parent once we are done with the kids
+  if(!bWasParentExpanded)
+  {
+    WF.editItemName(parent);
+    WF.collapseItem(parent);
+  }
+
+  // fix focus loss problem when collapsing
+  if(!WF.focusedItem())
+  {
+    requestAnimationFrame(fixFocus);
+    WF.editItemName(focusParent);
+    if(!WF.focusedItem())
+    {
+      WF.editItemName(WF.currentItem());
+    }
   }
 
   return createdItem;
