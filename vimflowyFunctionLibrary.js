@@ -258,15 +258,20 @@ function pasteYankedItems(bAboveFocusedItem)
 
   WF.editGroup(() => 
   {
-    // all items will have same parent
-    const yankParent = yankBuffer[0].getParent();
-    const yankPrio = yankBuffer[0].getPriority();
+    // all items that we are going to paste will have same parent
+    // const yankParent = yankBuffer[0].getParent();
+    // const yankPrio = yankBuffer[0].getPriority();
 
     // check if we are dealing with dead items..
     // @TODO: we could just always create new items 
     // and not duplicate them... we'd lose some 
     // information but that is negligible?
+    // (but duplicate is faster...)
     var bPastingDeadItems = true;
+
+    // the duplicated item will be placed were the original is
+    // regardless where we have focus right now. 
+    // It will steal our focus as well.
     const tempItem = WF.duplicateItem(yankBuffer[0]);
     if(tempItem)
     {
@@ -292,9 +297,9 @@ function pasteYankedItems(bAboveFocusedItem)
     else
     {
       // we can only duplicate items that are "visible",
-      // (they have to share the same WF.currentItem()?)
+      // (they have to share the same WF.currentItem()?) 
       // so we'll move them here
-      WF.moveItems(yankBuffer, parentItem, 0);
+      // WF.moveItems(yankBuffer, parentItem, 0);
 
       for (var i = 0, len = yankBuffer.length; i < len; i++) 
       {
@@ -303,9 +308,9 @@ function pasteYankedItems(bAboveFocusedItem)
       }
 
       // move the items back once we've duplicated them
-      const bCopyFromSameList = yankParent.equals(createdItems[0].getParent());
-      const originPriority = bCopyFromSameList ? (yankPrio + (yankBuffer.length*2)) : yankPrio;
-      WF.moveItems(yankBuffer, yankParent, originPriority);
+      // const bCopyFromSameList = yankParent.equals(createdItems[0].getParent());
+      // const originPriority = bCopyFromSameList ? (yankPrio + (yankBuffer.length*2)) : yankPrio;
+      // WF.moveItems(yankBuffer, yankParent, originPriority);
     }
 
     if(createdItems[0] == null || createdItems[0] == undefined)
