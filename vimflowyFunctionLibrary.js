@@ -1095,6 +1095,11 @@ function deleteSelectedItems(t)
       setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(prevTarget));
     }
   }
+
+  // hide the delete message (as long as we aren't peforming a search)
+  if(WF.currentSearchQuery() === null)
+    WF.hideMessage();
+
 }
 
 function visualMode_AddItemToSelection_Above(t)
