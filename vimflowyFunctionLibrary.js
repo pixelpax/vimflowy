@@ -374,7 +374,6 @@ function toggleExpand(t)
     return;
 
   const currentItem = WF.currentItem();
-
   if(focusedItem && focusedItem.equals(currentItem))
     return;
 
@@ -383,6 +382,7 @@ function toggleExpand(t)
   else
     WF.expandItem(focusedItem);
 }
+
 
 function toggleExpandAll(e)
 {
@@ -2402,9 +2402,112 @@ function goToListBottom(event, listRootItem)
     focusedItem = WF.focusedItem();
     setCursorAt(currentOffset);
   }
-
-
 }
 
+function toggleExpandInstantly()
+{
+  const focusedItem = WF.focusedItem();
+  if(focusedItem == null)
+    return;
 
+  const currentItem = WF.currentItem();
+  if(focusedItem && focusedItem.equals(currentItem))
+    return;
+
+  // expansion/collapse isn't supported by WF when searching
+  if(WF.currentSearchQuery() !== null)
+    return;
+
+  GiveItemInstantFoldingCapability(focusedItem);
+
+  if (focusedItem.isExpanded())
+    WF.collapseItem(focusedItem);
+  else
+    WF.expandItem(focusedItem);
+}
+
+function ExpandInstantly(inItem)
+{
+  GiveItemInstantFoldingCapability(inItem);
+  WF.expandItem(inItem);
+}
+
+function CollapseInstantly(inItem)
+{
+  GiveItemInstantFoldingCapability(inItem);
+  WF.collapseItem(inItem);
+}
+
+var InstantFoldingCSSTemplate = document.createElement('style');
+InstantFoldingCSSTemplate.type = 'text/css';
+InstantFoldingCSSTemplate.innerHTML = 
+  '* {' +
+  '/*CSS transitions*/' +
+  ' -o-transition-property: none !important;' +
+  ' -moz-transition-property: none !important;' +
+  ' -ms-transition-property: none !important;' +
+  ' -webkit-transition-property: none !important;' +
+  '  transition-property: none !important;' +
+  '/*CSS transforms*/' +
+  '  -o-transform: none !important;' +
+  ' -moz-transform: none !important;' +
+  ' -ms-transform: none !important;' +
+  ' -webkit-transform: none !important;' +
+  ' transform: none !important;' +
+  '/*CSS animations*/' +
+  '   -webkit-animation: none !important;' +
+  '   -moz-animation: none !important;' +
+  '   -o-animation: none !important;' +
+  '   -ms-animation: none !important;' +
+  '   animation: none !important;'+
+  ' }';
+
+// Inject CSS in order to prevent the expansion from animating
+function GiveItemInstantFoldingCapability(inItem)
+{
+  const element = inItem.getElement();
+
+  if(!element)
+    return;
+
+  const styleId = 'InstantFold' + inItem.getId();
+  const previousStyleElement = document.getElementById(styleId);
+
+  // we've already added it
+  if(previousStyleElement)
+    return;
+
+  var style = InstantFoldingCSSTemplate
+  style.setAttribute('id', styleId)
+
+  element.appendChild(style);
+
+  // trigger a reflow and flush all the previous CSS changes
+  element.offsetHeight;
+}
+
+/**
+ * 
+ * Just clearing the previous timeouts is a bit dirty and quite risky.
+ * 
+ * An alternative solution is to override the virtual function window.setTimeout()
+ * but that is a lot of work since the timeout can take extra input 
+ * which it later feeds into the function, which was bound, upon execution. 
+ * 
+ * Here is a link to someone who has done the window.setTimeout override before.
+ * https://stackoverflow.com/a/18655837
+ * 
+ */
+function ClearAllPreviousTimeouts(thresholdId = 0)
+{
+  var iterId = window.setTimeout(function () { }, 0);
+  while (iterId-- > thresholdId) {
+    window.clearTimeout(iterId); // will do nothing if no timeout with id is present
+  }
+}
+
+function GetLatestTimeoutId()
+{
+  return window.setTimeout(function () { }, 0);
+}
 
