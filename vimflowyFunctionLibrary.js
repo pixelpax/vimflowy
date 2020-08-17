@@ -2077,6 +2077,8 @@ function changeNote(item)
       WF.setItemNote(item, "");
       WF.editItemNote(item);
 
+      WF.editItemName(WF.focusedItem());
+      WF.editItemNote(item);
     });
 
     goToInsertMode();
