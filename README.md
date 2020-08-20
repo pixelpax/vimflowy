@@ -34,6 +34,7 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `s`: remove character under cursor + insert mode
     - `f`: find character after cursor in current line. Ex: fb will find the 1st b occurence, 3fb will find 3rd b occurence. 
     - `t`: same as 'f' but cursor moves to just before found character
+    - `#`: search for the word under the cursor. Works as tag search.
     - `F`: backwards version of 'f'
     - `T`: backwards version of 't'
     - `S`: substitute entire line - deletes line, enters insertion mode
