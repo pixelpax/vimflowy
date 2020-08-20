@@ -263,6 +263,10 @@ const actionMap =
 	  {
 	    WF.redo();
 	  },
+	  '#': t => 
+	  {
+		SearchWordUnderCursor();
+	  },
 	  z: t => 
 	  {
 	    toggleExpand(t);
