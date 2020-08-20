@@ -433,14 +433,14 @@ function createItemFrom(itemToCopy, parent, prio)
   var kids = itemToCopy.getChildren();
   if (kids !== undefined && kids.length != 0) 
   {
-    kids.forEach((item, i) =>  
+    for(var i=0, len=kids.length; i < len; i++)
     {
       createItemFrom(
-        item,
+        kids[i],
         createdItem,
-        item.getPriority()
+        kids[i].getPriority()
       ); 
-    });
+    }
   }
 
   // collapse it after we are done with the creation of the kids
@@ -668,18 +668,19 @@ function toggleExpandAll(e)
   {
     var numExpanded = 0;
     var numCollapsed = 0;
-    children.forEach((item, i) => 
+
+    for (var i = 0, len = children.length; i < len; i++)
     {
-      const itemKids = item.getVisibleChildren();
+      const itemKids = children[i].getVisibleChildren();
       const bHasKids = itemKids !== undefined && itemKids.length != 0;
       if(bHasKids)
       {
-        if(item.isExpanded())
+        if (children[i].isExpanded())
           ++numExpanded;
         else
           ++numCollapsed;
       }
-    });
+    }
 
     // none of the items have any kids => nothing to expand or collapse
     if(numExpanded == 0 && numCollapsed == 0)
@@ -701,13 +702,13 @@ function toggleExpandAll(e)
 
   WF.editGroup(() => 
   {
-    children.forEach((item, i) => 
+    for (var i = 0, len = children.length; i < len; i++)
     {
       if(bExpandAll)
-        WF.expandItem(item);
+        WF.expandItem(children[i]);
       else
-        WF.collapseItem(item);
-    });
+        WF.collapseItem(children[i]);
+    }
   });
   
   // fix focus loss problem when collapsing
@@ -807,15 +808,15 @@ function addKidsRecursively(itemContainer, item, bOnlyExpanded = true)
   let kids = item.getChildren();
   if (kids !== undefined && kids.length != 0) 
   {
-    kids.forEach((kid, i) =>  
+    for (var i = 0, len = kids.length; i < len; i++)
     {
       addKidsRecursively
       (
         itemContainer,
-        kid,
+        kids[i],
         bOnlyExpanded
       );
-    });
+    }
   }
 }
 
@@ -830,13 +831,14 @@ function toggleCompletedOnSelection(e)
 
   let numCompleted = 0;
   let numUncompleted = 0;
-  selection.forEach((item, i) => 
-	{
-		if(item.isCompleted())
+
+  for (var i = 0, len = selection.length; i < len; i++)
+  {
+		if(selection[i].isCompleted())
 			++numCompleted;
 		else
 			++numUncompleted;
-  });
+  }
   
 	let bCompleteAll = false;
 	if(numCompleted == 0)
@@ -849,24 +851,23 @@ function toggleCompletedOnSelection(e)
 	}
 
   // add all visible kids to the selection
-  selection.forEach((item, i) => 
+  for (var i = 0, len = selection.length; i < len; i++)
   {
     addKidsRecursively(
       selection,
-      item,
+      selection[i],
       true
     );
-  });
+  }
 
   WF.editGroup(() => 
   {
-    selection.forEach((item, i) => 
+    for (var i = 0, len = selection.length; i < len; i++)
     {
-      if(item.isCompleted() != bCompleteAll)
-        WF.completeItem(item)
-    });
+      if(selection[i].isCompleted() != bCompleteAll)
+        WF.completeItem(selection[i]);
+    }
   });
-
 }
 
 function RotateSelectionPreMoveBuffer()
@@ -1218,13 +1219,13 @@ function outdentSelection(e, bIncludingChildren = false)
 	{
 		WF.editGroup(() => 
 		{
-			selection.forEach((item, i) => 
-			{
-				const kids = item.getVisibleChildren();
+      for (var i = 0, len = selection.length; i < len; i++)
+      {
+        const kids = selection[i].getVisibleChildren();
 				if (kids !== undefined && kids.length != 0) 
 				{
-					const destinationParent = item.getParent();
-					const destinationPriority = item.getPriority() + 1;
+          const destinationParent = selection[i].getParent();
+          const destinationPriority = selection[i].getPriority() + 1;
 					WF.moveItems(kids, destinationParent, destinationPriority);
 
 					// the kids have to be added to the selection
@@ -1233,7 +1234,7 @@ function outdentSelection(e, bIncludingChildren = false)
 					VisualSelectionBuffer = selection;
 					WF.setSelection(selection);
 				}
-			});
+      }
 		});
 	}
 
@@ -1321,10 +1322,10 @@ function deleteSelectedItems(t)
 
     WF.editGroup(() => 
     {
-      CurrentSelection.forEach((item, i) => 
+      for (var i = 0, len = CurrentSelection.length; i < len; i++)
       {
-         WF.deleteItem(item); 
-      });
+         WF.deleteItem(CurrentSelection[i]); 
+      }
     });
 
   }
@@ -2042,14 +2043,13 @@ function sortCompletedItemsOnFocusParent(t)
   completedKids.sort((a, b) => b.getCompletedDate() - a.getCompletedDate());
   WF.editGroup(() => 
   {
-    completedKids.forEach((item, i) => 
+    for (var i = 0, len = completedKids.length; i < len; i++)
     {
-      if (item.getPriority() !== i) 
-        WF.moveItems([item], parentItem, i)
-    })
+      if (completedKids[i].getPriority() !== i) 
+        WF.moveItems([completedKids[i]], parentItem, i)
+    }
 
     WF.moveItems(completedKids, parentItem, visibleChildren.length);
-
   });
 
   if(!containsItem(completedKids, focusedItem))
@@ -2117,17 +2117,18 @@ function zoomInFocused()
   else
   {
     const currentItem = WF.currentItem();
-    focusedAncestors.forEach((item, i) => 
+
+    for (var i = 0, len = focusedAncestors.length; i < len; i++)
     {
-      const itemParent = item.getParent();
+      const itemParent = focusedAncestors[i].getParent();
       if(itemParent && itemParent.equals(currentItem))
       {
-        WF.zoomTo(item);
+        WF.zoomTo(focusedAncestors[i]);
         WF.editItemName(focusedItem);
         setCursorAt(state.get().anchorOffset);
         return;
       }
-    });
+    }
   }
 }
 
@@ -2203,8 +2204,9 @@ function addSiblingsFromInitList(bSiblingsAboveInitItem = true)
 		var siblingsToBeRemoved = [];
 		if(bSiblingsAboveInitItem)
 		{
-			siblings.forEach((item, i) => 
-			{
+      for (var i = 0, len = siblings.length; i < len; i++)
+      {
+        var item = siblings[i];
 				if(item.getPriority() < initPrio)
 				{
 					siblingsToBeAdded.push(item);
@@ -2213,12 +2215,13 @@ function addSiblingsFromInitList(bSiblingsAboveInitItem = true)
 				{
 					siblingsToBeRemoved.push(item);
 				}
-			});
+      }
 		}
 		else
 		{
-			siblings.forEach((item, i) => 
-			{
+      for (var i = 0, len = siblings.length; i < len; i++)
+      {
+        var item = siblings[i];
 				if(item.getPriority() > initPrio)
 				{
 					siblingsToBeAdded.push(item);
@@ -2227,7 +2230,7 @@ function addSiblingsFromInitList(bSiblingsAboveInitItem = true)
 				{
 					siblingsToBeRemoved.push(item);
 				}
-			});
+      }
 		}
 
 		if(bSiblingsAboveInitItem)
@@ -2270,8 +2273,9 @@ function addSiblingsFromCurrentList(bAbove = true)
 		var siblingsToBeRemoved = [];
 		if(bAbove)
 		{
-			siblings.forEach((item, i) => 
-			{
+      for (var i = 0, len = siblings.length; i < len; i++)
+      {
+        var item = siblings[i];
 				if(item.getPriority() < initPrio)
 				{
 					siblingsToBeAdded.push(item);
@@ -2280,12 +2284,13 @@ function addSiblingsFromCurrentList(bAbove = true)
 				{
 					siblingsToBeRemoved.push(item);
 				}
-			});
+      }
 		}
 		else
 		{
-			siblings.forEach((item, i) => 
-			{
+      for (var i = 0, len = siblings.length; i < len; i++)
+      {
+        var item = siblings[i];
 				if(item.getPriority() > initPrio)
 				{
 					siblingsToBeAdded.push(item);
@@ -2294,7 +2299,7 @@ function addSiblingsFromCurrentList(bAbove = true)
 				{
 					siblingsToBeRemoved.push(item);
 				}
-			});
+      }
 		}
 
 		if(bAbove)
