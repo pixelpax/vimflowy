@@ -329,6 +329,71 @@ function SearchWordUnderCursor()
   WF.editItemName(WF.currentItem());
 }
 
+// we can take shortcuts and reduce costs if we know that 
+// the item chain doesn't contain any 'completed' items
+function createItemFromCompletelessItem(itemToCopy, parent, prio)
+{
+  if(!parent)
+    return;
+
+  if(itemToCopy.equals(parent))
+    return;
+
+  const focusParent = WF.focusedItem().getParent();
+
+  var originalParent = parent;
+  if (!IsItemOriginal(parent))
+    originalParent = GetOriginalItem(parent);
+
+  var createdItem = WF.createItem(originalParent, prio);
+
+  WF.setItemName(createdItem, itemToCopy.getName());
+  WF.setItemNote(createdItem, itemToCopy.getNote());
+
+  // creating mirrored items recursively requires their parent to be the original item
+  // (needed when yanking and pasting mirrored items within a mirror)
+  if (!IsItemOriginal(createdItem))
+    createdItem = GetOriginalItem(createdItem);
+
+  ////////////////
+
+
+  var kids = itemToCopy.getChildren();
+  if (kids !== undefined && kids.length != 0) 
+  {
+    for(var i=0, len=kids.length; i < len; i++)
+    {
+      createItemFromCompletelessItem(
+        kids[i],
+        createdItem,
+        kids[i].getPriority()
+      ); 
+    }
+  }
+
+  ///////////////
+
+  // apply expand/collapse after we are done with the kids
+  WF.editItemName(createdItem);
+  if(itemToCopy.isExpanded())
+    WF.expandItem(createdItem);
+  else
+    WF.collapseItem(createdItem);
+
+  // fix focus loss problem when collapsing
+  if(!WF.focusedItem())
+  {
+    requestAnimationFrame(fixFocus);
+    WF.editItemName(focusParent);
+    if(!WF.focusedItem())
+    {
+      WF.editItemName(WF.currentItem());
+    }
+  }
+
+  return createdItem;
+}
+
 function createItemFrom(itemToCopy, parent, prio)
 {
   if(!parent)
@@ -451,15 +516,31 @@ function pasteYankedItems(bAboveFocusedItem)
 
     if(bPastingDeadItems)
     {
-      for (var i = 0, len = yankBuffer.length; i < len; i++) 
+      if(ContainsCompletedItem(yankBuffer))
       {
-        var createdItem = createItemFrom(
-          yankBuffer[i],
-          parentItem,
-          yankBuffer[i].getPriority() + 1,    // the +1 is for tricking workflowy
-        );
-        WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
-        createdItems.push(createdItem);
+        for (var i = 0, len = yankBuffer.length; i < len; i++) 
+        {
+          var createdItem = createItemFrom(
+            yankBuffer[i],
+            parentItem,
+            yankBuffer[i].getPriority() + 1,    // the +1 is for tricking workflowy
+          );
+          WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+          createdItems.push(createdItem);
+        }
+      }
+      else
+      {
+        for (var i = 0, len = yankBuffer.length; i < len; i++) 
+        {
+          var createdItem = createItemFromCompletelessItem(
+            yankBuffer[i],
+            parentItem,
+            yankBuffer[i].getPriority() + 1,    // the +1 is for tricking workflowy
+          );
+          WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+          createdItems.push(createdItem);
+        }
       }
     }
     else
@@ -1651,6 +1732,20 @@ function visualMode_AddItemToSelection_Below(t)
 
   VisualSelectionBuffer = currentSelection;
   WF.setSelection(currentSelection);
+}
+
+function ContainsCompletedItem(items)
+{
+  var i = items.length;
+  while(i--)
+  {
+    if(items[i].isCompleted())
+      return true;
+
+    if(ContainsCompletedItem(items[i].getChildren()))
+      return true;
+  }
+  return false;
 }
 
 function containsItem(arr, item)
