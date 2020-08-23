@@ -11,9 +11,20 @@ function calculateCursorOffset(bHtmlTagsIncluded = false)
   const itemName = focusedItem.getName();
   const itemNameText = focusedItem.getNameInPlainText();
 
+  // @TODO: we should probably use this instead. 
+  // the ItenNames will start to differ as soon as they have a '<'
+  // using the htmltags regex expression ensure that we have a pair present
+  // But that needs testing... Don't have that time atm.
+  // var htmlTags = itemName.match(/(<\/b>)|(<\/u>)|(<\/i>)|(<i>)|(<u>)|(<b>)/g);
+  // if(htmlTags !== undefined)
+
   // Oh no, it has html tags, recalculate cursor offset
   if(itemNameText.length != itemName.length)
   {
+    // console.log("getName: " + itemName);
+    // console.log("getPlainName: " + itemNameText);
+    // console.log("htrml tags: " + htmlTags);
+
     // remove any html tags from the "plain text name" before we start the counting
     let ItemNameTextPreCleanupSubStringStart = itemNameText.substring(0, currentOffset+1); 
     let itemNameCleaned = ItemNameTextPreCleanupSubStringStart;
