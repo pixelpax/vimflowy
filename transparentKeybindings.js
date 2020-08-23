@@ -194,13 +194,29 @@ const transparentActionMap =
 
 	    setCursorAt(currentOffset);
 	  },
+	  'ci': e => 
+	  {
+		e.preventDefault()
+		e.stopPropagation()
+	    goToChangeInnerMode();
+	  },
+	  'di': e => 
+	  {
+		e.preventDefault()
+		e.stopPropagation()
+		goToDeleteInnerMode();
+	  },
 	  'dw': e => 
 	  {
-	    deleteWord(e, true);
+		deleteUntilWordEnd(true);
+		e.preventDefault()
+		e.stopPropagation()
 	  },
 	  'de': e => 
 	  {
-	    deleteWord(e, false);
+		deleteUntilWordEnd(false);
+		e.preventDefault()
+		e.stopPropagation()
 	  },
 	  'dn': e => 
 	  {

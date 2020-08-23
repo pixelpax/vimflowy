@@ -110,101 +110,6 @@ function deleteUntilLineEnd()
   setCursorAt(state.get().anchorOffset);
 }
 
-function deleteEntireWord(e, bToNextWord)
-{
-  const focusedItem = WF.focusedItem();
-  if(!focusedItem)
-    return;
-
-  console.clear();
-
-  const itemName = focusedItem.getName();
-  var currentOffset = calculateCursorOffset(true);
-  let currentOffset_noHTML = calculateCursorOffset(false);
-
-  console.log("calculate cursor offset: " + currentOffset);
-
-  const substring_Start = itemName.substring(0, currentOffset);
-  const substring_End = itemName.substring(currentOffset);
-  const underCursorChar = itemName.charAt(currentOffset); 
-
-  // console.log("itemNameText: " + focusedItem.getNameInPlainText());
-  // console.log("itemName: " + itemName);
-  console.log("under cursor char: " + underCursorChar);
-  console.log("substring_Start: " + substring_Start);
-  console.log("substring_End: " + substring_End);
-
-  const bNormalCharUnderCursor = /[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar);
-  const regexStringToUse = bNormalCharUnderCursor ? /([^a-zåäöA-ZÅÄÖ0-9])/ : /([a-zåäöA-ZÅÄÖ0-9</>])/
-  // const regexStringToUse = /([a-zåäöA-ZÅÄÖ0-9</>])/
-  const subStrSplit_End = substring_End.split(regexStringToUse).filter(Boolean);
-  console.log("subStrSplit_End: " + subStrSplit_End);
-  console.log("bNormalCharUnderCursor" + bNormalCharUnderCursor);
-  console.log("regex being used: " + regexStringToUse);
-
-  const subStrSplit_Start = substring_Start.split(regexStringToUse).filter(Boolean);
-  const majsIndex = subStrSplit_Start.length-1; 
-  console.log("majs index: " + majsIndex);
-  const lastStartWord = subStrSplit_Start[majsIndex]; 
-  const lenOfLastStartWord = lastStartWord.length; 
-  console.log("last start word: " + lastStartWord);
-  console.log("len of start word: " + lenOfLastStartWord);
-
-  var modifiedStrStart = substring_Start.substring(0, currentOffset - lenOfLastStartWord);
-  if(lastStartWord == " ")
-    modifiedStrStart = substring_Start;
-
-  // var modifiedStrStart = substring_Start.substring(subStrSplit_Start[0].length);
-  console.log("substring_Start: " + substring_Start);
-  console.log("subStrSplit_Start: " + subStrSplit_Start);
-  // console.log("now i tell you this is a fantasy : " + subStrSplit_Start.length);
-  console.log("modifiedStrStart: " + modifiedStrStart);
-
-  var lenOfWordEnd = subStrSplit_End[0].length;
-  var modifiedStrEnd = substring_End.substring(lenOfWordEnd);
-  // if(bToNextWord)
-  //   modifiedStrEnd = modifiedStrEnd.trim();
-
-  // var finalstring = substring_Start.concat(modifiedStrEnd);
-  var finalstring = modifiedStrStart.concat(modifiedStrEnd);
-
-  console.log("modifiedStrEnd: " + modifiedStrEnd);
-
-  // const bRemovedEntireWord = substring_Start.charAt(substring_Start.length-1) == ">";
-  // finalstring = finalstring.replace(/(<u><\/u>)/g, "");
-  // finalstring = finalstring.replace(/(<i><\/i>)/g, "");
-  // finalstring = finalstring.replace(/(<b><\/b>)/g, "");
-
-  console.log("finalstring: " + finalstring);
-
-  var modifierStartStringCleaned = modifiedStrStart;
-  console.log("length pre cleanup: " + modifierStartStringCleaned.length)
-
-  modifierStartStringCleaned = modifierStartStringCleaned.replace(/(<u>)/g, "");
-  modifierStartStringCleaned = modifierStartStringCleaned.replace(/(<\/u>)/g, "");
-  console.log("mod start U: " + modifierStartStringCleaned);
-
-  modifierStartStringCleaned = modifierStartStringCleaned.replace(/(<i>)/g, "");
-  modifierStartStringCleaned = modifierStartStringCleaned.replace(/(<\/i>)/g, "");
-  console.log("mod start i: " + modifierStartStringCleaned);
-
-  modifierStartStringCleaned = modifierStartStringCleaned.replace(/(<b>)/g, "");
-  modifierStartStringCleaned = modifierStartStringCleaned.replace(/(<\/b>)/g, "");
-  console.log("mod start b: " + modifierStartStringCleaned);
-
-  console.log("length after cleanup: " + modifierStartStringCleaned.length)
-
-  WF.setItemName(focusedItem, finalstring);
-  setCursorAt(modifierStartStringCleaned.length);
-
-  goToInsertMode();
-  // goToNormalMode();
-  // goToInsertMode();
-
-  event.preventDefault()
-  event.stopPropagation()
-}
-
 function deleteWord(e, bToNextWord)
 {
   const focusedItem = WF.focusedItem();
@@ -220,7 +125,105 @@ function deleteWord(e, bToNextWord)
   const substring_End = itemName.substring(currentOffset);
   const underCursorChar = itemName.charAt(currentOffset); 
 
-  // console.log("itemNameText: " + itemNameText);
+  // console.log("under cursor char: " + underCursorChar);
+
+  const bNormalCharUnderCursor = /[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar);
+  // const regexStringToUse = bNormalCharUnderCursor ? /([^a-zåäöA-ZÅÄÖ0-9])/ : /([a-zåäöA-ZÅÄÖ0-9#</>])/
+
+  // console.log("bNormalCharUnderCursor: " + bNormalCharUnderCursor);
+
+  var regexStringToUse;
+  if(bNormalCharUnderCursor)
+    regexStringToUse = /([^a-zåäöA-ZÅÄÖ0-9\_])/;
+  else if(underCursorChar == " ")
+    regexStringToUse = /([a-zåäöA-ZÅÄÖ0-9~@#\^\$&\*\(\)-_\+=\[\]\{\}\|\\,\.\?\\s])/
+    // regexStringToUse = /([a-zåäöA-ZÅÄÖ0-9#</>])/
+  else
+    regexStringToUse = /([0-9~@#\^\$&\*\(\)-_\+=\[\]\{\}\|\\,\.\?]*)/
+    // regexStringToUse = /([a-zåäöA-ZÅÄÖ0-9~@#\^\$&\*\(\)-_\+=\[\]\{\}\|\\,\.\?]*)/
+
+    // console.log("regex being sused: " + regexStringToUse);
+
+  // const regexStringToUse = bNormalCharUnderCursor 
+  // ? /([^a-zåäöA-ZÅÄÖ0-9])/ 
+  // : /([a-zåäöA-ZÅÄÖ0-9~@#\^\$&\*\(\)-_\+=\[\]\{\}\|\\,\.\?])/
+
+  const splitSubstring_Start = substring_Start.split(regexStringToUse).filter(Boolean);
+  const firstPartOfWord = splitSubstring_Start[splitSubstring_Start.length-1];
+
+  const splitSubstring_End = substring_End.split(regexStringToUse).filter(Boolean);
+  const lastPartOfWord = splitSubstring_End[0];
+
+  // remove the word part from substring start
+  var modifiedStringStart = "";
+  if(firstPartOfWord)
+  {
+    if(regexStringToUse.test(underCursorChar) == regexStringToUse.test(firstPartOfWord))
+      modifiedStringStart = substring_Start.substring(0, currentOffset - firstPartOfWord.length);
+    else
+      modifiedStringStart = substring_Start;
+    // console.log("length of firstPartOfWord: " + firstPartOfWord.length);
+  }
+
+  // remove the word part from substring end
+  var modifiedStringEnd = "";
+  if(lastPartOfWord)
+    modifiedStringEnd = substring_End.substring(lastPartOfWord.length);
+
+  // if(bToNextWord)
+  //   modifiedStringEnd = modifiedStringEnd.trim();
+
+  var finalstring = modifiedStringStart.concat(modifiedStringEnd);
+
+  // console.log("calculate cursor offset: " + currentOffset);
+  // console.log("substring_Start: " + substring_Start);
+  // console.log("substring_End: " + substring_End);
+  // console.log("splitSubstring_Start: " + splitSubstring_Start);
+  // console.log("splitSubstring_End: " + splitSubstring_End);
+  // console.log("firstPartOfWord: " + firstPartOfWord);
+  // console.log("lastPartOfWord: " + lastPartOfWord);
+  // console.log("modifiedStrStart: " + modifiedStringStart);
+  // console.log("modifiedStrEnd: " + modifiedStringEnd);
+  // console.log("finalstring: " + finalstring);
+
+  var modifiedStringStartCleaned = modifiedStringStart;
+  // console.log("length pre cleanup: " + modifiedStringStartCleaned.length)
+
+  modifiedStringStartCleaned = modifiedStringStartCleaned.replace(/(<u>)/g, "");
+  modifiedStringStartCleaned = modifiedStringStartCleaned.replace(/(<\/u>)/g, "");
+  // console.log("mod start U: " + modifiedStringStartCleaned);
+
+  modifiedStringStartCleaned = modifiedStringStartCleaned.replace(/(<i>)/g, "");
+  modifiedStringStartCleaned = modifiedStringStartCleaned.replace(/(<\/i>)/g, "");
+  // console.log("mod start i: " + modifiedStringStartCleaned);
+
+  modifiedStringStartCleaned = modifiedStringStartCleaned.replace(/(<b>)/g, "");
+  modifiedStringStartCleaned = modifiedStringStartCleaned.replace(/(<\/b>)/g, "");
+  // console.log("mod start b: " + modifiedStringStartCleaned);
+
+  // console.log("length after cleanup: " + modifiedStringStartCleaned.length)
+
+  WF.setItemName(focusedItem, finalstring);
+
+  // console.log("desired cursor offset: " + modifiedStringStartCleaned.length);
+  moveCursorTo(e.target, offsetCalculator(state), modifiedStringStartCleaned.length);
+}
+
+function deleteUntilWordEnd(bToNextWord)
+{
+  const focusedItem = WF.focusedItem();
+  if(!focusedItem)
+    return;
+
+  // console.clear();
+
+  const itemName = focusedItem.getName();
+  var currentOffset = calculateCursorOffset(true);
+
+  const substring_Start = itemName.substring(0, currentOffset);
+  const substring_End = itemName.substring(currentOffset);
+  const underCursorChar = itemName.charAt(currentOffset); 
+
   // console.log("itemName: " + itemName);
   // console.log("under cursor char: " + underCursorChar);
   // console.log("substring_Start: " + substring_Start);
@@ -2366,6 +2369,88 @@ function deleteUnderCursor(t)
 
   moveCursorTo(t, offsetCalculator(state), desiredOffset);
 
+}
+
+function handleChangeInner(e)
+{
+  // update the temp buffer with the latest data
+  keyBufferTempCopy = [...keyBufferTempCopy, e.key];
+
+  const focusedItem = WF.focusedItem();
+  if(focusedItem)
+  {
+    if(e.key == 'w')
+    {
+      changeInnerWord(e);
+    }
+
+    goToInsertMode();
+  }
+
+  keyBufferTempCopy = [];
+}
+
+function handleDeleteInner(e)
+{
+  // update the temp buffer with the latest data
+  keyBufferTempCopy = [...keyBufferTempCopy, e.key];
+
+  goToNormalMode();
+
+  const focusedItem = WF.focusedItem();
+  if(focusedItem)
+  {
+    if(e.key == 'w')
+    {
+      deleteInnerWord(e);
+    }
+  }
+
+  keyBufferTempCopy = [];
+}
+
+function changeInnerWord(e)
+{
+  WF.editGroup(() => 
+  {
+    if (keyBufferTempCopy.length > 3 && !isNaN(keyBufferTempCopy[keyBufferTempCopy.length-4]))
+    {
+      const iterNum = parseInt(keyBufferTempCopy[keyBufferTempCopy.length-4]);
+      for (let i = 1; i <= iterNum; ++i) 
+      {
+        if(i == 1)
+          deleteWord(e, false);
+        else
+          deleteUntilWordEnd(false);
+      }
+    }
+    else
+    {
+      deleteWord(e, false)
+    }
+  });
+}
+
+function deleteInnerWord(e)
+{
+  WF.editGroup(() => 
+  {
+    if (keyBufferTempCopy.length > 3 && !isNaN(keyBufferTempCopy[keyBufferTempCopy.length-4]))
+    {
+      const iterNum = parseInt(keyBufferTempCopy[keyBufferTempCopy.length-4]);
+      for (let i = 1; i <= iterNum; ++i) 
+      {
+        if(i == 1)
+          deleteWord(e, true);
+        else
+          deleteUntilWordEnd(false);
+      }
+    }
+    else
+    {
+      deleteWord(e, true);
+    }
+  });
 }
 
 function handleFindMode(e)
