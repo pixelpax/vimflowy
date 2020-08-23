@@ -241,7 +241,8 @@ function deleteUntilWordEnd(bToNextWord)
   // console.log("substring_End: " + substring_End);
 
   const bNormalCharUnderCursor = /[a-zåäöA-ZÅÄÖ0-9]/.test(underCursorChar);
-  const regexStringToUse = bNormalCharUnderCursor ? /([^a-zåäöA-ZÅÄÖ0-9])/ : /([a-zåäöA-ZÅÄÖ0-9</>])/
+  const regexStringToUse = bNormalCharUnderCursor ? /([^a-zåäöA-ZÅÄÖ0-9\_])/ : /([a-zåäöA-ZÅÄÖ0-9</>])/
+
   const subStrSplit_End = substring_End.split(regexStringToUse).filter(Boolean);
 
   // there is nothing to delete, bail
