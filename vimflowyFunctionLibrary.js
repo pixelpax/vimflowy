@@ -270,17 +270,12 @@ function deleteUntilWordEnd(bToNextWord)
   }
 
   // console.log("finalstring: " + finalstring);
-  WF.setItemName(focusedItem, finalstring);
 
-  event.preventDefault()
-  event.stopPropagation()
+  WF.setItemName(focusedItem, finalstring);
 }
 
 function SearchWordUnderCursor()
 {
-  event.preventDefault()
-  event.stopPropagation()
-
   const focusedItem = WF.focusedItem();
   if(!focusedItem)
     return;
