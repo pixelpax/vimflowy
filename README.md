@@ -4,9 +4,14 @@
 Vimflowy: Vim shortcuts for Workflowy
 =====================================
 
+This extension adds (some) VIM keyboard shortcuts to Workflowy.com.
+
+These keyboard shortcuts are similar, if not identical, in their behaviour to the ones that can be found in the text editor called VIM. All VIM behaviours are not supported yet. New shortcuts are continously added.
+
 Keybindings
 -----------
-Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be blocked in all modes, except insert. For example `<Shift>d` will be blocked but `<Ctrl>d` or `<alt>d` will be allowed to pass through.
+
+Vimflowy will block keystrokes which haven't been bound in all modes - except insert mode. However, keys that have been modified with ALT/CTRL/META (but not SHIFT) are allowed to passthrough. For example `<Shift>d` will be blocked but `<Ctrl>d` or `<alt>d` will be allowed to pass through. 
 
 * Normal mode
     - `j`: Move down one item
@@ -15,6 +20,8 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `l`: Move cursor right
     - `i`: Insert before currently selected character
     - `a`: Insert after currently selected character
+    - `I`: Insert at the beginning of the line
+    - `A`: Insert after the end of the line
     - `/`: Start search
     - `o`: Create a new bullet below current line and go into insert mode
     - `O`: Create a new bullet above current line and go into insert mode
@@ -27,33 +34,14 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `g`: Go to root item of the currently focused list
     - `G`: Go to the bottom of focused list
     - `GG`: Go to the bottom of current list, recursivly
-    - `I`: Insert at the beginning of the line
-    - `A`: Insert after the end of the line
-    - `r`: replace character under cursor
-    - `x`: remove character under cursor
-    - `s`: remove character under cursor + insert mode
-    - `f`: find character after cursor in current line. Ex: fb will find the 1st b occurence, 3fb will find 3rd b occurence. 
-    - `t`: same as 'f' but cursor moves to just before found character
     - `#`: search for the word under the cursor. Works as tag search.
-    - `F`: backwards version of 'f'
-    - `T`: backwards version of 't'
-    - `S`: substitute entire line - deletes line, enters insertion mode
-    - `C`: change to end of line
-    - `d$`, `D`: delete to end of line
     - `u`: Undo
+    - `<Ctrl>r`: Redo
     - `y`,`Y`: yank (copy) focused items (and children)
     - `p`: paste yanked items below focused item
     - `P`: paste yanked items above focused item
-    - `<Ctrl>r`: Redo
     - `<alt>l`: Zoom in on focused node 1 step and retain focus on that node
     - `<alt>h`: Zoom out of focused node 1 step and retain focus on that node
-    - `dd`: yank and delete the current item(s)
-    - `dw`: cut from cursor location to next word
-    - `de`: cut from cursor location to the end of the current word
-    - `dn`: delete note
-    - `cw`: dw + goToInsertMode
-    - `ce`: de + goToInsertMode
-    - `cn`: change note == delete note + insert mode
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
     - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant)
@@ -70,6 +58,25 @@ Unsupported keystrokes which haven't been modified by ALT, CTRL, or META will be
     - `Backspace`: zoom in on item which was place in memory when using 'Enter'
     - `<alt>§`, `` <alt>` ``: toggle work time counter; displaying num (8 hour) days and num (5 day) Weeks worth of tags. (use #1d, #2h, #30m tags for it to count)
     - `§`, `` ` ``: sort completed items according to time and place them at the bottom
+    - `r`: replace character under cursor 
+    - `x`: remove character under cursor
+    - `s`: remove character under cursor + insert mode
+    - `f`: find character after cursor in current line. Ex: fb will find the 1st b occurence, 3fb will find 3rd b occurence. 
+    - `t`: same as 'f' but cursor moves to just before found character
+    - `F`: backwards version of 'f'
+    - `T`: backwards version of 't'
+    - `S`: substitute entire line - deletes line, enters insertion mode
+    - `C`: change to end of line
+    - `d$`, `D`: delete to end of line
+    - `dd`: yank and delete the current item(s)
+    - `de`: cut from cursor location to the end of the current word
+    - `ce`: de + goToInsertMode
+    - `dw`: cut from cursor location to next word
+    - `cw`: dw + goToInsertMode
+    - `dn`: delete note
+    - `cn`: change note == delete note + insert mode
+    - `diw`: change the word under the cursor. Works with a numeric 0-9 prefix to make the command repeat. 4ciw, for example. 
+    - `ciw`: deletes word under the cursor. Works with a numeric 0-9 prefix to make the command repeat. 4diw, for example. 
 * insert mode
     - `<jk>` : Enter Normal mode
 * visual mode
