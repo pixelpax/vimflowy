@@ -17,8 +17,8 @@ const Mode = {
   VISUAL: 'VISUAL',
   REPLACE: 'REPLACE',
   FIND: 'FIND',
-  CHANGEINNER: 'CHANGE INNER',
-  DELETEINNER: 'DELETE INNER'
+  INNER: 'INNER',
+  AFTER: 'AFTER'
 }
 
 const state = stateClosure({
@@ -82,10 +82,10 @@ const modeClosure = (mainContainer, getState, setState) => {
       setState(s => ({mode: Mode.FIND}))
       setMode(Mode.FIND)
     },
-    goToChangeInnerMode: () => 
+    goToInnerMode: () => 
     {
-      setState(s => ({mode: Mode.CHANGEINNER}))
-      setMode(Mode.CHANGEINNER)
+      setState(s => ({mode: Mode.INNER}))
+      setMode(Mode.INNER)
 
       // copy over the buffer in case it gets closed 
       // (which we usually do when dealing with sequences)
@@ -93,10 +93,10 @@ const modeClosure = (mainContainer, getState, setState) => {
       // starts throwing errors...
       keyBufferTempCopy = keyBuffer;
     },
-    goToDeleteInnerMode: () => 
+    goToAfterMode: () => 
     {
-      setState(s => ({mode: Mode.DELETEINNER}))
-      setMode(Mode.DELETEINNER)
+      setState(s => ({mode: Mode.AFTER}))
+      setMode(Mode.AFTER)
 
       // copy over the buffer in case it gets closed 
       // (which we usually do when dealing with sequences)

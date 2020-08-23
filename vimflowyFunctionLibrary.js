@@ -181,8 +181,8 @@ function deleteWord(e, bToNextWord)
   if(lastPartOfWord)
     modifiedStringEnd = substring_End.substring(lastPartOfWord.length);
 
-  // if(bToNextWord)
-  //   modifiedStringEnd = modifiedStringEnd.trim();
+  if(bToNextWord)
+    modifiedStringEnd = modifiedStringEnd.trim();
 
   var finalstring = modifiedStringStart.concat(modifiedStringEnd);
 
@@ -2381,40 +2381,64 @@ function deleteUnderCursor(t)
 
   moveCursorTo(t, offsetCalculator(state), desiredOffset);
 
+
 }
-
-function handleChangeInner(e)
-{
-  // update the temp buffer with the latest data
-  keyBufferTempCopy = [...keyBufferTempCopy, e.key];
-
-  const focusedItem = WF.focusedItem();
-  if(focusedItem)
-  {
-    if(e.key == 'w')
-    {
-      changeInnerWord(e);
-    }
-
-    goToInsertMode();
-  }
-
-  keyBufferTempCopy = [];
-}
-
-function handleDeleteInner(e)
+function handleAfterMode(e)
 {
   // update the temp buffer with the latest data
   keyBufferTempCopy = [...keyBufferTempCopy, e.key];
 
   goToNormalMode();
 
-  const focusedItem = WF.focusedItem();
-  if(focusedItem)
+  if(keyBufferTempCopy.length > 2)
   {
-    if(e.key == 'w')
+    const focusedItem = WF.focusedItem();
+    if(focusedItem)
     {
-      deleteInnerWord(e);
+      const num = keyBufferTempCopy.length;
+      const key = keyBufferTempCopy[num-1] ;
+      const modType = keyBufferTempCopy[num-3] ;
+      if(modType == 'd' && key == 'w')
+      {
+        deleteInnerWord(e, true);
+      }
+    }
+  }
+
+  keyBufferTempCopy = [];
+}
+
+function handleInnerMode(e)
+{
+  // update the temp buffer with the latest data
+  keyBufferTempCopy = [...keyBufferTempCopy, e.key];
+
+  goToNormalMode();
+
+  if(keyBufferTempCopy.length > 2)
+  {
+    const focusedItem = WF.focusedItem();
+    if(focusedItem)
+    {
+      const num = keyBufferTempCopy.length;
+      const key = keyBufferTempCopy[num-1] ;
+      const modType = keyBufferTempCopy[num-3] ;
+      console.log("mod type: " + modType);
+      if(modType == 'c')
+      {
+        if(key == 'w')
+        {
+          changeInnerWord(e);
+          goToInsertMode();
+        }
+      }
+      else if(modType == 'd')
+      {
+        if(key == 'w')
+        {
+          deleteInnerWord(e, false);
+        }
+      }
     }
   }
 
@@ -2443,7 +2467,7 @@ function changeInnerWord(e)
   });
 }
 
-function deleteInnerWord(e)
+function deleteInnerWord(e, bAfterWord = false)
 {
   WF.editGroup(() => 
   {
@@ -2453,14 +2477,15 @@ function deleteInnerWord(e)
       for (let i = 1; i <= iterNum; ++i) 
       {
         if(i == 1)
-          deleteWord(e, true);
+          deleteWord(e, bAfterWord);
         else
-          deleteUntilWordEnd(false);
+          deleteUntilWordEnd(bAfterWord);
+
       }
     }
     else
     {
-      deleteWord(e, true);
+      deleteWord(e, bAfterWord);
     }
   });
 }

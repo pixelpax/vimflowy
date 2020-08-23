@@ -198,13 +198,19 @@ const transparentActionMap =
 	  {
 		e.preventDefault()
 		e.stopPropagation()
-	    goToChangeInnerMode();
+	    goToInnerMode();
 	  },
 	  'di': e => 
 	  {
 		e.preventDefault()
 		e.stopPropagation()
-		goToDeleteInnerMode();
+		goToInnerMode();
+	  },
+	  'da': e => 
+	  {
+		e.preventDefault()
+		e.stopPropagation()
+		goToAfterMode();
 	  },
 	  'dw': e => 
 	  {

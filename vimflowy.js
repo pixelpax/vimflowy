@@ -1,6 +1,6 @@
 
 const mainContainer = document.getElementById('app');
-const {flashMode, goToInsertMode, goToNormalMode, goToVisualMode, goToReplaceMode, goToFindMode, goToChangeInnerMode, goToDeleteInnerMode} = modeClosure(mainContainer, state.get, state.set);
+const {flashMode, goToInsertMode, goToNormalMode, goToVisualMode, goToReplaceMode, goToFindMode, goToInnerMode, goToAfterMode} = modeClosure(mainContainer, state.get, state.set);
 
 WFEventListener = event => 
 {
@@ -52,17 +52,17 @@ mainContainer.addEventListener('keydown', event =>
       event.stopPropagation()
       handleReplaceMode(event);
     }
-    else if (state.get().mode === Mode.CHANGEINNER)
+    else if (state.get().mode === Mode.INNER)
     {
       event.preventDefault()
       event.stopPropagation()
-      handleChangeInner(event);
+      handleInnerMode(event);
     }
-    else if (state.get().mode === Mode.DELETEINNER)
+    else if (state.get().mode === Mode.AFTER)
     {
       event.preventDefault()
       event.stopPropagation()
-      handleDeleteInner(event);
+      handleAfterMode(event);
     }
     else if (keyBuffer.length > 1 && transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]]) 
     {
