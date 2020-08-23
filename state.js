@@ -16,7 +16,9 @@ const Mode = {
   INSERT: 'INSERT',
   VISUAL: 'VISUAL',
   REPLACE: 'REPLACE',
-  FIND: 'FIND'
+  FIND: 'FIND',
+  CHANGEINNER: 'CHANGE INNER',
+  DELETEINNER: 'DELETE INNER'
 }
 
 const state = stateClosure({
@@ -79,6 +81,28 @@ const modeClosure = (mainContainer, getState, setState) => {
     {
       setState(s => ({mode: Mode.FIND}))
       setMode(Mode.FIND)
+    },
+    goToChangeInnerMode: () => 
+    {
+      setState(s => ({mode: Mode.CHANGEINNER}))
+      setMode(Mode.CHANGEINNER)
+
+      // copy over the buffer in case it gets closed 
+      // (which we usually do when dealing with sequences)
+      // @TODO: move this to actual 'ci' binding if chrome 
+      // starts throwing errors...
+      keyBufferTempCopy = keyBuffer;
+    },
+    goToDeleteInnerMode: () => 
+    {
+      setState(s => ({mode: Mode.DELETEINNER}))
+      setMode(Mode.DELETEINNER)
+
+      // copy over the buffer in case it gets closed 
+      // (which we usually do when dealing with sequences)
+      // @TODO: move this to actual 'di' binding if chrome 
+      // starts throwing errors...
+      keyBufferTempCopy = keyBuffer;
     }
   }
 }

@@ -1,6 +1,6 @@
 
 const mainContainer = document.getElementById('app');
-const {flashMode, goToInsertMode, goToNormalMode, goToVisualMode, goToReplaceMode, goToFindMode} = modeClosure(mainContainer, state.get, state.set);
+const {flashMode, goToInsertMode, goToNormalMode, goToVisualMode, goToReplaceMode, goToFindMode, goToChangeInnerMode, goToDeleteInnerMode} = modeClosure(mainContainer, state.get, state.set);
 
 WFEventListener = event => 
 {
@@ -52,6 +52,18 @@ mainContainer.addEventListener('keydown', event =>
       event.stopPropagation()
       handleReplaceMode(event);
     }
+    else if (state.get().mode === Mode.CHANGEINNER)
+    {
+      event.preventDefault()
+      event.stopPropagation()
+      handleChangeInner(event);
+    }
+    else if (state.get().mode === Mode.DELETEINNER)
+    {
+      event.preventDefault()
+      event.stopPropagation()
+      handleDeleteInner(event);
+    }
     else if (keyBuffer.length > 1 && transparentActionMap[state.get().mode][keyBuffer[keyBuffer.length-2]+keyBuffer[keyBuffer.length-1]]) 
     {
       // handle sequence bindings
@@ -98,6 +110,7 @@ let InitialSelectionItem = null;
 let focusPreJumpToItemMenu = null;
 let bKeyDownHasFired = false;
 let bShowTimeCounter = false;
+let keyBufferTempCopy = [];
 let keyBuffer = [];
 let yankBuffer = [];
 const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
