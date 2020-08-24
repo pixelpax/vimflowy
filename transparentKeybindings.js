@@ -63,9 +63,27 @@ const transparentActionMap =
 				var win = window.open(contentHref, '_blank');
 				win.focus();
 			}
+		}
+		else if(IsItemOriginal(focusedItem) == false)
+		{
+			const desiredItem = GetOriginalItem(focusedItem);
 
-	    }
+			if(!desiredItem)
+				return;
 
+			PrevEnterItem = WF.currentItem();
+			WF.zoomTo(desiredItem);
+
+			var desiredParent = desiredItem.getParent();
+			if (!desiredParent)
+				return;
+
+			if (desiredParent.isExpanded() == false)
+				WF.expandItem(desiredParent);
+
+			WF.zoomOut(desiredItem);
+			WF.editItemName(desiredItem);
+		}
 	  },
 	  Enter: e => 
 	  {
