@@ -75,8 +75,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `cw`: dw + goToInsertMode
     - `dn`: delete note
     - `cn`: change note == delete note + insert mode
-    - `diw`: change word under cursor. Works with a numeric 0-9 prefix to make the command repeat. 4ciw, for example. 
-    - `ciw`: deletes word under the cursor. Works with a numeric 0-9 prefix.
+    - `diw`: delete word under cursor. Works with a numeric 0-9 prefix to make the command repeat. 4ciw, for example. 
+    - `ciw`: deletes word under cursor + insert-mode. Works with a numeric 0-9 prefix.
     - `daw`: deletes word under the cursor and trims off any white space at the end. Works with a numeric 0-9 prefix.
 * insert mode
     - `<jk>` : Enter Normal mode
