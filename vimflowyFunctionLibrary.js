@@ -915,12 +915,14 @@ function MoveSelectionDown(t)
     // collapse the Item inbetween us and the destination
     // if we can't "see" far enough to remain in focus
     const nextNextItem = nextItem.getNextVisibleSibling();
-    if(nextNextItem != null)
+    if(nextNextItem != null && nextItem.getChildren().length != 0 && nextItem.isExpanded())
     {
       const focusedItem = WF.focusedItem();
       WF.editItemName(nextNextItem);
-      if(focusedItem.equals(WF.focusedItem()) && nextItem.isExpanded() && WF.currentSearchQuery() === null)
-          WF.collapseItem(nextItem);
+      if(focusedItem.equals(WF.focusedItem()) && WF.currentSearchQuery() === null)
+      {
+        WF.collapseItem(nextItem);
+      }
       WF.editItemName(focusedItem);
     }
 
@@ -936,15 +938,16 @@ function MoveSelectionDown(t)
     const nextItem = focusedItem.getNextVisibleSibling();
     if(nextItem)
     {
-
       // collapse the Item inbetween us and the destination
       // if we can't "see" far enough to remain in focus
       const nextNextItem = nextItem.getNextVisibleSibling();
-      if(nextNextItem != null)
+      if(nextNextItem != null && nextItem.getChildren().length != 0 && nextItem.isExpanded())
       {
         WF.editItemName(nextNextItem);
-        if(focusedItem.equals(WF.focusedItem()) && nextItem.isExpanded() && WF.currentSearchQuery() === null)
-            WF.collapseItem(nextItem);
+        if(focusedItem.equals(WF.focusedItem()) && WF.currentSearchQuery() === null)
+        {
+          WF.collapseItem(nextItem);
+        }
         WF.editItemName(focusedItem);
       }
 
