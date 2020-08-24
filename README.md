@@ -51,7 +51,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `>`,`<alt>L`,`Tab`: indent item(s)
     - `<alt>H`,`<shift>Tab`: outdent items
     - `<`: outdent items (and selected kids once the parent item hits the wall)
-    - `<Alt>Enter`: Will open first URL found in the focusedItems name or note. Works with Workflowys inline linking feature. If the focusedItem is a mirror and no URL can be found then it will ZoomIn on the original items parent.
+    - `<Alt>Enter`: Will open first URL found in the focusedItems name or note. Works with Workflowys inline linking feature.
+    - `<Shift><Alt>Enter`: zoom in on a mirrored items parent. (use backspace to get back again)
     - `Space`, `z`: toggle expand/collapse on focusedItem
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot
     - `Enter`: Zoom in on focused node - and place current item in memory
