@@ -1350,19 +1350,35 @@ function deleteSelectedItems(t)
   }
   else
   {
-    const bWasPreviousVisibleSiblingInvalid = focusedItem.getPreviousVisibleSibling() === null;
-    if(bWasPreviousVisibleSiblingInvalid)
+
+    // we always want to go down, as long as there is an item. Otherwise up.
+    const nextItem = focusedItem.getNextVisibleSibling();
+    const prevItem = focusedItem.getPreviousVisibleSibling();
+    const parentItem = focusedItem.getParent();
+
+    WF.deleteItem(focusedItem);
+
+    if(nextItem)
     {
-      const selectedProject = t.parentNode.parentNode.parentNode.parentNode;
-      WF.deleteItem(focusedItem);
-      setCursorAfterVerticalMove(offsetCalculator(state), selectedProject);
+      WF.editItemName(nextItem);
+      // console.log("nextItem: " + nextItem.getNameInPlainText());
+    }
+    else if(prevItem)
+    {
+      WF.editItemName(prevItem);
+      // console.log("prevItem: " + prevItem.getNameInPlainText());
+    }
+    else if(parentItem)
+    {
+      WF.editItemName(parentItem);
+      // console.log("parentItem: " + parentItem.getNameInPlainText());
     }
     else
     {
-      const prevTarget = t.parentNode.parentNode.previousElementSibling.firstElementChild.lastElementChild;
-      WF.deleteItem(focusedItem);
-      setCursorAfterVerticalMove(offsetCalculator(state), moveCursorDown(prevTarget));
+      WF.editItemName(WF.currentItem());
     }
+
+    setCursorAt(state.get().anchorOffset);
   }
 
   // hide the delete message (as long as we aren't peforming a search)
@@ -2807,7 +2823,7 @@ function goToListBottom(event, listRootItem)
 
 }
 
-function openFocusedItemURL(e)
+function openFocusedItemURL()
 {
   var focusedItem = WF.focusedItem();
 

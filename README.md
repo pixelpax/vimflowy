@@ -112,7 +112,7 @@ In the bottom left corner there is a mode indicator that shows what mode you are
 Rebinding keys
 --------------
 
-You'll have to edit [keybinding.js](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) and [transparentKeybindings.js](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind or add new shortcuts.
+You'll have to edit [keybinding.js](https://github.com/Wojnach/vimflowy/blob/master/keybindings.js) or [transparentKeybindings.js](https://github.com/Wojnach/vimflowy/blob/master/transparentKeybindings.js) if you want to rebind or add new shortcuts.
 
 mac users: if you want to bind stuff to Cmd you'll have to type "meta-" instead. "meta-j" instead of "cmd-j" for example. 
 
