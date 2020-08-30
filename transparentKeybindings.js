@@ -83,10 +83,12 @@ const transparentActionMap =
 	  },
 	  Esc: e => 
 	  {
+		// console.log("Pressing ESC from normal mode");
 		HandleEscapeNormalMode(e);
 	  },
 	  Escape: e => 
 	  {
+		// console.log("Pressing Escape from normal mode");
 		HandleEscapeNormalMode(e);
 	  },
 	  'g': e => 
@@ -339,10 +341,10 @@ const transparentActionMap =
 		  toggleCompletedOnSelection(e);
 		  RotateSelectionPreMoveBuffer();
 	  },
-	  'ctrl-c': t => 
+	  'ctrl-c': e => 
 	  {
-	    yankSelectedItems(t);
-    	requestAnimationFrame(fixFocus);
+		WF.setSelection([WF.focusedItem()]);
+		CopySelectionToClipboard(e);
 	  },
 	  'dd': e => 
 	  {
@@ -419,11 +421,9 @@ const transparentActionMap =
 	    event.stopPropagation()
 	    ExitVisualMode();
 	  },
-	  'ctrl-c': t => 
+	  'ctrl-c': e => 
 	  {
-	    yankSelectedItems(t);
-		goToNormalMode();
-    	requestAnimationFrame(fixFocus);
+		CopySelectionToClipboard(e);
 	  },
 	  Tab: e => 
 	  {
@@ -467,10 +467,12 @@ const transparentActionMap =
 	  },
 	  Esc: e => 
 	  {
+		// console.log("Pressing ESC from visual mode");
 		HandleEscapeVisualMode(e);
 	  },
 	  Escape: e => 
 	  {
+		// console.log("Pressing Escape from visual mode");
 		HandleEscapeVisualMode(e);
 	  }
 	},
@@ -482,10 +484,12 @@ const transparentActionMap =
 	  },
 	  Esc: e =>
 	  {
+		// console.log("Pressing ESC from insert mode");
 		HandleEscapeInsertMode(e);
 	  },
 	  Escape: e =>
 	  {
+		// console.log("Pressing Escape from insert mode");
 		HandleEscapeInsertMode(e);
 	  },
 	  'Enter': e => 

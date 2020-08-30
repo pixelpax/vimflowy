@@ -2730,9 +2730,10 @@ function SimulateEscapeNormalMode(e)
         WF.setSelection([]);
       }
 
-      e.preventDefault()
-      e.stopPropagation()
   }
+
+  e.preventDefault()
+  e.stopPropagation()
 
   WF.hideMessage();
   WF.hideDialog();
@@ -2742,6 +2743,7 @@ function SimulateEscapeNormalMode(e)
 // assumes Escape is actually being pressed
 function HandleEscapeNormalMode(e)
 {
+
   if(WF.focusedItem())
   {
       const selection = WF.getSelection();
@@ -2750,10 +2752,10 @@ function HandleEscapeNormalMode(e)
         VisualSelectionBuffer = [];
         WF.setSelection([]);
       }
-
-      e.preventDefault()
-      e.stopPropagation()
   }
+
+  e.preventDefault()
+  e.stopPropagation()
 
   WF.hideMessage();
   WF.hideDialog();
@@ -2890,6 +2892,25 @@ function ZoomToMirroredItemsParent()
 
   WF.zoomOut(desiredItem);
   WF.editItemName(desiredItem);
+}
+
+function CopySelectionToClipboard(e)
+{
+    const focusedItem = WF.focusedItem();
+
+		// the command is executed manually because 
+		// we need to react to it, so it needs to 
+		// happens in this order.
+		document.execCommand('copy');
+	  e.preventDefault()
+		e.stopPropagation()
+
+		goToNormalMode();
+
+    WF.editItemName(focusedItem);
+    setCursorAt(state.get().anchorOffset);
+
+    // requestAnimationFrame(fixFocus);
 }
 
 
