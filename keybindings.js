@@ -103,47 +103,51 @@ const actionMap =
 	  },
 	  o: t => 
 	  {
+		const focusedItem = WF.focusedItem();
+		if(focusedItem)
+		{
+			const parentItem = focusedItem.getParent();
+			const currentItem = WF.currentItem();
+			const bFocusHasVisibleChildren = focusedItem.getVisibleChildren().length != 0;
 
-	    const focusedItem = WF.focusedItem();
-	    const parentItem = focusedItem.getParent();
-	    const currentItem = WF.currentItem();
-	    const bFocusHasVisibleChildren = focusedItem.getVisibleChildren().length != 0;
+			// Just add item if we are focusing 
+			// on the top-most-item (zoomed in)
+			if(focusedItem.equals(currentItem))
+			{
+				WF.createItem(currentItem, 0);
+			}
+			else if (focusedItem.isExpanded() && bFocusHasVisibleChildren)
+			{
+				WF.createItem(focusedItem, 0);
+			}
+			else
+			{
+				const currentItemIndex = focusedItem.getPriority();
+				const nextItemIndex = currentItemIndex + 1; 
+				WF.createItem(parentItem, nextItemIndex);
+			}
 
-	    // Just add item if we are focusing 
-	    // on the top-most-item (zoomed in)
-	    if(focusedItem.equals(currentItem))
-	    {
-	      WF.createItem(currentItem, 0);
-	    }
-	    else if (focusedItem.isExpanded() && bFocusHasVisibleChildren)
-	    {
-	      WF.createItem(focusedItem, 0);
-	    }
-	    else
-	    {
-	      const currentItemIndex = focusedItem.getPriority();
-	      const nextItemIndex = currentItemIndex + 1; 
-	      WF.createItem(parentItem, nextItemIndex);
-	    }
-
-	    goToInsertMode(false);
-
+			goToInsertMode(false);
+		}
 	  },
-	  O: t => {
-	    const focusedItem = WF.focusedItem();
-	    const parentItem = focusedItem.getParent();
-	    const currentItem = WF.currentItem();
-	    if(!focusedItem.equals(currentItem))
-	    {
-	      const currentItemIndex = focusedItem.getPriority();
-	      WF.createItem(parentItem, currentItemIndex);
-	    }
-	    else
-	    {
-	      WF.createItem(currentItem, 0);
-	    }
-
-	    goToInsertMode();
+	  O: t => 
+	  {
+		const focusedItem = WF.focusedItem();
+		if(focusedItem)
+		{
+			const parentItem = focusedItem.getParent();
+			const currentItem = WF.currentItem();
+			if(!focusedItem.equals(currentItem))
+			{
+				const currentItemIndex = focusedItem.getPriority();
+				WF.createItem(parentItem, currentItemIndex);
+			}
+			else
+			{
+				WF.createItem(currentItem, 0);
+			}
+			goToInsertMode();
+		}
 	  },
 	  'B': t => moveCursorToStart(t, offsetCalculator(state)),
 	  '0': t => moveCursorToStart(t, offsetCalculator(state)),
