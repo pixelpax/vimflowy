@@ -356,13 +356,13 @@ const transparentActionMap =
 	},
 	[Mode.VISUAL]: 
 	{
-	  'GG': t => 
+	  'GG': e => 
 	  {
 		addSiblingsFromCurrentList(false);
 		event.preventDefault();
 		event.stopPropagation();
 	  },
-	  'gg': t => 
+	  'gg': e => 
 	  {
 		addSiblingsFromCurrentList(true);
 		event.preventDefault();
