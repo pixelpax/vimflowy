@@ -68,7 +68,13 @@ const transparentActionMap =
 	  Backspace: e => 
 	  {
 	    e.preventDefault()
-	    e.stopPropagation()
+		e.stopPropagation()
+
+		// console.clear();
+		// console.log(WF.focusedItem());
+		// console.log(IsItemVirutalRoot(WF.focusedItem()));
+		// return;
+
 	    if(PrevEnterItem)
 	    {
 	      // console.log("trying to zoom in on prev item");

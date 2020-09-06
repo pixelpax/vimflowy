@@ -358,8 +358,8 @@ function createItemFromCompletelessItem(itemToCopy, parent, prio)
   const focusParent = WF.focusedItem().getParent();
 
   var originalParent = parent;
-  if (!IsItemOriginal(parent))
-    originalParent = GetOriginalItem(parent);
+  if (IsMirror(parent))
+    originalParent = GetMirroredItem(parent);
 
   var createdItem = WF.createItem(originalParent, prio);
 
@@ -368,11 +368,8 @@ function createItemFromCompletelessItem(itemToCopy, parent, prio)
 
   // creating mirrored items recursively requires their parent to be the original item
   // (needed when yanking and pasting mirrored items within a mirror)
-  if (!IsItemOriginal(createdItem))
-    createdItem = GetOriginalItem(createdItem);
-
-  ////////////////
-
+  if (IsMirror(createdItem))
+    createdItem = GetMirroredItem(createdItem);
 
   var kids = itemToCopy.getChildren();
   if (kids !== undefined && kids.length != 0) 
@@ -386,8 +383,6 @@ function createItemFromCompletelessItem(itemToCopy, parent, prio)
       ); 
     }
   }
-
-  ///////////////
 
   // apply expand/collapse after we are done with the kids
   WF.editItemName(createdItem);
@@ -410,6 +405,11 @@ function createItemFromCompletelessItem(itemToCopy, parent, prio)
   return createdItem;
 }
 
+function createMirror(itemToCopy, parent, prio)
+{
+
+}
+
 function createItemFrom(itemToCopy, parent, prio)
 {
   if(!parent)
@@ -422,12 +422,18 @@ function createItemFrom(itemToCopy, parent, prio)
 
   // always expand the parent in case we might be creating
   // completed items down the recursive chain.
-  const bWasParentExpanded = parent.isExpanded();
-  WF.expandItem(parent);
+  // const bWasParentExpanded = parent.isExpanded();
+  // WF.expandItem(parent);
 
   var originalParent = parent;
-  if (!IsItemOriginal(parent))
-    originalParent = GetOriginalItem(parent);
+  if (IsMirror(parent))
+    originalParent = GetMirroredItem(parent);
+
+  // if (IsMirror(itemToCopy))
+  // {
+  //   createMirror(itemToCopy, parent, prio)
+  //   return;
+  // }
 
   var createdItem = WF.createItem(originalParent, prio);
 
@@ -436,12 +442,16 @@ function createItemFrom(itemToCopy, parent, prio)
 
   // creating mirrored items recurisvely requires their parent to be the original item
   // (needed when yanking and pasting mirrored items within a mirror)
-  if (!IsItemOriginal(createdItem))
-    createdItem = GetOriginalItem(createdItem);
+  if (IsMirror(createdItem))
+    createdItem = GetMirroredItem(createdItem);
 
   // Always expand before dealing with the kids.
   // Close afterwards, if needed.
-  WF.expandItem(createdItem);
+  // WF.expandItem(createdItem);
+
+
+  if(itemToCopy.isExpanded())
+    WF.expandItem(createdItem);
 
   if(itemToCopy.isCompleted())
     WF.completeItem(createdItem);
@@ -460,18 +470,18 @@ function createItemFrom(itemToCopy, parent, prio)
   }
 
   // collapse it after we are done with the creation of the kids
-  if(!itemToCopy.isExpanded())
-  {
-    WF.editItemName(createdItem);
-    WF.collapseItem(createdItem);
-  }
+  // if(!itemToCopy.isExpanded())
+  // {
+  //   WF.editItemName(createdItem);
+  //   WF.collapseItem(createdItem);
+  // }
 
   // close parent once we are done with the kids
-  if(!bWasParentExpanded)
-  {
-    WF.editItemName(parent);
-    WF.collapseItem(parent);
-  }
+  // if(!bWasParentExpanded)
+  // {
+  //   WF.editItemName(parent);
+  //   WF.collapseItem(parent);
+  // }
 
   // fix focus loss problem when collapsing
   if(!WF.focusedItem())
@@ -528,12 +538,17 @@ function pasteYankedItems(bAboveFocusedItem)
       bPastingDeadItems = false;
     }
 
+    // console.log("pasting dead items? :" + bPastingDeadItems);
+
     var createdItems = [];
 
     if(bPastingDeadItems)
     {
       if(ContainsCompletedItem(yankBuffer))
       {
+        const bWasParentExpanded = parentItem.isExpanded();
+        WF.expandItem(parentItem);
+
         for (var i = 0, len = yankBuffer.length; i < len; i++) 
         {
           var createdItem = createItemFrom(
@@ -541,9 +556,18 @@ function pasteYankedItems(bAboveFocusedItem)
             parentItem,
             yankBuffer[i].getPriority() + 1,    // the +1 is for tricking workflowy
           );
-          WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+
+          // WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+
           createdItems.push(createdItem);
         }
+
+        if(!bWasParentExpanded)
+        {
+          WF.editItemName(parentItem);
+          WF.collapseItem(parentItem);
+        }
+
       }
       else
       {
@@ -554,7 +578,9 @@ function pasteYankedItems(bAboveFocusedItem)
             parentItem,
             yankBuffer[i].getPriority() + 1,    // the +1 is for tricking workflowy
           );
-          WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+
+          // WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
+
           createdItems.push(createdItem);
         }
       }
@@ -566,10 +592,31 @@ function pasteYankedItems(bAboveFocusedItem)
       // so we'll move them here
       // WF.moveItems(yankBuffer, parentItem, 0);
 
+      // console.clear();
       for (var i = 0, len = yankBuffer.length; i < len; i++) 
       {
+
+        // console.log("duplicating: " + yankBuffer[i].getNameInPlainText());
+        // var itemToDuplicate = yankBuffer[i];
+        // if(IsItemVirutalSubRoot(itemToDuplicate))
+        // {
+        //   itemToDuplicate = GetMirroredItem(itemToDuplicate);
+        // }
+
+        // var createdItem = WF.duplicateItem(itemToDuplicate);
         var createdItem = WF.duplicateItem(yankBuffer[i]);
+
+        if(!IsMirror(yankBuffer[i]))
+        {
+          const createdItemName = createdItem.getName();
+          const nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
+          WF.setItemName(createdItem, nameWithoutCopyTag);
+        }
+
         createdItems.push(createdItem);
+
+        // if(IsItemVirutalRoot(yankBuffer[i]))
+        //   WF.setItemName(createdItem, createdItem.getName().concat(" #Copy"));
       }
 
       // move the items back once we've duplicated them
@@ -581,13 +628,13 @@ function pasteYankedItems(bAboveFocusedItem)
     if(createdItems[0] == null || createdItems[0] == undefined)
       return;
 
-    // remove the copy tag...
-    for (var i = 0, len = createdItems.length; i < len; i++) 
-    {
-      const createdItemName = createdItems[i].getName();
-      const nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
-      WF.setItemName(createdItems[i], nameWithoutCopyTag);
-    }
+    // // remove the copy tag...
+    // for (var i = 0, len = createdItems.length; i < len; i++) 
+    // {
+    //   const createdItemName = createdItems[i].getName();
+    //   const nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
+    //   WF.setItemName(createdItems[i], nameWithoutCopyTag);
+    // }
 
     if(focusedItem.equals(WF.currentItem()))
       WF.moveItems(createdItems, focusedItem, 0);
@@ -1012,6 +1059,9 @@ function yankSelectedItems(t)
   else 
     yankBuffer = [WF.focusedItem()];
 
+    // console.clear();
+    // console.log(yankBuffer);
+
   // replace any mirrors with the original item
   ReplaceMirroredItems(yankBuffer);
 }
@@ -1020,29 +1070,38 @@ function ReplaceMirroredItems(itemContainer)
 {
   for (i = itemContainer.length-1; i >= 0; i--) 
   {
-    if (IsItemOriginal(itemContainer[i]) == false)
+    if (IsMirror(itemContainer[i]))
     {
-      itemContainer[i] = GetOriginalItem(itemContainer[i]);
+      itemContainer[i] = GetMirroredItem(itemContainer[i]);
     }
   }
 }
 
 // get original item from mirror
-function GetOriginalItem(mirroredItem)
+function GetMirroredItem(mirror)
 {
-  return WF.getItemById(mirroredItem.data.metadata.originalId);
+  return WF.getItemById(mirror.data.metadata.originalId);
 }
 
-// check whether an item is a mirror or original
-function IsItemOriginal(itemToQuery)
+function IsMirror(itemToQuery)
 {
-   return itemToQuery.data.metadata.originalId === undefined;
+   return itemToQuery.data.metadata.originalId !== undefined;
 }
 
 // get original ID from mirror
-function GetOriginalID(mirroredItem)
+function GetMirroredItemID(mirror)
 {
-   return mirroredItem.data.metadata.originalId;
+   return mirror.data.metadata.originalId;
+}
+
+function IsItemVirutalRoot(itemToQuery)
+{
+   return itemToQuery.data.metadata.isVirtualRoot !== undefined;
+}
+
+function IsItemVirutalSubRoot(itemToQuery)
+{
+   return itemToQuery.data.metadata.isVirtualSubRoot !== undefined;
 }
 
 function ExitVisualMode(t)
@@ -1094,7 +1153,7 @@ function indentSelection(e)
   });
 
   // we need to focus on the newly created mirrors..
-  if(!IsItemOriginal(newParentItem))
+  if(IsMirror(newParentItem))
   {
     const numItemsIndented = selection.length;
     const newParentKids = newParentItem.getChildren();
@@ -1147,7 +1206,7 @@ function indentFocusedItem(e)
   });
   
   // we need to focus on the newly created mirror
-  if (!IsItemOriginal(focusPrevSibling))
+  if (IsMirror(focusPrevSibling))
   {
     const kids = focusPrevSibling.getChildren();
     if(kids.length > 0)
@@ -1196,8 +1255,8 @@ function outdentFocusedItem(e)
   
   // we need to replace the mirrored item with the original, 
   // if we try to move it out of the parent, which also is a mirror.
-  if(!IsItemOriginal(focusedItem))
-    focusedItem = GetOriginalItem(focusedItem);
+  if(IsMirror(focusedItem))
+    focusedItem = GetMirroredItem(focusedItem);
 
 	// WF.editItemName(focusedItem);
   WF.editItemName(focusParent.getNextVisibleSibling());
@@ -1279,10 +1338,10 @@ function outdentSelection(e, bIncludingChildren = false)
   // we need to replace the mirrored items with 
   // the originals if we try to move mirrored
   // items outside of the topmost mirror
-  if(!IsItemOriginal(selection[0]))
+  if(IsMirror(selection[0]))
   {
     const theMirrorsParent = selection[0].getParent();
-    if(theMirrorsParent && !IsItemOriginal(theMirrorsParent))
+    if(theMirrorsParent && IsMirror(theMirrorsParent))
     {
       ReplaceMirroredItems(selection);
       WF.setSelection(selection);
@@ -2872,10 +2931,10 @@ function ZoomToMirroredItemsParent()
   if(!focusedItem)
     return;
 
-  if(IsItemOriginal(focusedItem))
+  if(!IsMirror(focusedItem))
     return;
 
-  const desiredItem = GetOriginalItem(focusedItem);
+  const desiredItem = GetMirroredItem(focusedItem);
 
   if(!desiredItem)
     return;
