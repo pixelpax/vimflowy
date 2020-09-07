@@ -47,7 +47,7 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant)
     - `<ctrl>l`: zoom in  (identical behaviour as WF zoom in  - but instant)
     - `<ctrl>j`: Jump to node via EasyMotion
-    - `<Ctrl>c`: Copies focused item to clipboard; enabling you to paste items between browsers. This includes mirrors. 
+    - `<Ctrl>c`: Copies focused item to clipboard; enabling you to paste items between browsers. 
     - `V`,`v`: Enter visual mode
     - `>`,`<alt>L`,`Tab`: indent item(s)
     - `<alt>H`,`<shift>Tab`: outdent items

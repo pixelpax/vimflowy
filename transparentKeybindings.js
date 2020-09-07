@@ -70,18 +70,11 @@ const transparentActionMap =
 	    e.preventDefault()
 		e.stopPropagation()
 
-		// console.clear();
-		// console.log(WF.focusedItem());
-		// console.log(IsItemVirutalRoot(WF.focusedItem()));
-		// return;
+		if(PrevEnterItem)
+		{
+		  WF.zoomTo(PrevEnterItem);
+		}
 
-	    if(PrevEnterItem)
-	    {
-	      // console.log("trying to zoom in on prev item");
-	      // console.log(PrevEnterItem);
-	      // WF.zoomIn(PrevEnterItem);
-	      WF.zoomTo(PrevEnterItem);
-	    }
 	  },
 	  'ctrl-[': e => 
 	  {
@@ -349,12 +342,34 @@ const transparentActionMap =
 	  },
 	  'ctrl-c': e => 
 	  {
-		WF.setSelection([WF.focusedItem()]);
-		CopySelectionToClipboard(e);
+		if(WF.focusedItem())
+		{
+			WF.setSelection([WF.focusedItem()]);
+			CopySelectionToClipboard(e);
+		}
 	  },
 	  'dd': e => 
 	  {
-	    yankSelectedItems(e.target);
+		yankSelectedItems(e.target);
+
+		/**
+		 * We need to handle pasting of subVirtual mirrors.
+		 * 
+		 * Data for subVirutals become invalid upon deleting
+		 * the mirror. However, the virutal mirror has a reference 
+		 * to the original item. 
+		 * 
+		 * So we'll convert all subVirutals to virtuals in order
+		 * for the data to survive.
+		 */
+		ReplaceSubVirutalMirrorsWithVirutalMirrors(yankBuffer);
+
+		/**
+		 * data for non virutal mirror reference won't survive deletion,
+		 * so we replace that data with a copy of the original item instead.
+		 */
+		ReplaceNonVirtualsWithOriginals(yankBuffer);
+
 		deleteSelectedItems(e.target);
 	    event.preventDefault();
 	    event.stopPropagation();
