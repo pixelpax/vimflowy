@@ -3075,5 +3075,39 @@ function CopySelectionToClipboard(e)
         // requestAnimationFrame(fixFocus);
 }
 
+function FindBottomMostVisibleChildItemInViewport(itemToQuery)
+{
+    if(!IsItemInViewport(itemToQuery))
+        return;
+
+    var bottomMostItem = itemToQuery;
+
+    const kids = itemToQuery.getVisibleChildren();
+    for (var i = 0; i < kids.length; ++i)
+    {
+        var bottomMostRecursiveItem = FindBottomMostVisibleChildItemInViewport(kids[i]);
+        if(bottomMostRecursiveItem)
+        {
+            bottomMostItem = bottomMostRecursiveItem;
+        }
+    }
+
+    return bottomMostItem;
+}
+
+function IsItemInViewport(item)
+{
+    if(!item)
+        return false;
+
+    const itemElement = item.getElement();
+    if(!itemElement)
+        return false;
+
+    const rect = itemElement.getBoundingClientRect();
+
+    return rect.top >= 0 && rect.top <= window.innerHeight;
+}
+
 
 

@@ -108,7 +108,6 @@ const actionMap =
 		{
 			const parentItem = focusedItem.getParent();
 			const currentItem = WF.currentItem();
-			const bFocusHasVisibleChildren = focusedItem.getVisibleChildren().length != 0;
 
 			// Just add item if we are focusing 
 			// on the top-most-item (zoomed in)
@@ -116,14 +115,29 @@ const actionMap =
 			{
 				WF.createItem(currentItem, 0);
 			}
-			else if (focusedItem.isExpanded() && bFocusHasVisibleChildren)
-			{
-				WF.createItem(focusedItem, 0);
-			}
 			else
 			{
-				const currentItemIndex = focusedItem.getPriority();
-				const nextItemIndex = currentItemIndex + 1; 
+				if(focusedItem.isExpanded())
+				{
+					// check if the next visibling sibling is in the viewport
+					const nextItem = focusedItem.getNextVisibleSibling();
+					if(!nextItem || !IsItemInViewport(nextItem))
+					{
+						/*
+							That sucks. the item is out of range. 
+							we'll collapse the item and have the user press twice.
+
+							note: we tried scrolling the bottom most item into view recursively 
+							but it doesn't work because element.scrollIntroView() updates the 
+							next frame. If we could trigger it to update immediately 
+							then it would work...
+						*/
+						WF.collapseItem(focusedItem);
+						return;
+					}
+				}
+
+				const nextItemIndex = focusedItem.getPriority() + 1; 
 				WF.createItem(parentItem, nextItemIndex);
 			}
 
