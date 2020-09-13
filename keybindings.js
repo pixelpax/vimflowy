@@ -121,11 +121,10 @@ const actionMap =
 				{
 					// check if the next visibling sibling is in the viewport
 					const nextItem = focusedItem.getNextVisibleSibling();
-					if(!nextItem || !IsItemInViewport(nextItem))
+					if((nextItem && !IsItemFocusable(nextItem)) || !IsBottomMostChildFocusable(focusedItem))
 					{
 						/*
-							That sucks. the item is out of range. 
-							we'll collapse the item and have the user press twice.
+							The item is out of range. We'll collapse the item and have the user press twice.
 
 							note: we tried scrolling the bottom most item into view recursively 
 							but it doesn't work because element.scrollIntroView() updates the 

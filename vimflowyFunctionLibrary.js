@@ -3075,6 +3075,41 @@ function CopySelectionToClipboard(e)
         // requestAnimationFrame(fixFocus);
 }
 
+function IsItemFocusable(item)
+{
+    if(!item)
+        return false;
+
+    const itemElement = item.getElement();
+    if(!itemElement)
+        return false;
+
+    return true;
+}
+
+function FindBottomMostFocusableChildItem(itemToQuery)
+{
+    if(!IsItemFocusable(itemToQuery))
+        return;
+
+    var bottomMostItem = itemToQuery;
+
+    const kids = itemToQuery.getVisibleChildren();
+    for (var i = 0; i < kids.length; ++i)
+    {
+        if (kids[i].isExpanded())
+        {
+            var bottomMostRecursiveItem = FindBottomMostFocusableChildItem(kids[i]);
+            if(bottomMostRecursiveItem)
+            {
+                bottomMostItem = bottomMostRecursiveItem;
+            }
+        }
+    }
+
+    return bottomMostItem;
+}
+
 function FindBottomMostVisibleChildItemInViewport(itemToQuery)
 {
     if(!IsItemInViewport(itemToQuery))
@@ -3085,10 +3120,13 @@ function FindBottomMostVisibleChildItemInViewport(itemToQuery)
     const kids = itemToQuery.getVisibleChildren();
     for (var i = 0; i < kids.length; ++i)
     {
-        var bottomMostRecursiveItem = FindBottomMostVisibleChildItemInViewport(kids[i]);
-        if(bottomMostRecursiveItem)
+        if (kids[i].isExpanded())
         {
-            bottomMostItem = bottomMostRecursiveItem;
+            var bottomMostRecursiveItem = FindBottomMostVisibleChildItemInViewport(kids[i]);
+            if(bottomMostRecursiveItem)
+            {
+                bottomMostItem = bottomMostRecursiveItem;
+            }
         }
     }
 
@@ -3109,5 +3147,56 @@ function IsItemInViewport(item)
     return rect.top >= 0 && rect.top <= window.innerHeight;
 }
 
+function IsEntireItemVisible(itemToQuery)
+{
+    if(!IsItemInViewport(itemToQuery))
+        return false;
 
+    var allKidsAreVisible = true;
+
+    const kids = itemToQuery.getVisibleChildren();
+    for (var i = 0; i < kids.length; ++i)
+    {
+        if(kids[i].isExpanded() && !IsEntireItemVisible(kids[i]))
+        {
+            allKidsAreVisible = false;
+            break;
+        }
+    }
+
+    return allKidsAreVisible;
+}
+
+function IsBottomMostChildFocusable(itemToQuery)
+{
+    if(!IsItemFocusable(itemToQuery))
+        return false;
+
+    const kids = itemToQuery.getVisibleChildren();
+    if(kids.length > 0)
+    {
+        const finalIndex = kids.length - 1;
+        return IsBottomMostChildFocusable(kids[finalIndex]);
+    }
+
+    return true;
+}
+
+function IsEntireItemFocusable(itemToQuery)
+{
+    if(!IsItemFocusable(itemToQuery))
+        return false;
+
+    const kids = itemToQuery.getVisibleChildren();
+    var i = kids.length;
+    while(i--)
+    {
+        if (!IsEntireItemFocusable(item[i]))
+        {
+            return false;
+        }
+    }
+
+    return false;
+}
 
