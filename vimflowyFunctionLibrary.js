@@ -3075,12 +3075,12 @@ function CopySelectionToClipboard(e)
         // requestAnimationFrame(fixFocus);
 }
 
-function IsItemFocusable(item)
+function IsItemFocusable(itemToQuery)
 {
-    if(!item)
+    if (!itemToQuery)
         return false;
 
-    const itemElement = item.getElement();
+    const itemElement = itemToQuery.getElement();
     if(!itemElement)
         return false;
 
@@ -3091,6 +3091,9 @@ function FindBottomMostFocusableChildItem(itemToQuery)
 {
     if(!IsItemFocusable(itemToQuery))
         return;
+
+    if(!itemToQuery.isExpanded())
+        return itemToQuery;
 
     var bottomMostItem = itemToQuery;
 
@@ -3114,6 +3117,9 @@ function FindBottomMostVisibleChildItemInViewport(itemToQuery)
 {
     if(!IsItemInViewport(itemToQuery))
         return;
+
+    if(!itemToQuery.isExpanded())
+        return itemToQuery;
 
     var bottomMostItem = itemToQuery;
 
@@ -3152,25 +3158,28 @@ function IsEntireItemVisible(itemToQuery)
     if(!IsItemInViewport(itemToQuery))
         return false;
 
-    var allKidsAreVisible = true;
+    if(!itemToQuery.isExpanded())
+        return true;
 
     const kids = itemToQuery.getVisibleChildren();
     for (var i = 0; i < kids.length; ++i)
     {
-        if(kids[i].isExpanded() && !IsEntireItemVisible(kids[i]))
+        if(!IsEntireItemVisible(kids[i]))
         {
-            allKidsAreVisible = false;
-            break;
+            return false;
         }
     }
 
-    return allKidsAreVisible;
+    return true;
 }
 
 function IsBottomMostChildFocusable(itemToQuery)
 {
     if(!IsItemFocusable(itemToQuery))
         return false;
+
+    if(!itemToQuery.isExpanded())
+        return true;
 
     const kids = itemToQuery.getVisibleChildren();
     if(kids.length > 0)
@@ -3186,6 +3195,9 @@ function IsEntireItemFocusable(itemToQuery)
 {
     if(!IsItemFocusable(itemToQuery))
         return false;
+
+    if(!itemToQuery.isExpanded())
+        return true;
 
     const kids = itemToQuery.getVisibleChildren();
     var i = kids.length;

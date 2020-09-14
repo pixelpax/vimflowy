@@ -121,7 +121,7 @@ const actionMap =
 				{
 					// check if the next visibling sibling is in the viewport
 					const nextItem = focusedItem.getNextVisibleSibling();
-					if((nextItem && !IsItemFocusable(nextItem)) || !IsBottomMostChildFocusable(focusedItem))
+					if((nextItem && !IsItemFocusable(nextItem)) || (!nextItem && !IsBottomMostChildFocusable(focusedItem)))
 					{
 						/*
 							The item is out of range. We'll collapse the item and have the user press twice.
