@@ -103,7 +103,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot
 * all modes
     - `<Esc>`, `<ctrl>[`: Enter Normal mode
-    - `<Ctrl>k`,`<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu
+    - `<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu
+    - `<Ctrl>k`: Uses Workflowys edit link menu
     - `<ctrl>Enter`: Toggle Completed on seletion
 
 Mode indicator
