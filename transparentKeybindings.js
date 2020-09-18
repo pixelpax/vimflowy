@@ -9,7 +9,7 @@ const transparentActionMap =
 	{
 	  'ctrl-k': e => 
 	  {
-	    focusPreJumpToItemMenu = WF.focusedItem();
+	    // focusPreJumpToItemMenu = WF.focusedItem();
 	    goToInsertMode();
 	  },
 	  'ctrl-:': e => 
@@ -461,7 +461,7 @@ const transparentActionMap =
 	  'ctrl-k': e => 
 	  {
 	    ExitVisualMode();
-	    focusPreJumpToItemMenu = WF.focusedItem();
+	    // focusPreJumpToItemMenu = WF.focusedItem();
 	    goToInsertMode();
 	  },
 	  'ctrl-:': e => 
@@ -523,18 +523,17 @@ const transparentActionMap =
 	    {
 	      if(focusPreJumpToItemMenu)
 	      {
-			//   console.log("applying focus pre jump to item menu");
 	        WF.editItemName(focusPreJumpToItemMenu);
 	        focusPreJumpToItemMenu = null;
+
+			if(!WF.focusedItem())
+				WF.editItemName(WF.currentItem());
+
+			event.preventDefault();
+			requestAnimationFrame(fixFocus);
 	      }
 
-	      if(!WF.focusedItem())
-	        WF.editItemName(WF.currentItem());
-
 	      goToNormalMode();
-	      event.preventDefault();
-
-	      requestAnimationFrame(fixFocus);
 	    }
 	  },
 	  'jk': e => 
@@ -575,9 +574,9 @@ const transparentActionMap =
 	  },
 	  'ctrl-k': e => 
 	  {
-		const focusedItem = WF.focusedItem();
-		if(focusedItem)
-			focusPreJumpToItemMenu = focusedItem;
+		// const focusedItem = WF.focusedItem();
+		// if(focusedItem)
+		// 	focusPreJumpToItemMenu = focusedItem;
 
 	    goToInsertMode();
 	  },
