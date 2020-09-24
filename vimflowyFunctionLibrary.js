@@ -2999,6 +2999,15 @@ function openFocusedItemURL()
     focusedItem = WF.getItemById(focusedItem.getId());
     const element = focusedItem.getElement();
 
+    if(IsFocusingOnLink())
+    {
+        // let workflowy handle it
+        // console.log("let workflowy handle it");
+        goToInsertMode();
+        goToNormalMode();
+        return;
+    }
+
     const firstContentLink = element.getElementsByClassName('contentLink')[0]; 
     if(firstContentLink)
     {
