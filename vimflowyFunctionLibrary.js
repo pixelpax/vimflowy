@@ -3240,7 +3240,7 @@ function ContainsLink(itemToQuery)
 function IsFocusingOnLink()
 {
     // check if the cursor is focusing on a link
-    const currentOffset = calculateCursorOffset(true) + 1;
+    const currentOffset = calculateCursorOffset(true);
     const focusedString = GetFocusedItemString();
     const substring_Start = focusedString.substring(0, currentOffset);
     const substring_End = focusedString.substring(currentOffset);
@@ -3254,6 +3254,7 @@ function IsFocusingOnLink()
     // console.log("Substring END: " + substring_End);
     // console.log("isfocusing on Note: " + IsFocusingOnNote());
     // console.log("isfocusing on Name: " + IsFocusingOnName());
+
     // console.log(focusedItem.getElement());
     // console.log(document.activeElement);
     // console.log(document.activeElement.parentElement.className);
@@ -3277,10 +3278,11 @@ function HandleTheWorkflowyCtrlKBinding()
         return;
 
     const bLinkFocus = IsFocusingOnLink();
+    // console.log("has link focus: " + bLinkFocus);
 
-    // don't prevent link editing when focusing on a link
     if(!bLinkFocus)
     {
+        // prevent link editing from triggering
         const selection = document.getSelection();
         selection.removeAllRanges();
 

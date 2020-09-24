@@ -47,8 +47,8 @@ const transparentActionMap =
 	    const focusedItem = WF.focusedItem();
 	    if(e.shiftKey && focusedItem)
 	    {
-	      goToInsertMode();
-	      return;
+			goToInsertMode();
+	      	return;
 	    }
 
 	    PrevEnterItem = WF.currentItem();
@@ -577,16 +577,25 @@ const transparentActionMap =
 	  },
 	  'ctrl-k': e => 
 	  {
+		var focusedItem = WF.focusedItem();
+		if(!focusedItem)
+			return;
 
-		const bLinkFocus = IsFocusingOnLink();
-		if(WF.focusedItem() && !bLinkFocus)
+		// moveCursorTo(e.target, offsetCalculator(state), 9999);
+		// moveCursorLeft(e.target, offsetCalculator(state));
+
+		// console.log("link focus: " + IsFocusingOnLink());
+
+		// we don't support link editing within the note,
+		// while in insert mode, due to how the
+		// cursor movement works atm
+		if(IsFocusingOnNote() || !IsFocusingOnLink())
 		{
 			focusPreJumpToItemMenu = WF.focusedItem();
 			const selection = document.getSelection();
 			selection.removeAllRanges();
 			goToInsertMode();
 		}
-		// console.log("link focus: " + bLinkFocus);
 
 	  },
 	  'ctrl-:': e => 
