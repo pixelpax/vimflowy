@@ -9,8 +9,12 @@ const transparentActionMap =
 	{
 	  'ctrl-k': e => 
 	  {
-	    // focusPreJumpToItemMenu = WF.focusedItem();
-	    goToInsertMode();
+
+		// const focusedItem = WF.focusedItem();
+		// if(focuseditem)
+		// 	WF.edititemname(focuseditem);
+
+		HandleTheWorkflowyCtrlKBinding();
 	  },
 	  'ctrl-:': e => 
 	  {
@@ -460,9 +464,8 @@ const transparentActionMap =
 	  },
 	  'ctrl-k': e => 
 	  {
-	    ExitVisualMode();
-	    // focusPreJumpToItemMenu = WF.focusedItem();
-	    goToInsertMode();
+		ExitVisualMode();
+		HandleTheWorkflowyCtrlKBinding();
 	  },
 	  'ctrl-:': e => 
 	  {
@@ -574,11 +577,17 @@ const transparentActionMap =
 	  },
 	  'ctrl-k': e => 
 	  {
-		// const focusedItem = WF.focusedItem();
-		// if(focusedItem)
-		// 	focusPreJumpToItemMenu = focusedItem;
 
-	    goToInsertMode();
+		const bLinkFocus = IsFocusingOnLink();
+		if(WF.focusedItem() && !bLinkFocus)
+		{
+			focusPreJumpToItemMenu = WF.focusedItem();
+			const selection = document.getSelection();
+			selection.removeAllRanges();
+			goToInsertMode();
+		}
+		// console.log("link focus: " + bLinkFocus);
+
 	  },
 	  'ctrl-:': e => 
 	  {

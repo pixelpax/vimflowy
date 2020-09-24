@@ -104,7 +104,7 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
 * all modes
     - `<Esc>`, `<ctrl>[`: Enter Normal mode
     - `<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu
-    - `<Ctrl>k`: Uses Workflowys edit link menu
+    - `<Ctrl>k`: Edit links when focusing on a link. Secondary behaviour is to prompt the Workflowys JumpToItemMenu
     - `<ctrl>Enter`: Toggle Completed on seletion
 
 Mode indicator

@@ -8,8 +8,10 @@ function calculateCursorOffset(bHtmlTagsIncluded = false)
     if(!focusedItem)
         return currentOffset;
 
-    const itemName = focusedItem.getName();
-    const itemNameText = focusedItem.getNameInPlainText();
+    // const itemName = focusedItem.getName();
+    // const itemNameText = focusedItem.getNameInPlainText();
+    const itemName = GetFocusedItemString();
+    const itemNameText = GetFocusedItemStringInPlainText();
 
     // @TODO: we should probably use this instead. 
     // the ItenNames will start to differ as soon as they have a '<'
@@ -2025,7 +2027,7 @@ function mouseClickIntoInsertMode(event)
             // console.log("going to normal mode due to lack of focus: ");
         }
 
-        goToInsertMode(true);
+        goToInsertMode(false);
         requestAnimationFrame(fixFocus);
     }
 }
@@ -3210,5 +3212,158 @@ function IsEntireItemFocusable(itemToQuery)
     }
 
     return false;
+}
+
+function ContainsLink(itemToQuery)
+{
+    if(!itemToQuery)
+        return false;
+
+    const itemElement = itemToQuery.getElement();
+
+    const firstContentLink = itemElement.getElementsByClassName('contentLink')[0]; 
+    if(!firstContentLink)
+        return false;
+
+    return true;
+}
+
+function IsFocusingOnLink()
+{
+    // check if the cursor is focusing on a link
+    const currentOffset = calculateCursorOffset(true) + 1;
+    const focusedString = GetFocusedItemString();
+    const substring_Start = focusedString.substring(0, currentOffset);
+    const substring_End = focusedString.substring(currentOffset);
+    const Tags_substring_Start = substring_Start.match(/(<\/a>)|(<a)/g);
+    const Tags_substring_End = substring_End.match(/(<\/a>)|(<a)/g);
+
+    // console.clear();
+    // console.log("Start has link: " + Tags_substring_Start);
+    // console.log("End has link: " + Tags_substring_End);
+    // console.log("Substring START: " + substring_Start);
+    // console.log("Substring END: " + substring_End);
+    // console.log("isfocusing on Note: " + IsFocusingOnNote());
+    // console.log("isfocusing on Name: " + IsFocusingOnName());
+    // console.log(focusedItem.getElement());
+    // console.log(document.activeElement);
+    // console.log(document.activeElement.parentElement.className);
+
+    if(!Tags_substring_Start || !Tags_substring_End)
+        return false;
+    else
+        return true;
+}
+
+function HandleTheWorkflowyCtrlKBinding()
+{
+    /* 	
+        This workflowy binding has a primary and secondary behaviour depending
+        on the state of the item. The primary behaviour is to edit existing links
+        found in the item, secondary is to open the workflowy Jump-To-Item-Menu 
+    */
+
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    const bLinkFocus = IsFocusingOnLink();
+
+    // don't prevent link editing when focusing on a link
+    if(!bLinkFocus)
+    {
+        const selection = document.getSelection();
+        selection.removeAllRanges();
+
+        // needed in order to regain focus after interacting with the menu
+        focusPreJumpToItemMenu = focusedItem;
+    }
+
+    goToInsertMode();
+}
+
+// either .name or .note
+function GetFocusedItemStringInPlainText()
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return "";
+
+    if(IsFocusingOnName())
+        return focusedItem.getNameInPlainText();
+
+    if(IsFocusingOnNote())
+        return focusedItem.getNoteInPlainText();
+
+    // console.error("failed to get focused item note string");
+
+    return "";
+}
+
+// either .name or .note
+function GetFocusedItemString()
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return "";
+
+    if(IsFocusingOnName())
+        return focusedItem.getName();
+
+    if(IsFocusingOnNote())
+        return focusedItem.getNote();
+
+    // console.error("failed to get focused item name string");
+
+    return "";
+}
+
+function IsFocusingOnName()
+{
+    const focusedClassName = GetFocusedClassName();
+    if(focusedClassName)
+        return focusedClassName.includes("name");
+
+    return false;
+}
+
+function IsFocusingOnNote()
+{
+    const focusedClassName = GetFocusedClassName();
+    if(focusedClassName)
+        return focusedClassName.includes("note");
+
+    return false;
+}
+
+function GetFocusedClassName()
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return null;
+
+    // console.log("focus is valid");
+
+    if(!focusedItem.getElement())
+        return null;
+
+    // console.log("element is valid");
+    
+    if(!document.activeElement)
+        return null;
+
+    // console.log("active element is valid");
+
+    if(!document.activeElement.parentElement)
+        return null;
+
+    // console.log("active parent element is valid");
+
+    const foundClassName = document.activeElement.parentElement.className;
+
+    // console.log("found class name: " + foundClassName);
+
+    return foundClassName;
+
 }
 
