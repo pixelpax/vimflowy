@@ -568,7 +568,7 @@ function pasteYankedItems(bAboveFocusedItem)
          * 
          * the duplicated item will be placed were the original is,
          * regardless of where we have focus right now.
-         * It'll steal our focus as wel...
+         * It'll steal our focus as well...
          */
         var bPastingDeadItems = true;
         const tempItem = WF.duplicateItem(yankBuffer[0]);
@@ -756,23 +756,41 @@ function toggleExpand(t)
 
 function toggleExpandAll(e)
 {
-    const currentItem = WF.currentItem();
     const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+    {
+        // console.log("focus loss");
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
 
     // Let the workflowy binding handle it. 
     // it uses expandOrCollapseAllDescendants() 
     // which we can't call upon atm
-    if(focusedItem && focusedItem.equals(currentItem))
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+    {
+        // console.log("let workflowy handle it");
         return;
-
-    e.preventDefault();
-    e.stopPropagation();
+    }
+    else
+    {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
     // expansion/collapse isn't supported by WF when searching
     if(WF.currentSearchQuery() !== null)
         return;
 
     const focusedItemParent = focusedItem.getParent();
+    if(!focusedItemParent)
+    {
+        // console.log("no parent?");
+        return;
+    }
+
     const children = focusedItemParent.getVisibleChildren();
     // const children = currentItem.getVisibleChildren();
     if (children === undefined || children.length == 0)
@@ -818,9 +836,6 @@ function toggleExpandAll(e)
 
     }
 
-    // const currentItemChildAncestor = getChildOfCurrentItem(focusedItem);
-    // WF.editItemName(currentItemChildAncestor);
-
     WF.editGroup(() => 
     {
         for (var i = 0, len = children.length; i < len; i++)
@@ -831,10 +846,13 @@ function toggleExpandAll(e)
                 WF.collapseItem(children[i]);
         }
     });
+
+    WF.editItemName(focusedItem);
     
     // fix focus loss problem when collapsing
     if(!WF.focusedItem())
     {
+        // console.log("focus loss after collapsing");
         requestAnimationFrame(fixFocus);
         WF.editItemName(focusedItemParent);
         if(!WF.focusedItem())
@@ -842,8 +860,6 @@ function toggleExpandAll(e)
             WF.editItemName(currentItem);
         }
     }
-
-    setCursorAt(state.get().anchorOffset);
 
 }
 
