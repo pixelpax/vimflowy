@@ -3015,15 +3015,6 @@ function openFocusedItemURL()
     focusedItem = WF.getItemById(focusedItem.getId());
     const element = focusedItem.getElement();
 
-    if(IsFocusingOnLink())
-    {
-        // let workflowy handle it
-        // console.log("let workflowy handle it");
-        goToInsertMode();
-        goToNormalMode();
-        return;
-    }
-
     const firstContentLink = element.getElementsByClassName('contentLink')[0]; 
     if(firstContentLink)
     {
@@ -3044,13 +3035,22 @@ function openFocusedItemURL()
             {
                 PrevEnterItem = WF.currentItem();
                 WF.zoomTo(desiredItem);
+                WF.editItemName(desiredItem);
+                // console.log("using our solution");
             }
         }
-        else if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
+        else if(IsFocusingOnLink())
         {
-            var win = window.open(contentHref, '_blank');
-            win.focus();
+            // let workflowy handle it
+            // console.log("let workflowy handle it");
+            goToInsertMode();
+            goToNormalMode();
         }
+        // else if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
+        // {
+        //     var win = window.open(contentHref, '_blank');
+        //     win.focus();
+        // }
     }
 }
 
