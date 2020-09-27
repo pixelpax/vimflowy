@@ -34,6 +34,9 @@ const NODE_TYPES = {
 
 const getNodes = element => [...element.childNodes].reduce((accu, current) => 
 {
+  if(!accu)
+    return;
+
   if (current.nodeType === NODE_TYPES.TEXT) {
     return [...accu, current]
   }
@@ -50,6 +53,9 @@ const getContentAbstraction = node =>
   const contentElement = closest(node, '.content')
 
   const nodes = getNodes(contentElement)
+
+  if(!nodes)
+    return;
 
   return {
     get length() { return nodes.reduce((accu, current) => accu + current.length, 0) },
@@ -261,14 +267,20 @@ const moveCursorToEnd = (target, calculateOffset) => {
 
 const moveCursorLeft = (target, calculateOffset) => {
   const contentAbstraction = getContentAbstraction(target)
-  const offset = calculateOffset(contentAbstraction, o => o - 1)
-  contentAbstraction.setCursorAt(offset)
+  if(contentAbstraction)
+  {
+    const offset = calculateOffset(contentAbstraction, o => o - 1)
+    contentAbstraction.setCursorAt(offset)
+  }
 }
 
 const moveCursorRight = (target, calculateOffset) => {
   const contentAbstraction = getContentAbstraction(target)
-  const offset = calculateOffset(contentAbstraction, o => o + 1)
-  contentAbstraction.setCursorAt(offset)
+  if(contentAbstraction)
+  {
+    const offset = calculateOffset(contentAbstraction, o => o + 1)
+    contentAbstraction.setCursorAt(offset)
+  }
 }
 
 if (typeof module !== 'undefined') {
