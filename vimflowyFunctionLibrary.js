@@ -362,12 +362,16 @@ function createMirrorFromMirror(mirrorToCopy, parent, prio)
         var createdItem = WF.createItem(originalParentItem, prio);
         WF.setItemName(createdItem, mirrorToCopy.getName());
         WF.setItemNote(createdItem, mirrorToCopy.getNote());
-        createdItem.data.metadata = mirrorToCopy.data.metadata;
+
+        // createdItem.data.metadata = mirrorToCopy.data.metadata;
 
         // the duplication ensures that the new mirror becomes valid
-        duplicatedItem = WF.duplicateItem(createdItem);
+        // duplicatedItem = WF.duplicateItem(createdItem);
 
-        WF.deleteItem(createdItem);
+        // WF.deleteItem(createdItem);
+
+        duplicatedItem = createdItem;
+
         WF.zoomTo(itemToGetBackTo);
     }
     else
@@ -375,17 +379,19 @@ function createMirrorFromMirror(mirrorToCopy, parent, prio)
         var createdItem = WF.createItem(parent, prio);
         WF.setItemName(createdItem, mirrorToCopy.getName());
         WF.setItemNote(createdItem, mirrorToCopy.getNote());
-        createdItem.data.metadata = mirrorToCopy.data.metadata;
+
+        // createdItem.data.metadata = mirrorToCopy.data.metadata;
 
         // the duplication ensures that the new mirror becomes valid
-        duplicatedItem = WF.duplicateItem(createdItem);
+        // duplicatedItem = WF.duplicateItem(createdItem);
 
         // console.log("Created item: ");
         // console.log(createdItem);
         // console.log("duplicated item:");
         // console.log(duplicatedItem);
 
-        WF.deleteItem(createdItem);
+        // WF.deleteItem(createdItem);
+        duplicatedItem = createdItem;
     }
 
     return duplicatedItem;
@@ -571,8 +577,9 @@ function pasteYankedItems(bAboveFocusedItem)
          * It'll steal our focus as well...
          */
         var bPastingDeadItems = true;
-        const tempItem = WF.duplicateItem(yankBuffer[0]);
-        if(tempItem)
+        // const tempItem = WF.duplicateItem(yankBuffer[0]);
+        // if(tempItem)
+        if(false)
         {
             const tempItemParent = yankBuffer[0].getParent();
             if(IsMirror(tempItemParent))
@@ -1193,23 +1200,63 @@ function GetMirroredItem(mirror)
 
 function IsMirror(itemToQuery)
 {
+    if(!itemToQuery)
+        return false;
+
+    if(!itemToQuery.data)
+        return false;
+
+    if(!itemToQuery.data.metadata)
+        return false;
+
     return itemToQuery.data.metadata.originalId !== undefined;
 }
 
 // get original ID from mirror
-function GetMirroredItemID(mirror)
+function GetMirroredItemID(itemToQuery)
 {
-     return mirror.data.metadata.originalId;
+    if(!itemToQuery)
+        return;
+
+    if(!itemToQuery.data)
+        return;
+
+    if(!itemToQuery.data.metadata)
+        return;
+
+    return itemToQuery.data.metadata.originalId;
 }
 
 function IsItemVirutalRoot(itemToQuery)
 {
+    if(!itemToQuery)
+        return false;
+
+    if(!itemToQuery.data)
+        return false;
+
+    if(!itemToQuery.data.metadata)
+        return false;
+
      return itemToQuery.data.metadata.isVirtualRoot !== undefined;
 }
 
 function IsItemVirutalSubRoot(itemToQuery)
 {
-     return itemToQuery.data.metadata.isVirtualSubRoot !== undefined;
+    if(!itemToQuery)
+        return false;
+
+    if(!itemToQuery.data)
+        return false;
+
+    if(!itemToQuery.data.metadata)
+        return false;
+
+    if(!itemToQuery.data.metadata.mirror)
+        return false;
+
+     return itemToQuery.data.metadata.mirror.isMirrorRoot !== undefined;
+    //  return itemToQuery.data.metadata.isVirtualSubRoot !== undefined;
 }
 
 function ExitVisualMode(t)
