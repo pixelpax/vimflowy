@@ -535,6 +535,10 @@ const actionMap =
 	    yankSelectedItems(t);
 	    ExitVisualMode(t);
 	  },
+	  'alt-M': t => 
+	  {
+	    ExitVisualMode(t);
+	  },
 	  'alt-J': t => 
 	  {
 	    MoveSelectionDown(t);
