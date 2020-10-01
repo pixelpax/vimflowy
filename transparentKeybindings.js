@@ -349,7 +349,9 @@ const transparentActionMap =
 		if(WF.focusedItem())
 		{
 			WF.setSelection([WF.focusedItem()]);
-			CopySelectionToClipboard(e);
+			CopySelectionToClipboard();
+			e.preventDefault()
+			e.stopPropagation()
 		}
 	  },
 	  'dd': e => 
@@ -448,7 +450,9 @@ const transparentActionMap =
 	  },
 	  'ctrl-c': e => 
 	  {
-		CopySelectionToClipboard(e);
+		CopySelectionToClipboard();
+		e.preventDefault()
+		e.stopPropagation()
 	  },
 	  Tab: e => 
 	  {

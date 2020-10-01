@@ -1139,12 +1139,6 @@ function yankSelectedItems(t)
         yankBuffer = selection;
     else 
         yankBuffer = [WF.focusedItem()];
-
-        // console.clear();
-        // console.log(yankBuffer);
-
-    // replace any mirrors with the original item
-    // ReplaceMirroredItems(yankBuffer);
 }
 
 function ReplaceNonVirtualsWithOriginals(itemContainer)
@@ -3130,23 +3124,23 @@ function ZoomToMirroredItemsParent()
     WF.editItemName(desiredItem);
 }
 
-function CopySelectionToClipboard(e)
+function CopySelectionToClipboard()
 {
-        const focusedItem = WF.focusedItem();
+    const focusedItem = WF.focusedItem();
 
-        // the command is executed manually because 
-        // we need to react to it, so it needs to 
-        // happens in this order.
-        document.execCommand('copy');
-        e.preventDefault()
-        e.stopPropagation()
+    // the command is executed manually because 
+    // we need to react to it, so it needs to 
+    // happens in this order.
+    document.execCommand('copy');
+    // e.preventDefault()
+    // e.stopPropagation()
 
-        goToNormalMode();
+    goToNormalMode();
 
-        WF.editItemName(focusedItem);
-        setCursorAt(state.get().anchorOffset);
+    WF.editItemName(focusedItem);
+    setCursorAt(state.get().anchorOffset);
 
-        // requestAnimationFrame(fixFocus);
+    // requestAnimationFrame(fixFocus);
 }
 
 function IsItemFocusable(itemToQuery)
