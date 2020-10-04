@@ -3087,11 +3087,11 @@ function openFocusedItemURL()
             goToInsertMode();
             goToNormalMode();
         }
-        // else if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
-        // {
-        //     var win = window.open(contentHref, '_blank');
-        //     win.focus();
-        // }
+        else if(focusedItemName.includes(strippedHref) || focusedItemNote.includes(strippedHref))
+        {
+            var win = window.open(contentHref, '_blank');
+            win.focus();
+        }
     }
 }
 
