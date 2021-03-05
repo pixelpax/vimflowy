@@ -150,6 +150,12 @@ const moveCursorDown = startElement =>
 
   let cursorTargetProject = project
 
+  // walk past SVGs 
+  if (cursorTargetProject.nextElementSibling != null && typeof(cursorTargetProject.nextElementSibling.className) !== 'string')
+  {
+    cursorTargetProject = cursorTargetProject.nextElementSibling;
+  }
+
   while(!(cursorTargetProject.nextElementSibling 
           && typeof cursorTargetProject.nextElementSibling.className.includes !== 'undefined'
           && cursorTargetProject.nextElementSibling.className.includes('project')
@@ -182,6 +188,21 @@ const moveCursorUp = t =>
   if (project.previousElementSibling)
   {
     cursorTarget = project.previousElementSibling
+
+    /* Walk past SVGs.
+
+      The HTML structure might look like this:
+
+      project1
+      project2            <--- We want to end up here
+      SVG
+      project3 (backlink) <--- We are here
+      Project4 (backlink)
+
+    */ 
+    if (typeof(cursorTarget.className) !== 'string')
+      cursorTarget = cursorTarget.previousElementSibling;
+
     if (cursorTarget.className.includes('open')) 
     {
       const textContainers = cursorTarget.querySelectorAll('.project')
