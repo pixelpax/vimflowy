@@ -3034,6 +3034,9 @@ function goToListBottom(event, listRootItem)
     var i = visibleChildren.length; 
     while(i--)
     {
+        if(!focusedItem)
+            break;
+
         if(focusedItem.isExpanded() && WF.currentSearchQuery() === null)
             WF.collapseItem(focusedItem);
 
