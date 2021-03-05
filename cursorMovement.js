@@ -113,6 +113,10 @@ const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) =>
 
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
+  // we reached the top of the search list?
+  if(cursorTarget === null)
+    return;
+
   if (!cursorTarget.childNodes.length) 
   {
     cursorTarget.append(' ')
