@@ -113,9 +113,10 @@ const setCursorAfterVerticalMove = (calculateOffset, cursorTargetProject) =>
 
   const cursorTarget = cursorTargetProject.querySelector('.name>.content')
 
-  // we reached the top of the search list?
   if(cursorTarget === null)
+  {
     return;
+  }
 
   if (!cursorTarget.childNodes.length) 
   {
@@ -150,10 +151,28 @@ const moveCursorDown = startElement =>
 
   let cursorTargetProject = project
 
-  // walk past SVGs 
+  // ensure that we walk past the upcoming SVG element by taking an additional step here.
   if (cursorTargetProject.nextElementSibling != null && typeof(cursorTargetProject.nextElementSibling.className) !== 'string')
-  {
     cursorTargetProject = cursorTargetProject.nextElementSibling;
+
+  // walk up the node tree, when reaching the end of the backlink feature list, 
+  // in order to find the next valid backlink item list
+  while(cursorTargetProject.nextElementSibling == null)
+  {
+    cursorTargetProject = projectAncestor(cursorTargetProject);
+
+    // check if we are walking around in circles (end of current item list)
+    if (cursorTargetProject.className && cursorTargetProject.className.includes('selected')) 
+    {
+      // We've probably reached the very last visbile item. No need to continue. 
+      return project
+    } 
+
+    // make sure that we walk past upcoming SVG elements when working our way up the tree
+    while (cursorTargetProject.nextElementSibling != null && typeof (cursorTargetProject.nextElementSibling.className) !== 'string')
+    {
+      cursorTargetProject = cursorTargetProject.nextElementSibling;
+    }
   }
 
   while(!(cursorTargetProject.nextElementSibling 
@@ -163,6 +182,11 @@ const moveCursorDown = startElement =>
   {
     const ancestor = projectAncestor(cursorTargetProject)
 
+    // @TODO: this legacy fix prevents one from navigating to the next column in boards...
+    // It triggers when reaching the Add item element button at the end of WF.CurrentItem list. 
+    // That plus button is at the bottom of every board column as well - which is why 
+    // the cursor just stops when reaching the end of column list in a board. Proper 
+    // fix is to check if we've reached the final element in the WF.CurrentItem list instead. 
      if (ancestor.className
         //&& typeof ancestor.className.includes !== 'undefined'
         //&& ancestor.className.includes('mainTreeRoot')) 
@@ -170,9 +194,6 @@ const moveCursorDown = startElement =>
     {
       return project
     } 
-    
-/*     if(cursorTargetProject.className == ancestor.className)
-      return ancestor; */
 
     cursorTargetProject = ancestor
   }
@@ -200,10 +221,17 @@ const moveCursorUp = t =>
       Project4 (backlink)
 
     */ 
+    // (this works, but the while loop is not necessary?)
+    // while (typeof(cursorTarget.className) !== 'string')
+    // {
+    //   if(cursorTarget.previousElementSibling == null)
+    //     break;
+    //   cursorTarget = cursorTarget.previousElementSibling;
+    // }
     if (typeof(cursorTarget.className) !== 'string')
       cursorTarget = cursorTarget.previousElementSibling;
 
-    if (cursorTarget.className.includes('open')) 
+    if (cursorTarget != null && cursorTarget.className.includes('open')) 
     {
       const textContainers = cursorTarget.querySelectorAll('.project')
 
