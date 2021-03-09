@@ -1122,6 +1122,89 @@ function MoveSelectionUp(t)
     setCursorAt(state.get().anchorOffset);
 }
 
+function IsWithinCompletedAncestorItemChain(itemToQuery)
+{
+    let itemsToCheck = itemToQuery.getAncestors();
+    var i = itemsToCheck.length;
+    while(i--)
+    {
+        if(itemsToCheck[i].isCompleted())
+            return true;
+    }
+
+    return false;
+}
+
+function FindTopMostCompletedAncestorItem(itemToQuery)
+{
+    // console.log("checking: ");
+
+    let itemsToCheck = itemToQuery.getAncestors();
+    let closestItem = itemsToCheck[0];
+    for (let i = 0, len = itemsToCheck.length; i < len; i++)
+    {
+        // console.log(itemsToCheck[i].getNameInPlainText());
+
+        closestItem = itemsToCheck[i];
+
+        if(itemsToCheck[i].isCompleted())
+            break;
+    }
+
+    return closestItem;
+}
+
+function FocusOnClosestNonCompletedItem()
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    if(IsWithinCompletedAncestorItemChain(focusedItem))
+    {
+        const ancestorItem = FindTopMostCompletedAncestorItem(focusedItem);
+
+        // console.log("candidate: ");
+        // console.log(ancestorItem.getNameInPlainText());
+
+        const kids = ancestorItem.getParent().getChildren();
+        var i = ancestorItem.getPriority();
+        while(i--)
+        {
+            if(!kids[i].isCompleted())
+            {
+                WF.editItemName(kids[i]);
+                setCursorAt(state.get().anchorOffset);
+                return;
+            }
+        }
+
+        WF.editItemName(ancestorItem);
+        setCursorAt(state.get().anchorOffset);
+        return;
+    }
+
+    if(!focusedItem.isCompleted())
+        return;
+
+    // lets check the upper siblings
+    var iterParentItem = focusedItem.getParent();
+    const siblings = iterParentItem.getChildren();
+    var i = focusedItem.getPriority();
+    while(i--)
+    {
+        if(!siblings[i].isCompleted())
+        {
+            WF.editItemName(siblings[i]);
+            setCursorAt(state.get().anchorOffset);
+            return;
+        }
+    }
+
+    WF.editItemName(iterParentItem);
+    setCursorAt(state.get().anchorOffset);
+}
+
 function yankSelectedItems(t)
 {
     const focusedItem = WF.focusedItem();
@@ -3163,8 +3246,8 @@ function FindBottomMostFocusableChildItem(itemToQuery)
     if(!IsItemFocusable(itemToQuery))
         return;
 
-    if(!itemToQuery.isExpanded())
-        return itemToQuery;
+    // if(!itemToQuery.isExpanded())
+    //     return itemToQuery;
 
     var bottomMostItem = itemToQuery;
 
@@ -3189,8 +3272,8 @@ function FindBottomMostVisibleChildItemInViewport(itemToQuery)
     if(!IsItemInViewport(itemToQuery))
         return;
 
-    if(!itemToQuery.isExpanded())
-        return itemToQuery;
+    // if(!itemToQuery.isExpanded())
+    //     return itemToQuery;
 
     var bottomMostItem = itemToQuery;
 

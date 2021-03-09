@@ -338,6 +338,22 @@ const transparentActionMap =
 	  {
 		RotateSelectionPreMoveBuffer();
 	  },
+	  'ctrl-o': e => 
+	  {
+		if(WF.completedVisible())
+		{
+			FocusOnClosestNonCompletedItem();
+		}
+		else 
+		{
+			// WF.focusedItem().getElement().scrollIntoView();
+			// WF.focusedItem().getElement().scrollIntoView({
+			// 	behaviour: 'auto',
+			// 	block: 'nearest',
+			// 	inline: 'nearest'
+			// });
+		}
+	  },
 	  'ctrl-Enter': e => 
 	  {
 		  RotateSelectionPreMoveBuffer();
