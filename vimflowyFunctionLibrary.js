@@ -3408,32 +3408,58 @@ function IsFocusingOnLink()
         return true;
 }
 
-function HandleTheWorkflowyCtrlKBinding()
+function HandleJumpTo()
 {
-    /* 	
-        This workflowy binding has a primary and secondary behaviour depending
-        on the state of the item. The primary behaviour is to edit existing links
-        found in the item, secondary is to open the workflowy Jump-To-Item-Menu 
-    */
-
-    const focusedItem = WF.focusedItem();
-    if(!focusedItem)
-        return;
-
-    const bLinkFocus = IsFocusingOnLink();
-    // console.log("has link focus: " + bLinkFocus);
-
-    if(!bLinkFocus)
+    if(state.get().mode !== Mode.INSERT)
     {
-        // prevent link editing from triggering
-        const selection = document.getSelection();
-        selection.removeAllRanges();
+        /* 	
+            The workflowy binding has a primary and secondary 
+            behaviour depending on the state of the item: 
 
-        // needed in order to regain focus after interacting with the menu
-        focusPreJumpToItemMenu = focusedItem;
+            The primary behaviour is to edit existing links
+            found in the item. 
+
+            Secondary is to open the 
+            workflowy Jump-To-Item-Menu.
+        */
+
+        const focusedItem = WF.focusedItem();
+        if(!focusedItem)
+            return;
+
+        const bLinkFocus = IsFocusingOnLink();
+        // console.log("has link focus: " + bLinkFocus);
+
+        if(!bLinkFocus)
+        {
+            // prevent link editing from triggering
+            const selection = document.getSelection();
+            selection.removeAllRanges();
+
+            // needed in order to regain focus after interacting with the menu
+            focusPreJumpToItemMenu = focusedItem;
+        }
+
+        goToInsertMode();
     }
+    else    // INSERT MODE
+    {
+		var focusedItem = WF.focusedItem();
+		if(!focusedItem)
+			return;
 
-    goToInsertMode();
+		// console.log("link focus: " + IsFocusingOnLink());
+
+		// we don't support link editing within the note, while in insert 
+		// mode, due to how the cursor movement works atm
+		if(IsFocusingOnNote() || !IsFocusingOnLink())
+		{
+			focusPreJumpToItemMenu = WF.focusedItem();
+			const selection = document.getSelection();
+			selection.removeAllRanges();
+			goToInsertMode();
+		}
+    }
 }
 
 // either .name or .note

@@ -9,12 +9,11 @@ const transparentActionMap =
 	{
 	  'ctrl-k': e => 
 	  {
-
-		// const focusedItem = WF.focusedItem();
-		// if(focuseditem)
-		// 	WF.edititemname(focuseditem);
-
-		HandleTheWorkflowyCtrlKBinding();
+		HandleJumpTo();
+	  },
+	  'meta-k': e => 
+	  {
+		HandleJumpTo();
 	  },
 	  'ctrl-:': e => 
 	  {
@@ -485,7 +484,12 @@ const transparentActionMap =
 	  'ctrl-k': e => 
 	  {
 		ExitVisualMode();
-		HandleTheWorkflowyCtrlKBinding();
+		HandleJumpTo();
+	  },
+	  'meta-k': e => 
+	  {
+		ExitVisualMode();
+		HandleJumpTo();
 	  },
 	  'ctrl-:': e => 
 	  {
@@ -597,26 +601,11 @@ const transparentActionMap =
 	  },
 	  'ctrl-k': e => 
 	  {
-		var focusedItem = WF.focusedItem();
-		if(!focusedItem)
-			return;
-
-		// moveCursorTo(e.target, offsetCalculator(state), 9999);
-		// moveCursorLeft(e.target, offsetCalculator(state));
-
-		// console.log("link focus: " + IsFocusingOnLink());
-
-		// we don't support link editing within the note,
-		// while in insert mode, due to how the
-		// cursor movement works atm
-		if(IsFocusingOnNote() || !IsFocusingOnLink())
-		{
-			focusPreJumpToItemMenu = WF.focusedItem();
-			const selection = document.getSelection();
-			selection.removeAllRanges();
-			goToInsertMode();
-		}
-
+		  HandleJumpTo();
+	  },
+	  'meta-k': e => 
+	  {
+		  HandleJumpTo();
 	  },
 	  'ctrl-:': e => 
 	  {
