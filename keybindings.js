@@ -280,6 +280,11 @@ const actionMap =
 	  {
 	    WF.redo();
 	  },
+	  "ctrl-'": t =>
+	  {
+		WF.zoomTo(WF.rootItem());
+		WF.editItemName(WF.rootItem());
+	  },
 	  "ctrl-ä": t => 
 	  {
 		WF.zoomTo(WF.rootItem());
