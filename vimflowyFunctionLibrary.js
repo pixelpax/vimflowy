@@ -3449,14 +3449,19 @@ function HandleJumpTo()
 
 		// console.log("link focus: " + IsFocusingOnLink());
 
+        const cursorSelection = document.getSelection();
+        const anchorPos = cursorSelection.anchorOffset;
+        const focusPos = cursorSelection.focusOffset;
+        const cursorSelectionDelta = Math.abs(anchorPos-focusPos);
+
 		// we don't support link editing within the note, 
         // while in insert mode, due to how the 
         // cursor movement works atm
-		if(IsFocusingOnNote() || !IsFocusingOnLink())
+		if(cursorSelectionDelta == 0 && (IsFocusingOnNote() || !IsFocusingOnLink()))
 		{
 			focusPreJumpToItemMenu = WF.focusedItem();
 
-            // // this will prevent link editing
+            // !!! this will prevent link editing when selecting text with mouse
 			// const selection = document.getSelection();
 			// selection.removeAllRanges();
 			// goToInsertMode();
