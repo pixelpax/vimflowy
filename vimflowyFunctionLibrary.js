@@ -3047,7 +3047,6 @@ function SimulateEscapeNormalMode(e)
 // assumes Escape is actually being pressed
 function HandleEscapeNormalMode(e)
 {
-
     if(WF.focusedItem())
     {
             const selection = WF.getSelection();
@@ -3450,14 +3449,17 @@ function HandleJumpTo()
 
 		// console.log("link focus: " + IsFocusingOnLink());
 
-		// we don't support link editing within the note, while in insert 
-		// mode, due to how the cursor movement works atm
+		// we don't support link editing within the note, 
+        // while in insert mode, due to how the 
+        // cursor movement works atm
 		if(IsFocusingOnNote() || !IsFocusingOnLink())
 		{
 			focusPreJumpToItemMenu = WF.focusedItem();
-			const selection = document.getSelection();
-			selection.removeAllRanges();
-			goToInsertMode();
+
+            // // this will prevent link editing
+			// const selection = document.getSelection();
+			// selection.removeAllRanges();
+			// goToInsertMode();
 		}
     }
 }
