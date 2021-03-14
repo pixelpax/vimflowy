@@ -20,10 +20,24 @@ mainContainer.addEventListener('keyup', event =>
   HandleEasyMotion_KeyUp();
   reselectItemsBeingMoved();
   updateKeyBuffer_Keyup(event);
+
+  // cursor focus loss will be regained upon pressing ESC
+  // This can happen when the cursor navigates over or 
+  // into animating items (close/open/completed/etc)
+  // if (!WF.focusedItem()
+  // &&  state.get().mode !== Mode.INSERT
+  // &&  event.key == key_Esc)
+  // {
+  //   WF.editItemName(WF.currentItem());
+  // }
+
+  // console.log("-- KeyUP event -- ")
+
 });
 
 mainContainer.addEventListener('keydown', event => 
 { 
+    // console.log("-- KeyDOWN event -- ")
     if(HandleEasyMotion_KeyDown(event))
     {
       // console.log("-- HandleEasyMotion early out -- ")
@@ -95,7 +109,6 @@ mainContainer.addEventListener('keydown', event =>
         updateTimeTagCounter();
 
     // console.log("currentOffset keydown: " + state.get().anchorOffset);
-
 })
 
 // we can't use WF.getSelection()
