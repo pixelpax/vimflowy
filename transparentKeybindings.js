@@ -207,33 +207,42 @@ const transparentActionMap =
 	  },
 	  'cw': e => 
 	  {
-		// we want to stay consistent with VIM behaviour...
-		// VI changes cw to ce when you're on a non-blank char.
-		// https://vimhelp.org/motion.txt.html#WORD
-		var focusedItem = WF.focusedItem();
-		if(focusedItem)
-		{
-  			const itemName = focusedItem.getName();
-  			const currentOffset = calculateCursorOffset(false);
-  			const underCursorChar = itemName.charAt(currentOffset); 
-			if(underCursorChar != " ")
-			{
-				deleteUntilWordEnd(false);
-			}
-			else
-			{
-				deleteUntilWordEnd(true);
-			}
-		}
+		// // we want to stay consistent with VIM behaviour...
+		// // VI changes cw to ce when you're on a non-blank char.
+		// // https://vimhelp.org/motion.txt.html#WORD
+		// var focusedItem = WF.focusedItem();
+		// if(focusedItem)
+		// {
+  		// 	const itemName = focusedItem.getName();
+  		// 	const currentOffset = calculateCursorOffset(false);
+  		// 	const underCursorChar = itemName.charAt(currentOffset); 
+		// 	if(underCursorChar != " ")
+		// 	{
+		// 		deleteUntilWordEnd(false);
+		// 	}
+		// 	else
+		// 	{
+		// 		deleteUntilWordEnd(true);
+		// 	}
+		// }
+
+		// ...nvm
+		deleteUntilWordEnd(false);
 
 		e.preventDefault()
 		e.stopPropagation()
-		goToInsertMode();
+
+		// is fine. Don't worry about it
+		goToInsertMode(false);
+		goToInsertMode(true);
+		goToInsertMode(false);
+		goToInsertMode(true);
 	  },
 	  'ce': e => 
 	  {
-		// @TODO: this one should consume the next word when initiated from a blank-space
-		  deleteUntilWordEnd(false);
+		// @TODO: this one should consume the next word when initiated 
+		// from a blank-space (or from the last letter in word)
+		deleteUntilWordEnd(false);
 		e.preventDefault()
 		e.stopPropagation()
 		goToInsertMode();

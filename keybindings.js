@@ -252,7 +252,7 @@ const actionMap =
 	  'C': t => 
 	  {
 	    deleteUntilLineEnd();
-		goToInsertMode();
+		goToInsertMode(true);
 	  },
 	  'S': t => 
 	  {
