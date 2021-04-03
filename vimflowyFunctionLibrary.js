@@ -347,6 +347,15 @@ function SearchWordUnderCursor()
     WF.editItemName(WF.currentItem());
 }
 
+function createMirror(itemToMirror, parentItem, priority)
+{
+    // toDestination is redundant here because item.data.toDestination() == item.data,
+    // but they do it in their code so lets do it here as well until we figure out why 
+    WF.editGroup(() => {
+        parentItem.data.toDestination().createUnder([itemToMirror.data.toDestination().mirrorProjectTree()], priority);
+    });
+}
+
 function createMirrorFromMirror(mirrorToCopy, parent, prio)
 {
     // console.log("creating mirror");
