@@ -351,9 +351,39 @@ function createMirror(itemToMirror, parentItem, priority)
 {
     // toDestination is redundant here because item.data.toDestination() == item.data,
     // but they do it in their code so lets do it here as well until we figure out why 
-    WF.editGroup(() => {
-        parentItem.data.toDestination().createUnder([itemToMirror.data.toDestination().mirrorProjectTree()], priority);
-    });
+    var createdMirror = null;
+    // WF.editGroup(() => {
+        var originalItem = itemToMirror;
+        // var originalItem = GetOriginalItem(itemToMirror);
+        // console.clear();
+        // console.log("items that was supposed to be mirrored");
+        // console.log(itemToMirror.getId());
+        // console.log("----------------")
+        // console.log(originalItem);
+
+        // if(!originalItem)
+        //     return;
+
+        console.log("original item");
+        console.log(originalItem.getElement());
+        console.log("itemToMirror");
+        console.log(itemToMirror.getElement());
+
+        createdMirror = parentItem.data.toDestination().createUnder([originalItem.data.toDestination().mirrorProjectTree()], priority);
+        // createdMirror = parentItem.data.toDestination().createUnder([itemToMirror.data.toDestination().mirrorProjectTree()], priority);
+    // });
+
+    // if(!createdMirror)
+    //     return null;
+    // else
+        return createdMirror[0];
+
+    return parentItem.getChildren[priority];
+
+    // we now have 2 identical items at the same location. 
+    // we might as well just return the item which 
+    // was mirrored as the mirror itself
+    return itemToMirror;
 }
 
 function createMirrorFromMirror(mirrorToCopy, parent, prio)
@@ -417,7 +447,7 @@ function createItemFromCompletelessItem(itemToCopy, parent, prio)
         return;
 
     if (IsMirror(itemToCopy) && IsItemVirutalRoot(itemToCopy))
-        return createMirrorFromMirror(itemToCopy, parent, prio);
+        return createMirror(itemToCopy, parent, prio);
 
     const focusParent = WF.focusedItem().getParent();
 
@@ -481,7 +511,7 @@ function createItemFrom(itemToCopy, parent, prio)
             return;
 
     if (IsMirror(itemToCopy) && IsItemVirutalRoot(itemToCopy))
-        return createMirrorFromMirror(itemToCopy, parent, prio);
+        return createMirror(itemToCopy, parent, prio);
 
     const focusParent = WF.focusedItem().getParent();
 
@@ -561,10 +591,21 @@ function pasteYankedItems(bAboveFocusedItem)
         return;
 
     if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+    {
+        console.log("found undefined when pasting");
+        console.log(yankBuffer);
         return;
+    }
+    
+    // if(!IsMirror(yankBuffer[0]))
+    //     return;
 
-    const focusedItem = WF.focusedItem();
+    var focusedItem = WF.focusedItem();
     var parentItem = focusedItem.getParent();
+
+    // const dasPrio = bAboveFocusedItem ? focusedItem.getPriority() : focusedItem.getPriority()+1;
+    // const dasMirror = createMirror(yankBuffer[0], focusedItem.getParent(), dasPrio);
+    // return;
 
     if(parentItem == null)
         return;
@@ -606,12 +647,15 @@ function pasteYankedItems(bAboveFocusedItem)
             bPastingDeadItems = false;
         }
 
-        // console.log("pasting dead items? :" + bPastingDeadItems);
+        console.clear();
+        bPastingDeadItems = false;
+        console.log("pasting dead items? :" + bPastingDeadItems);
 
         var createdItems = [];
 
         if(bPastingDeadItems)
         {
+            console.warning("woipsie");
             if(ContainsCompletedItem(yankBuffer))
             {
                 const bWasParentExpanded = parentItem.isExpanded();
@@ -649,9 +693,9 @@ function pasteYankedItems(bAboveFocusedItem)
             }
             else
             {
+                console.log("creating dead items without completed items");
                 for (var i = 0, len = yankBuffer.length; i < len; i++) 
                 {
-
                     var createdItem = createItemFromCompletelessItem(
                         yankBuffer[i],
                         parentItem,
@@ -666,14 +710,20 @@ function pasteYankedItems(bAboveFocusedItem)
         {
             for (var i = 0, len = yankBuffer.length; i < len; i++) 
             {
-                var createdItem = WF.duplicateItem(yankBuffer[i]);
-
-                const bDuplicatingMirror = IsMirror(yankBuffer[i]);
-                if(!bDuplicatingMirror ||(bDuplicatingMirror && !IsItemVirutalRoot(yankBuffer[i])))
+                var createdItem = null;
+                console.log(yankBuffer[i]);
+                if(IsMirror(yankBuffer[i]))
                 {
+                    createdItem = createMirror(yankBuffer[i], yankBuffer[i].getParent(), yankBuffer[i].getPriority());
+                    createdItem = yankBuffer[i];
+                }
+                else
+                {
+                    createdItem = WF.duplicateItem(yankBuffer[i]);
                     const createdItemName = createdItem.getName();
                     const nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
                     WF.setItemName(createdItem, nameWithoutCopyTag);
+                    createdItems.push(createdItem);
                 }
 
                 createdItems.push(createdItem);
@@ -1216,10 +1266,15 @@ function FocusOnClosestNonCompletedItem()
 
 function yankSelectedItems(t)
 {
-    const focusedItem = WF.focusedItem();
+    var focusedItem = WF.focusedItem();
 
     if(!focusedItem)
         return;
+
+    // console.log(focusedItem.data.metadata);
+    // createMirror(focusedItem, focusedItem.getParent(), focusedItem.getPriority());
+    // WF.editItemName(focusedItem);
+    // return
 
     const currentItem = WF.currentItem();
 
@@ -1291,6 +1346,8 @@ function IsMirror(itemToQuery)
 
     if(!itemToQuery.data)
         return false;
+
+    // return itemToQuery.data.isMirror();
 
     if(!itemToQuery.data.metadata)
         return false;
