@@ -1,6 +1,8 @@
 
 var timeTagCounterTimeoutReference;
 let previousTimeTagCounterMsg;
+const NumHoursInDay = 2;
+const NumDaysInWeek = 7;
 
 function clearTimeTagCounter(){
     clearTimeout(timeTagCounterTimeoutReference);
@@ -8,13 +10,6 @@ function clearTimeTagCounter(){
 
 function updateTimeTagCounter() 
 {
-    function toastMsg(str, sec, err) {
-        clearTimeout();
-        WF.hideMessage();
-        WF.showMessage(str.bold(), err);
-        timeTagCounterTimeoutReference = setTimeout(() => WF.hideMessage(), (sec || 2) * 1e3)
-    }
-
     function applyToEachItem(functionToApply, parent) {
         functionToApply(parent);
         for (let child of parent.getChildren()) {
@@ -76,10 +71,10 @@ function updateTimeTagCounter()
 
     function convertTimeToStr(mins) {
         const hours = Math.floor(mins / 60);
-        const days = (hours / 8).toFixed(2);
-        const weeks = (days / 5).toFixed(2);
-        // return `${days.toString()} days // ${weeks.toString()} weeks // ${workDays.toString()} days(8h) // ${workWeeks.toString()} weeks(5d)`
-        return `${days.toString()} days // ${weeks.toString()} weeks`
+        const days = (hours / NumHoursInDay).toFixed(2);
+        const weeks = (days / NumDaysInWeek).toFixed(2);
+        // return ` ${weeks.toString()} weeks (${NumDaysInWeek.toString()}d) // ${days.toString()} days (${NumHoursInDay}h) // ${hours.toString()} hrs`
+        return ` ${weeks.toString()} weeks // ${days.toString()} days // ${hours.toString()} hrs`
     }
 
     function getTimeTagInfoSimple(items) {
@@ -103,27 +98,11 @@ function updateTimeTagCounter()
                 }
             })
         });
-        // const hashAll = hashComplete + hashInComplete;
         const hashAll = hashInComplete;
         const atAll = atComplete + atInComplete;
         if (atAll + hashAll === 0) return null;
         hashTotals = hashAll > 0 ? `\t${convertTimeToStr(hashAll)}` : "";
         return `${hashTotals}`
-    }
-
-    function showSortDialog(bodyHtml, title, button1, button2) {
-        const style = '.btnX{font-size:18px;background-color:#49baf2;border:2px solid;border-radius:20px;color:#fff;padding:5px 15px;margin-top:16px;margin-right:16px}.btnX:focus{border-color:#c4c4c4}';
-        const buttons = `<div><button type="button" class="btnX" id="btn1">${button1}</button></div>`;
-        WF.showAlertDialog(`<style>${htmlEscapeText(style)}</style><div>${bodyHtml}</div>${buttons}`, title);
-        setTimeout(() => {
-            const btn1 = document.getElementById("btn1");
-            btn1.focus();
-            btn1.onclick = function() {
-                const timeTagInfo = getTimeTagInfoSimple(itemsToCount);
-                const name = WF.currentItem().getNameInPlainText();
-                WF.setItemName(WF.currentItem(), name + timeTagInfo)
-            };
-        }, 100)
     }
 
     const focusedItem = WF.focusedItem();
@@ -152,10 +131,6 @@ function updateTimeTagCounter()
         WF.showMessage("No Time Tags found.".bold(), true);
     else
         WF.showMessage(msg.bold(), false);
-
-    //showSortDialog(timeTagInfo, name, 'Add Time to Name?', 'Z-A')
-    // toastMsg(msg, 3, false);
-    // return void toastMsg("No Time Tags found.", 2, true);
 };
 
 
