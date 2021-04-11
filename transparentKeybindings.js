@@ -378,6 +378,12 @@ const transparentActionMap =
 			e.stopPropagation()
 		}
 	  },
+	  'dm': e => 
+	  {
+		detachMirrorOnSelectedItems();
+		e.preventDefault();
+		e.stopPropagation();
+	  },
 	  'dd': e => 
 	  {
 		yankSelectedItems();

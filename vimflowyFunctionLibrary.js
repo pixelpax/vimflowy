@@ -1366,6 +1366,45 @@ function yankSelectedItems_DEPRECATED(t)
         yankBuffer = [WF.focusedItem()];
 }
 
+function detachMirrorOnSelectedItems()
+{
+    var focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+        return;
+
+    var currentSelection = [WF.focusedItem()];
+
+    const selection = WF.getSelection();
+    if (selection !== undefined && selection.length != 0) 
+        currentSelection = selection;
+
+    WF.editGroup(() => 
+    {
+        for(var i=0, len=currentSelection.length; i < len; i++)
+        {
+            if(!currentSelection[i])
+                continue;
+
+            // refocus on the item
+            const newItemData = currentSelection[i].data.unmirror();
+            const newItem = WF.getItemById(newItemData.id);
+            WF.editItemName(newItem);
+        }
+    });
+
+    // fix potential focus loss
+    if (!WF.focusedItem()) 
+    {
+        requestAnimationFrame(fixFocus);
+        WF.editItemName(WF.currentItem());
+    }
+
+}
+
 function ReplaceNonVirtualsWithOriginals(itemContainer)
 {
     console.warn("Using Deprecated function which will be deleted in a future update");

@@ -73,6 +73,7 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `d$`, `D`: delete to end of line
     - `dd`: yank and delete the current item(s)
     - `de`: cut from cursor location to the end of the current word
+    - `dm`: detach mirror 
     - `ce`: de + goToInsertMode
     - `dw`: cut from cursor location to next word
     - `cw`: dw + goToInsertMode
