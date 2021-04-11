@@ -37,7 +37,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `#`: search for the word under the cursor. Works as tag search.
     - `u`: Undo
     - `<Ctrl>r`: Redo
-    - `y`,`Y`: yank (copy) focused items (and children)
+    - `y`: yank (copy or mirror) focused items (and children)
+    - `Y`: yank (mirror) focused items (and children)
     - `p`: paste yanked items below focused item
     - `P`: paste yanked items above focused item
     - `<alt>l`: Zoom in on focused node 1 step and retain focus on that node
@@ -87,7 +88,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `<alt>H`,`<shift>Tab`: outdent items +  enter normal mode
     - `<`: outdent items (and selected kids once the parent item hits the wall) +  enter normal mode
     - `V`,`v`,`<Esc>`: Enter normal mode
-    - `y`, `Y`: yank (copy) selected items and enter normal mode
+    - `y`: yank (copy or mirror) selected items and enter normal mode
+    - `Y`: yank (mirror) selected items and enter normal mode
     - `d`: yank, delete selected items and enter normal mode
     - `D`: delete notes on all selected items
     - `G`: Adds the siblings below to the selection

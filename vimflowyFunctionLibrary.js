@@ -1290,6 +1290,35 @@ function FocusOnClosestNonCompletedItem()
     setCursorAt(state.get().anchorOffset);
 }
 
+function yankSelectedItemsByMirroring()
+{
+    var focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+        return;
+
+    var tempYankBuffer = [WF.focusedItem()];
+
+    const selection = WF.getSelection();
+    if (selection !== undefined && selection.length != 0) 
+        tempYankBuffer = selection;
+    
+    // empty
+    yankItemDataBuffer = [];
+
+    for(var i=0, len=tempYankBuffer.length; i < len; i++)
+    {
+        if(!tempYankBuffer[i])
+            continue;
+        
+        // will generate mirror or duplicate item data depending on the type of item being yanked
+        yankItemDataBuffer.push(tempYankBuffer[i].data.mirrorProjectTree());
+    }
+}
+
 function yankSelectedItems()
 {
     var focusedItem = WF.focusedItem();
@@ -1317,9 +1346,6 @@ function yankSelectedItems()
         // will generate mirror or duplicate item data depending on the type of item being yanked
         yankItemDataBuffer.push(tempYankBuffer[i].data.copyProjectTree());
     }
-
-    console.log("new yank data buffer: ");
-    console.log(yankItemDataBuffer);
 }
 
 function yankSelectedItems_DEPRECATED(t)

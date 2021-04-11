@@ -239,7 +239,8 @@ const actionMap =
 	  },
 	  Y: t => 
 	  {
-	    yankSelectedItems();
+	    // yankSelectedItems();
+		yankSelectedItemsByMirroring();
 	  },
 	  y: t => 
 	  {
@@ -527,7 +528,8 @@ const actionMap =
 	  },
 	  'Y': t =>
 	  {
-	    yankSelectedItems();
+		yankSelectedItemsByMirroring();
+	    // yankSelectedItems();
 	    ExitVisualMode(t);
 	  },
 	  'y': t =>
