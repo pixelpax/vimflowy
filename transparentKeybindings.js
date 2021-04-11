@@ -378,9 +378,15 @@ const transparentActionMap =
 			e.stopPropagation()
 		}
 	  },
+	  'dm': e => 
+	  {
+		detachMirrorOnSelectedItems();
+		e.preventDefault();
+		e.stopPropagation();
+	  },
 	  'dd': e => 
 	  {
-		yankSelectedItems(e.target);
+		yankSelectedItems();
 
 		/**
 		 * We need to handle pasting of subVirtual mirrors.
@@ -392,17 +398,18 @@ const transparentActionMap =
 		 * So we'll convert all subVirutals to virtuals in order
 		 * for the data to survive.
 		 */
-		ReplaceSubVirutalMirrorsWithVirutalMirrors(yankBuffer);
+		// ReplaceSubVirutalMirrorsWithVirutalMirrors(yankBuffer);
 
 		/**
 		 * data for non virutal mirror reference won't survive deletion,
 		 * so we replace that data with a copy of the original item instead.
 		 */
-		ReplaceNonVirtualsWithOriginals(yankBuffer);
+		// ReplaceNonVirtualsWithOriginals(yankBuffer);
 
 		deleteSelectedItems(e.target);
-	    event.preventDefault();
-	    event.stopPropagation();
+
+	    e.preventDefault();
+	    e.stopPropagation();
 	  }
 	},
 	[Mode.VISUAL]: 

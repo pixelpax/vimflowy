@@ -126,6 +126,7 @@ let bShowTimeCounter = false;
 let keyBufferTempCopy = [];
 let keyBuffer = [];
 let yankBuffer = [];
+let yankItemDataBuffer = [];
 const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
 const validInputKeys =  '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzåäöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ';
 const key_Slash = "/"//55;

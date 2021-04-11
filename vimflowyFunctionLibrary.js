@@ -351,9 +351,8 @@ function createMirror(itemToMirror, parentItem, priority)
 {
     // toDestination is redundant here because item.data.toDestination() == item.data,
     // but they do it in their code so lets do it here as well until we figure out why 
-    WF.editGroup(() => {
-        parentItem.data.toDestination().createUnder([itemToMirror.data.toDestination().mirrorProjectTree()], priority);
-    });
+    createdMirror = parentItem.data.toDestination().createUnder([originalItem.data.toDestination().mirrorProjectTree()], priority);
+    return WF.getItemById(createdMirror[0].id);
 }
 
 function createMirrorFromMirror(mirrorToCopy, parent, prio)
@@ -417,7 +416,7 @@ function createItemFromCompletelessItem(itemToCopy, parent, prio)
         return;
 
     if (IsMirror(itemToCopy) && IsItemVirutalRoot(itemToCopy))
-        return createMirrorFromMirror(itemToCopy, parent, prio);
+        return createMirror(itemToCopy, parent, prio);
 
     const focusParent = WF.focusedItem().getParent();
 
@@ -481,7 +480,7 @@ function createItemFrom(itemToCopy, parent, prio)
             return;
 
     if (IsMirror(itemToCopy) && IsItemVirutalRoot(itemToCopy))
-        return createMirrorFromMirror(itemToCopy, parent, prio);
+        return createMirror(itemToCopy, parent, prio);
 
     const focusParent = WF.focusedItem().getParent();
 
@@ -557,15 +556,90 @@ function createItemFrom(itemToCopy, parent, prio)
 
 function pasteYankedItems(bAboveFocusedItem)
 {
+    if (yankItemDataBuffer === undefined || yankItemDataBuffer.length == 0)
+        return;
+
+    if (yankItemDataBuffer[0] == null || yankItemDataBuffer[0] === undefined)
+        return;
+
+    var focusedItem = WF.focusedItem();
+
+    var parentItem = focusedItem.getParent();
+    if(parentItem == null)
+        return;
+
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+        parentItem = currentItem;
+
+    // (editgroup records this operation for later use. I.e WF.Undo() or WF.Redo())
+    WF.editGroup(() => 
+    {
+        var priority = bAboveFocusedItem ? focusedItem.getPriority() : focusedItem.getPriority() + 1;
+
+        // !!! this array contains the 'data' structure which will be 
+        // accessible on the item object -- not the actual item!
+        var createdDataContainer = parentItem.data.createUnder(yankItemDataBuffer, priority);
+
+        // fix potential focus loss
+        if (!WF.focusedItem()) 
+        {
+            requestAnimationFrame(fixFocus);
+            WF.editItemName(WF.currentItem());
+        }
+
+        // focus on top most pasted item
+        if (bAboveFocusedItem) 
+        {
+            const newKids = parentItem.getChildren();
+            const topMostPastedItemIndex = focusedItem.getPriority() - createdDataContainer.length;
+            WF.editItemName(newKids[topMostPastedItemIndex]);
+        }
+        else 
+        {
+            WF.editItemName(focusedItem.getNextVisibleSibling());
+        }
+
+        // yank the items we just pasted. This will allow us to spamm paste. 
+        // We re-yank the items because we need to generate 
+        // unique ids for every new item.
+        var pastedItems = [];
+        for (var i = 0, len = createdDataContainer.length; i < len; i++)
+        {
+            var pastedItem = WF.getItemById(createdDataContainer[i].id); 
+            if(!pastedItem)
+            {
+                console.warn("failed to yank item recently pasted item!");
+                continue;
+            }
+
+            pastedItems.push(pastedItem);
+        }
+
+        WF.setSelection(pastedItems);
+        yankSelectedItems();
+
+    });
+
+    // fix potential focus loss
+    if (!WF.focusedItem()) 
+    {
+        requestAnimationFrame(fixFocus);
+        WF.editItemName(WF.currentItem());
+    }
+}
+
+function pasteYankedItems_DEPRECATED(bAboveFocusedItem)
+{
     if (yankBuffer === undefined || yankBuffer.length == 0) 
         return;
 
     if(yankBuffer[0] == null || yankBuffer[0] === undefined)
         return;
 
-    const focusedItem = WF.focusedItem();
-    var parentItem = focusedItem.getParent();
+    var focusedItem = WF.focusedItem();
 
+    var parentItem = focusedItem.getParent();
     if(parentItem == null)
         return;
 
@@ -586,9 +660,8 @@ function pasteYankedItems(bAboveFocusedItem)
          * It'll steal our focus as well...
          */
         var bPastingDeadItems = true;
-        // const tempItem = WF.duplicateItem(yankBuffer[0]);
-        // if(tempItem)
-        if(false)
+        const tempItem = WF.duplicateItem(yankBuffer[0]);
+        if(tempItem)
         {
             const tempItemParent = yankBuffer[0].getParent();
             if(IsMirror(tempItemParent))
@@ -606,7 +679,7 @@ function pasteYankedItems(bAboveFocusedItem)
             bPastingDeadItems = false;
         }
 
-        // console.log("pasting dead items? :" + bPastingDeadItems);
+        bPastingDeadItems = false;
 
         var createdItems = [];
 
@@ -651,7 +724,6 @@ function pasteYankedItems(bAboveFocusedItem)
             {
                 for (var i = 0, len = yankBuffer.length; i < len; i++) 
                 {
-
                     var createdItem = createItemFromCompletelessItem(
                         yankBuffer[i],
                         parentItem,
@@ -666,14 +738,18 @@ function pasteYankedItems(bAboveFocusedItem)
         {
             for (var i = 0, len = yankBuffer.length; i < len; i++) 
             {
-                var createdItem = WF.duplicateItem(yankBuffer[i]);
-
-                const bDuplicatingMirror = IsMirror(yankBuffer[i]);
-                if(!bDuplicatingMirror ||(bDuplicatingMirror && !IsItemVirutalRoot(yankBuffer[i])))
+                var createdItem = null;
+                if(IsMirror(yankBuffer[i]) || IsBeingMirrored(yankBuffer[i]))
                 {
+                    createdItem = createMirror(yankBuffer[i], yankBuffer[i].getParent(), yankBuffer[i].getPriority());
+                }
+                else
+                {
+                    createdItem = WF.duplicateItem(yankBuffer[i]);
                     const createdItemName = createdItem.getName();
                     const nameWithoutCopyTag = createdItemName.substring(0, createdItemName.length - 6);
                     WF.setItemName(createdItem, nameWithoutCopyTag);
+                    createdItems.push(createdItem);
                 }
 
                 createdItems.push(createdItem);
@@ -1214,10 +1290,67 @@ function FocusOnClosestNonCompletedItem()
     setCursorAt(state.get().anchorOffset);
 }
 
-function yankSelectedItems(t)
+function yankSelectedItemsByMirroring()
 {
-    const focusedItem = WF.focusedItem();
+    var focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
 
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+        return;
+
+    var tempYankBuffer = [WF.focusedItem()];
+
+    const selection = WF.getSelection();
+    if (selection !== undefined && selection.length != 0) 
+        tempYankBuffer = selection;
+    
+    // empty
+    yankItemDataBuffer = [];
+
+    for(var i=0, len=tempYankBuffer.length; i < len; i++)
+    {
+        if(!tempYankBuffer[i])
+            continue;
+        
+        // will generate mirror or duplicate item data depending on the type of item being yanked
+        yankItemDataBuffer.push(tempYankBuffer[i].data.mirrorProjectTree());
+    }
+}
+
+function yankSelectedItems()
+{
+    var focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+        return;
+
+    var tempYankBuffer = [WF.focusedItem()];
+
+    const selection = WF.getSelection();
+    if (selection !== undefined && selection.length != 0) 
+        tempYankBuffer = selection;
+    
+    // empty
+    yankItemDataBuffer = [];
+
+    for(var i=0, len=tempYankBuffer.length; i < len; i++)
+    {
+        if(!tempYankBuffer[i])
+            continue;
+        
+        // will generate mirror or duplicate item data depending on the type of item being yanked
+        yankItemDataBuffer.push(tempYankBuffer[i].data.copyProjectTree());
+    }
+}
+
+function yankSelectedItems_DEPRECATED(t)
+{
+    var focusedItem = WF.focusedItem();
     if(!focusedItem)
         return;
 
@@ -1233,8 +1366,48 @@ function yankSelectedItems(t)
         yankBuffer = [WF.focusedItem()];
 }
 
+function detachMirrorOnSelectedItems()
+{
+    var focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    const currentItem = WF.currentItem();
+    if(focusedItem.equals(currentItem))
+        return;
+
+    var currentSelection = [WF.focusedItem()];
+
+    const selection = WF.getSelection();
+    if (selection !== undefined && selection.length != 0) 
+        currentSelection = selection;
+
+    WF.editGroup(() => 
+    {
+        for(var i=0, len=currentSelection.length; i < len; i++)
+        {
+            if(!currentSelection[i])
+                continue;
+
+            // refocus on the item
+            const newItemData = currentSelection[i].data.unmirror();
+            const newItem = WF.getItemById(newItemData.id);
+            WF.editItemName(newItem);
+        }
+    });
+
+    // fix potential focus loss
+    if (!WF.focusedItem()) 
+    {
+        requestAnimationFrame(fixFocus);
+        WF.editItemName(WF.currentItem());
+    }
+
+}
+
 function ReplaceNonVirtualsWithOriginals(itemContainer)
 {
+    console.warn("Using Deprecated function which will be deleted in a future update");
     for (i = itemContainer.length-1; i >= 0; i--) 
     {
         if (IsMirror(itemContainer[i]) && !IsItemVirutalRoot(itemContainer[i]))
@@ -1246,6 +1419,7 @@ function ReplaceNonVirtualsWithOriginals(itemContainer)
 
 function ReplaceSubVirutalMirrorsWithVirutalMirrors(itemContainer)
 {
+    console.warn("Using Deprecated function which will be deleted in a future update");
     for (i = itemContainer.length-1; i >= 0; i--) 
     {
         if (IsMirror(itemContainer[i]))
@@ -1278,6 +1452,32 @@ function GetOriginalItem(itemToQuery)
     return item;
 }
 
+// is original item + other items have mirrored it
+function IsBeingMirrored(itemToQuery)
+{
+    if(!itemToQuery)
+        return false;
+
+    if(!itemToQuery.data)
+        return false;
+
+    if(!itemToQuery.data.metadata)
+        return false;
+
+    if(itemToQuery.data.metadata.virtualRootIds === undefined)
+        return false;
+
+    for (key in itemToQuery.data.metadata.virtualRootIds) 
+    {
+        if (itemToQuery.data.metadata.virtualRootIds.hasOwnProperty(key))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // get original item from mirror
 function GetMirroredItem(mirror)
 {
@@ -1291,6 +1491,8 @@ function IsMirror(itemToQuery)
 
     if(!itemToQuery.data)
         return false;
+
+    // return itemToQuery.data.isMirror();
 
     if(!itemToQuery.data.metadata)
         return false;
@@ -1311,6 +1513,11 @@ function GetMirroredItemID(itemToQuery)
         return;
 
     return itemToQuery.data.metadata.originalId;
+}
+
+function IsItemVirutalRoot(itemToQuery)
+{
+
 }
 
 function IsItemVirutalRoot(itemToQuery)
@@ -1613,7 +1820,6 @@ function deleteSelectedItems(t)
     var CurrentSelection = WF.getSelection();
     if (CurrentSelection !== undefined && CurrentSelection.length != 0) 
     {
-
         minNumAncestors = GetMinNumAncestors(CurrentSelection);
         var filteredSelection = CurrentSelection.filter(function(item, index, arr)
         {
@@ -1650,7 +1856,6 @@ function deleteSelectedItems(t)
     }
     else
     {
-
         // we always want to go down, as long as there is an item. Otherwise up.
         const nextItem = focusedItem.getNextVisibleSibling();
         const prevItem = focusedItem.getPreviousVisibleSibling();
@@ -2756,7 +2961,7 @@ function handleInnerMode(e)
             const num = keyBufferTempCopy.length;
             const key = keyBufferTempCopy[num-1] ;
             const modType = keyBufferTempCopy[num-3] ;
-            console.log("mod type: " + modType);
+            // console.log("mod type: " + modType);
             if(modType == 'c')
             {
                 if(key == 'w')

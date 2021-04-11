@@ -239,11 +239,12 @@ const actionMap =
 	  },
 	  Y: t => 
 	  {
-	    yankSelectedItems(t);
+	    // yankSelectedItems();
+		yankSelectedItemsByMirroring();
 	  },
 	  y: t => 
 	  {
-	    yankSelectedItems(t);
+	    yankSelectedItems();
 	  },
 	  'D': t => 
 	  {
@@ -450,7 +451,7 @@ const actionMap =
 	  },
 	  'd': t =>
 	  {
-		yankSelectedItems(t);
+		yankSelectedItems();
 		
 		/**
 		 * We need to handle pasting of subVirtual mirrors.
@@ -462,13 +463,13 @@ const actionMap =
 		 * So we'll convert all subVirutals to virtuals in order
 		 * for the data to survive.
 		 */
-		ReplaceSubVirutalMirrorsWithVirutalMirrors(yankBuffer);
+		// ReplaceSubVirutalMirrorsWithVirutalMirrors(yankBuffer);
 
 		/**
 		 * data for non virutal mirror reference won't survive deletion,
 		 * so we replace that data with a copy of the original item instead.
 		 */
-		ReplaceNonVirtualsWithOriginals(yankBuffer);
+		// ReplaceNonVirtualsWithOriginals(yankBuffer);
 
 	    deleteSelectedItems(t);
 	    ExitVisualMode();
@@ -488,7 +489,7 @@ const actionMap =
 			pasteYankedItems(true);
     		WF.editItemName(lostFocusItem);
 			WF.setSelection(selection);
-			yankSelectedItems(t);
+			yankSelectedItems();
 			deleteSelectedItems(t);
 		});
 
@@ -509,7 +510,7 @@ const actionMap =
 			pasteYankedItems(false);
     		WF.editItemName(lostFocusItem);
 			WF.setSelection(selection);
-			yankSelectedItems(t);
+			yankSelectedItems();
 			deleteSelectedItems(t);
 		});
 
@@ -527,12 +528,13 @@ const actionMap =
 	  },
 	  'Y': t =>
 	  {
-	    yankSelectedItems(t);
+		yankSelectedItemsByMirroring();
+	    // yankSelectedItems();
 	    ExitVisualMode(t);
 	  },
 	  'y': t =>
 	  {
-	    yankSelectedItems(t);
+	    yankSelectedItems();
 	    ExitVisualMode(t);
 	  },
 	  'alt-M': t => 
