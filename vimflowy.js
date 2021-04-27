@@ -125,8 +125,8 @@ let bKeyDownHasFired = false;
 let bShowTimeCounter = false;
 let keyBufferTempCopy = [];
 let keyBuffer = [];
-let yankBuffer = [];
-let yankItemDataBuffer = [];
+let yankItemBuffer_Copies = [];     // contains data for items (item.data)
+let yankItemBuffer_Duplicates = []; // contains actual items
 const validSearchKeys = '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzäåöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ ';
 const validInputKeys =  '1234567890[{]};:\'",<.>/?\\+=_-)(*&^%$#@~`!abcdefghijklmnopqrstuvwxyzåäöABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ';
 const key_Slash = "/"//55;

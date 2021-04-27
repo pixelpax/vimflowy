@@ -239,12 +239,11 @@ const actionMap =
 	  },
 	  Y: t => 
 	  {
-	    // yankSelectedItems();
 		yankSelectedItemsByMirroring();
 	  },
 	  y: t => 
 	  {
-	    yankSelectedItems();
+	    yankSelectedItemsByDuplication();
 	  },
 	  'D': t => 
 	  {
@@ -451,7 +450,7 @@ const actionMap =
 	  },
 	  'd': t =>
 	  {
-		yankSelectedItems();
+		yankSelectedItemsByCopy();
 		
 		/**
 		 * We need to handle pasting of subVirtual mirrors.
@@ -463,23 +462,30 @@ const actionMap =
 		 * So we'll convert all subVirutals to virtuals in order
 		 * for the data to survive.
 		 */
-		// ReplaceSubVirutalMirrorsWithVirutalMirrors(yankBuffer);
+		// ReplaceSubVirutalMirrorsWithVirutalMirrors(yankItemBuffer_Duplicates);
 
 		/**
 		 * data for non virutal mirror reference won't survive deletion,
 		 * so we replace that data with a copy of the original item instead.
 		 */
-		// ReplaceNonVirtualsWithOriginals(yankBuffer);
+		// ReplaceNonVirtualsWithOriginals(yankItemBuffer_Duplicates);
 
 	    deleteSelectedItems(t);
 	    ExitVisualMode();
+
+		// fix potential focus loss
+		if (!WF.focusedItem()) 
+		{
+			requestAnimationFrame(fixFocus);
+			WF.editItemName(WF.currentItem());
+		}
+
 	  },
 	  P: t => 
 	  {
-		if (yankBuffer === undefined || yankBuffer.length == 0) 
-			return;
-
-		if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+		const bValidBuffer_Copies = IsBufferValid(yankItemBuffer_Copies);
+		const bValidBuffer_Duplicates = IsBufferValid(yankItemBuffer_Duplicates);
+		if (!bValidBuffer_Copies && !bValidBuffer_Duplicates)
 			return;
 
 		WF.editGroup(() => 
@@ -489,7 +495,7 @@ const actionMap =
 			pasteYankedItems(true);
     		WF.editItemName(lostFocusItem);
 			WF.setSelection(selection);
-			yankSelectedItems();
+			yankSelectedItemsByCopy();
 			deleteSelectedItems(t);
 		});
 
@@ -497,10 +503,9 @@ const actionMap =
 	  },
 	  p: t => 
 	  {
-		if (yankBuffer === undefined || yankBuffer.length == 0) 
-			return;
-
-		if(yankBuffer[0] == null || yankBuffer[0] === undefined)
+		const bValidBuffer_Copies = IsBufferValid(yankItemBuffer_Copies);
+		const bValidBuffer_Duplicates = IsBufferValid(yankItemBuffer_Duplicates);
+		if (!bValidBuffer_Copies && !bValidBuffer_Duplicates)
 			return;
 
 		WF.editGroup(() => 
@@ -510,7 +515,7 @@ const actionMap =
 			pasteYankedItems(false);
     		WF.editItemName(lostFocusItem);
 			WF.setSelection(selection);
-			yankSelectedItems();
+			yankSelectedItemsByCopy();
 			deleteSelectedItems(t);
 		});
 
@@ -529,12 +534,11 @@ const actionMap =
 	  'Y': t =>
 	  {
 		yankSelectedItemsByMirroring();
-	    // yankSelectedItems();
 	    ExitVisualMode(t);
 	  },
 	  'y': t =>
 	  {
-	    yankSelectedItems();
+	    yankSelectedItemsByDuplication();
 	    ExitVisualMode(t);
 	  },
 	  'alt-M': t => 

@@ -37,8 +37,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `#`: search for the word under the cursor. Works as tag search.
     - `u`: Undo
     - `<Ctrl>r`: Redo
-    - `y`: yank (copy or mirror) focused items (and children)
-    - `Y`: yank (mirror) focused items (and children)
+    - `y`: yank (duplicate) focused items
+    - `Y`: yank (mirror) focused items
     - `p`: paste yanked items below focused item
     - `P`: paste yanked items above focused item
     - `<alt>l`: Zoom in on focused node 1 step and retain focus on that node
@@ -71,7 +71,7 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `S`: substitute entire line - deletes line, enters insertion mode
     - `C`: change to end of line
     - `d$`, `D`: delete to end of line
-    - `dd`: yank and delete the current item(s)
+    - `dd`: yank items (by copy) and delete the currently selected item(s)
     - `de`: cut from cursor location to the end of the current word
     - `dm`: detach mirror 
     - `ce`: de + goToInsertMode
@@ -89,9 +89,9 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `<alt>H`,`<shift>Tab`: outdent items +  enter normal mode
     - `<`: outdent items (and selected kids once the parent item hits the wall) +  enter normal mode
     - `V`,`v`,`<Esc>`: Enter normal mode
-    - `y`: yank (copy or mirror) selected items and enter normal mode
-    - `Y`: yank (mirror) selected items and enter normal mode
-    - `d`: yank, delete selected items and enter normal mode
+    - `y`: yank (duplicate) focused items and enter normal mode
+    - `Y`: yank (mirror) focused items and enter normal mode
+    - `d`: yank (copy) + delete selected items + enter normal mode
     - `D`: delete notes on all selected items
     - `G`: Adds the siblings below to the selection
     - `g`: Adds the siblings above to the selection
