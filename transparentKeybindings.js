@@ -30,6 +30,13 @@ const transparentActionMap =
 	    focusPreJumpToItemMenu = WF.focusedItem();
 	    goToInsertMode();
 	  },
+	  'ctrl-H': t => 
+	  {
+		if(WF.focusedItem())
+		{
+			WF.setSelection([WF.focusedItem()]);
+		}
+	  },
 	  'alt-Enter': e => 
 	  {
 		if(e.shiftKey)

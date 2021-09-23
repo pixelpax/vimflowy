@@ -379,6 +379,38 @@ const actionMap =
 	      MoveSelectionUp(t);
 	    else
 	      MoveItemUp(t);
+	  },
+	  'alt-0': t => 
+	  {
+		RemoveTextColorFromFocusedItem();
+	  },
+	  'alt-1': t => 
+	  {
+		ColorFocusedItem("red");
+	  },
+	  'alt-2': t => 
+	  {
+		ColorFocusedItem("orange");
+	  },
+	  'alt-3': t => 
+	  {
+		ColorFocusedItem("yellow");
+	  },
+	  'alt-4': t => 
+	  {
+		ColorFocusedItem("green");
+	  },
+	  'alt-5': t => 
+	  {
+		ColorFocusedItem("blue");
+	  },
+	  'alt-6': t => 
+	  {
+		ColorFocusedItem("purple");
+	  },
+	  'alt-7': t => 
+	  {
+		ColorFocusedItem("gray");
 	  }
 	},
 	[Mode.VISUAL]: 
@@ -386,6 +418,46 @@ const actionMap =
 	  'G': t => 
 	  {
 		  addSiblingsFromInitList(false);
+	  },
+	  'alt-0': t => 
+	  {
+		RemoveTextFromSelectedItems();
+	    ExitVisualMode();
+	  },
+	  'alt-1': t => 
+	  {
+		ColorSelectedItems("red");
+	    // ExitVisualMode();
+	  },
+	  'alt-2': t => 
+	  {
+		ColorSelectedItems("orange");
+	    // ExitVisualMode();
+	  },
+	  'alt-3': t => 
+	  {
+		ColorSelectedItems("yellow");
+	    // ExitVisualMode();
+	  },
+	  'alt-4': t => 
+	  {
+		ColorSelectedItems("green");
+	    // ExitVisualMode();
+	  },
+	  'alt-5': t => 
+	  {
+		ColorSelectedItems("blue");
+	    // ExitVisualMode();
+	  },
+	  'alt-6': t => 
+	  {
+		ColorSelectedItems("purple");
+	    // ExitVisualMode();
+	  },
+	  'alt-7': t => 
+	  {
+		ColorSelectedItems("gray");
+	    // ExitVisualMode();
 	  },
 	  'g': t => 
 	  {

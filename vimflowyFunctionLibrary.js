@@ -1,5 +1,214 @@
 const keyFrom = event => `${event.altKey ? 'alt-': ''}${event.ctrlKey ? 'ctrl-' : ''}${event.metaKey ? 'meta-' : ''}${event.key && event.key}`
 
+function RemoveTextFromSelectedItems()
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    var currentSelection = WF.getSelection();
+    if (currentSelection === undefined || currentSelection.length <= 0) 
+        return;
+
+    WF.editGroup(() => 
+    {
+        RemoveTextFromItems(currentSelection);
+    });
+}
+
+function ColorSelectedItems(inColor)
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    var currentSelection = VisualSelectionBuffer.length != 0 
+    ? VisualSelectionBuffer 
+    : WF.getSelection();
+
+    if (currentSelection === undefined || currentSelection.length <= 0) 
+        return;
+
+    WF.editGroup(() => 
+    {
+        // ensures that we keep focus on the items after the operation
+        VisualSelectionBuffer = currentSelection;
+        WF.setSelection(currentSelection);
+
+        ColorItems(currentSelection, inColor);
+    });
+}
+
+function RemoveTextFromItems(inItems)
+{
+    if (inItems !== undefined && inItems.length != 0)
+    {
+        for (var i = 0, len = inItems.length; i < len; i++)
+        {
+            let itemIter = inItems[i];
+            if(IsMirror(itemIter))
+                itemIter = GetOriginalItem(itemIter);
+
+            if(!itemIter)
+                continue;
+
+            var kids = itemIter.getChildren();
+            if (kids !== undefined && kids.length != 0) 
+                RemoveTextFromItems(kids);
+
+            RemoveTextColorFromItem(itemIter);
+        }
+    }
+}
+
+function ColorItems(inItems, inColor)
+{
+    if (inItems === undefined || inItems.length <= 0)
+        return;
+
+    for (var i = 0, len = inItems.length; i < len; i++)
+    {
+        let itemIter = inItems[i];
+        if(IsMirror(itemIter))
+            itemIter = GetOriginalItem(itemIter);
+
+        if(!itemIter)
+            continue;
+
+        var kids = itemIter.getChildren();
+        if (kids !== undefined && kids.length != 0) 
+            ColorItems(kids, inColor);
+
+        ColorItem(itemIter, inColor);
+    }
+}
+
+function RemoveTextColorFromFocusedItem()
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    // color NAME
+    if(IsFocusingOnName())
+        RemoveTextColorFromItemName(focusedItem);
+
+    // color NOTE
+    if(IsFocusingOnNote())
+        RemoveTextColorFromItemNote(focusedItem);
+}
+
+function RemoveTextColorFromItem(item)
+{
+    RemoveTextColorFromItemName(item);
+    RemoveTextColorFromItemNote(item);
+}
+
+function RemoveTextColorFromItemName(item)
+{
+    let itemName = item.getName();
+    itemName = itemName.replace(/(<span([^>]*>))/g, "");
+    itemName = itemName.replace(/(<\/span>)/g, "");
+    WF.setItemName(item, itemName);
+}
+
+function RemoveTextColorFromItemNote(item)
+{
+    let itemNote  = item.getNote();
+    itemNote = itemNote.replace(/(<span([^>]*>))/g, "");
+    itemNote = itemNote.replace(/(<\/span>)/g, "");
+    WF.setItemNote(item, itemNote);
+}
+
+function ColorFocusedItem(inColor)
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    // color NAME
+    if(IsFocusingOnName())
+        ColorFocusedItemName(inColor);
+
+    // color NOTE
+    if(IsFocusingOnNote())
+        ColorFocusedItemNote(inColor);
+}
+
+function ColorFocusedItemName(inColor)
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    ColorItemName(focusedItem, inColor);
+}
+
+function ColorFocusedItemNote(inColor)
+{
+    const focusedItem = WF.focusedItem();
+    if(!focusedItem)
+        return;
+
+    ColorItemNote(focusedItem, inColor);
+}
+
+function ColorItem(inItem, inColor)
+{
+    ColorItemName(inItem, inColor);
+    ColorItemNote(inItem, inColor);
+}
+
+function ColorItemName(inItem, inColor)
+{
+    let itemName = inItem.getName();
+
+    if(itemName.length == 0)
+        return;
+
+    const isColored = itemName.includes('colored c-'+inColor);
+    // const isHighlighted = itemName.includes('colored bc-'+inColor);
+
+    RemoveTextColorFromItemName(inItem);
+
+    // if(!isHighlighted)
+    // {
+        itemName = inItem.getName();
+        itemName = GetColoredString(itemName, inColor, isColored);
+        WF.setItemName(inItem, itemName);
+    // }
+
+}
+function ColorItemNote(inItem, inColor)
+{
+    let itemNote = inItem.getNote();
+
+    if(itemNote.length == 0)
+        return;
+
+    const isColored = itemNote.includes('colored c-'+inColor);
+    // const isHighlighted = itemNote.includes('colored bc-'+inColor);
+
+    RemoveTextColorFromItemNote(inItem);
+
+    // if(!isHighlighted)
+    // {
+        itemNote = inItem.getNote();
+        itemNote = GetColoredString(itemNote, inColor, isColored);
+        WF.setItemNote(inItem, itemNote);
+    // }
+}
+
+function GetColoredString(StringToBePained, inColor, bHighlight = true)
+{
+    var wrappedString = bHighlight 
+    ? '<span class="colored bc-' + inColor + '">' 
+    : '<span class="colored c-' + inColor + '">';
+    wrappedString += StringToBePained;
+    wrappedString += '</span>'
+    return wrappedString;
+}
+
 function calculateCursorOffset(bHtmlTagsIncluded = false)
 {
     let currentOffset = state.get().anchorOffset
@@ -3921,4 +4130,5 @@ function GetFocusedClassName()
     return foundClassName;
 
 }
+
 

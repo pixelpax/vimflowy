@@ -45,6 +45,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `<alt>h`: Zoom out of focused node 1 step and retain focus on that node
     - `<Alt>J`: Move the current line down
     - `<Alt>K`: Move the current line up
+    - `<Alt>1-7`: Color focused item name/note (depending on where the cursor is)
+    - `<Alt>0`: Remove coloring from the focused item name/note (cursor dependent)
     - `<ctrl>h`: zoom out (identical behaviour as WF zoom out - but instant)
     - `<ctrl>l`: zoom in  (identical behaviour as WF zoom in  - but instant)
     - `<ctrl>j`: Jump to node via EasyMotion
@@ -104,6 +106,8 @@ Vimflowy will block keystrokes which haven't been bound in all modes - except in
     - `<Ctrl>c`: Copies selected items to clipboard; enabling you to paste items between browsers. 
     - `Space`: toggle expand/collapse on focusedItem
     - `<ctrl>Space`: toggle expand/collapse on all items under currentItemRoot
+    - `<Alt>1-7`: Color selected items
+    - `<Alt>0`: Remove Color from selected items
 * all modes
     - `<Esc>`, `<ctrl>[`: Enter Normal mode
     - `<Ctrl>Dead`, `<Ctrl>;`, `<Ctrl>:`: Use Workflowys JumpToItemMenu
