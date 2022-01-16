@@ -2710,16 +2710,27 @@ function preventKeystrokesWhileNavigating(event)
     // console.log("trying to prevent: " + event.key);
     if (state.get().mode !== Mode.INSERT)
     {
-
-     if(modifierKeyCodesToIgnore.includes(event.key))
-     {
+        if(modifierKeyCodesToIgnore.includes(event.key))
+        {
             event.preventDefault();
             event.stopPropagation();
             // console.log("blocking modifier keys");
-     }
+        }
 
         const input = validInputKeys.includes(event.key);
         const modified = (event.metaKey || event.altKey || event.ctrlKey)
+
+        // const NonAscii = !(/^[ -~]+$/.test(event.key))
+        // if(NonAscii)
+        // {
+        //     console.log("NON ASCII KEY pressed");
+        //     event.preventDefault();
+        // }
+
+        // console.log("has been modified: "  + modified);
+        // console.log("keydown: " + event.key);
+        // console.log("hardware key: " + event.code[event.code.length-1]);
+
         if (input && !modified)
         {
             event.preventDefault();
@@ -2762,7 +2773,7 @@ function reselectItemsBeingMoved()
     }
 }
 
-function updateKeyBuffer_Keydown(event)
+function updateKeyBuffer_Keydown(event) 
 {
     if(modifierKeyCodesToIgnore.includes(event.key))
         return true;
@@ -4128,7 +4139,38 @@ function GetFocusedClassName()
     // console.log("found class name: " + foundClassName);
 
     return foundClassName;
+}
 
+function OutdentFocusedItems(e)
+{
+    if(WF.getSelection().length <= 0)
+    {
+        outdentFocusedItem(e);
+    }
+    else
+    {
+        enterVisualMode();
+        outdentSelection(e);
+        ExitVisualMode();
+        event.preventDefault()
+        event.stopPropagation()
+    }
+}
+
+function IndentFocusedItems(e)
+{
+    if(WF.getSelection().length <= 0)
+    {
+        indentFocusedItem(e);
+    }
+    else
+    {
+        enterVisualMode();
+        indentSelection(e);
+        ExitVisualMode();
+        event.preventDefault()
+        event.stopPropagation()
+    }
 }
 
 

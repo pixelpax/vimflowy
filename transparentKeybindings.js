@@ -266,35 +266,21 @@ const transparentActionMap =
 		e.preventDefault()
 		e.stopPropagation()
 	  },
+	  'alt-˘': e => 
+	  {
+		  OutdentFocusedItems(e);
+	  },
+	  'alt-ﬂ': e => 
+	  {
+		  IndentFocusedItems(e);
+	  },
 	  'alt-H': e => 
 	  {
-		if(WF.getSelection().length <= 0)
-		{
-			outdentFocusedItem(e);
-		}
-		else
-		{
-			enterVisualMode();
-			outdentSelection(e);
-			ExitVisualMode();
-			event.preventDefault()
-			event.stopPropagation()
-		}
+		  OutdentFocusedItems(e);
 	  },
 	  'alt-L': e => 
 	  {
-		if(WF.getSelection().length <= 0)
-		{
-			indentFocusedItem(e);
-		}
-		else
-		{
-			enterVisualMode();
-			indentSelection(e);
-			ExitVisualMode();
-			event.preventDefault()
-			event.stopPropagation()
-		}
+		  IndentFocusedItems(e);
 	  },
 	  '<': e => 
 	  {
@@ -457,6 +443,20 @@ const transparentActionMap =
 	  'ctrl- ': e => 
 	  {
 	    toggleExpandAll(e);
+	  },
+	  'alt-˘': e => 
+	  {
+	    outdentSelection(e);
+	    event.preventDefault()
+	    event.stopPropagation()
+	    ExitVisualMode();
+	  },
+	  'alt-ﬂ': e => 
+	  {
+	    indentSelection(e);
+	    event.preventDefault()
+	    event.stopPropagation()
+	    ExitVisualMode();
 	  },
 	  'alt-H': e => 
 	  {

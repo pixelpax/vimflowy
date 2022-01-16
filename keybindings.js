@@ -175,11 +175,19 @@ const actionMap =
 	    moveCursorToEnd(t, offsetCalculator(state))
 	    goToInsertMode(true)
 	  }),
+	  'alt-ﬁ': t => 
+	  {
+		zoomInFocused();
+	  },
 	  'alt-l': t => 
 	  {
 		zoomInFocused();
 	  },
 	  'alt-h': t => 
+	  {
+		zoomOutFocused();
+	  },
+	  'alt-˛': t => 
 	  {
 		zoomOutFocused();
 	  },
@@ -216,6 +224,12 @@ const actionMap =
 	      bShowTimeCounter = !bShowTimeCounter;
 	  },
 	  'alt-§': t => 
+	  {
+	      previousTimeTagCounterMsg = "";
+	      WF.hideMessage();
+	      bShowTimeCounter = !bShowTimeCounter;
+	  },
+	  'alt-¶': t => 
 	  {
 	      previousTimeTagCounterMsg = "";
 	      WF.hideMessage();
@@ -360,9 +374,25 @@ const actionMap =
 	  {
 		MoveSelectionDown(t);
 	  },
+	  'alt-¬': t => 
+	  {
+		MoveSelectionDown(t);
+	  },
 	  'alt-K': t => 
 	  {
 	    MoveSelectionUp(t);
+	  },
+	  'alt-º': t => 
+	  {
+	    MoveSelectionUp(t);
+	  },
+	  'alt-√': t => 
+	  {
+	    const selection = WF.getSelection();
+	    if(selection !== undefined && selection.length != 0)
+	      MoveSelectionDown(t);
+	    else
+	      MoveItemDown(t);
 	  },
 	  'alt-j': t => 
 	  {
@@ -372,6 +402,14 @@ const actionMap =
 	    else
 	      MoveItemDown(t);
 	  },
+	  'alt-ª': t => 
+	  {
+	    const selection = WF.getSelection();
+	    if(selection !== undefined && selection.length != 0)
+	      MoveSelectionUp(t);
+	    else
+	      MoveItemUp(t);
+	  },
 	  'alt-k': t => 
 	  {
 	    const selection = WF.getSelection();
@@ -380,9 +418,17 @@ const actionMap =
 	    else
 	      MoveItemUp(t);
 	  },
+	  'alt-≈': t => 
+	  {
+		RemoveTextColorFromFocusedItem();
+	  },
 	  'alt-0': t => 
 	  {
 		RemoveTextColorFromFocusedItem();
+	  },
+	  'alt-©': t => 
+	  {
+		ColorFocusedItem("red");
 	  },
 	  'alt-1': t => 
 	  {
@@ -392,7 +438,15 @@ const actionMap =
 	  {
 		ColorFocusedItem("orange");
 	  },
+	  'alt-@': t => 
+	  {
+		ColorFocusedItem("orange");
+	  },
 	  'alt-3': t => 
+	  {
+		ColorFocusedItem("yellow");
+	  },
+	  'alt-£': t => 
 	  {
 		ColorFocusedItem("yellow");
 	  },
@@ -400,7 +454,15 @@ const actionMap =
 	  {
 		ColorFocusedItem("green");
 	  },
+	  'alt-$': t => 
+	  {
+		ColorFocusedItem("green");
+	  },
 	  'alt-5': t => 
+	  {
+		ColorFocusedItem("blue");
+	  },
+	  'alt-∞': t => 
 	  {
 		ColorFocusedItem("blue");
 	  },
@@ -408,7 +470,15 @@ const actionMap =
 	  {
 		ColorFocusedItem("purple");
 	  },
+	  'alt-§': t => 
+	  {
+		ColorFocusedItem("purple");
+	  },
 	  'alt-7': t => 
+	  {
+		ColorFocusedItem("gray");
+	  },
+	  'alt-|': t => 
 	  {
 		ColorFocusedItem("gray");
 	  }
@@ -419,6 +489,39 @@ const actionMap =
 	  {
 		  addSiblingsFromInitList(false);
 	  },
+	  'alt-≈': t => 
+	  {
+		RemoveTextFromSelectedItems();
+	    ExitVisualMode();
+	  },
+	  'alt-©': t => 
+	  {
+		ColorSelectedItems("red");
+	  },
+	  'alt-@': t => 
+	  {
+		ColorSelectedItems("orange");
+	  },
+	  'alt-£': t => 
+	  {
+		ColorSelectedItems("yellow");
+	  },
+	  'alt-$': t => 
+	  {
+		ColorSelectedItems("green");
+	  },
+	  'alt-∞': t => 
+	  {
+		ColorSelectedItems("blue");
+	  },
+	  'alt-§': t => 
+	  {
+		ColorSelectedItems("purple");
+	  },
+	  'alt-|': t => 
+	  {
+		ColorSelectedItems("gray");
+	  },
 	  'alt-0': t => 
 	  {
 		RemoveTextFromSelectedItems();
@@ -427,37 +530,30 @@ const actionMap =
 	  'alt-1': t => 
 	  {
 		ColorSelectedItems("red");
-	    // ExitVisualMode();
 	  },
 	  'alt-2': t => 
 	  {
 		ColorSelectedItems("orange");
-	    // ExitVisualMode();
 	  },
 	  'alt-3': t => 
 	  {
 		ColorSelectedItems("yellow");
-	    // ExitVisualMode();
 	  },
 	  'alt-4': t => 
 	  {
 		ColorSelectedItems("green");
-	    // ExitVisualMode();
 	  },
 	  'alt-5': t => 
 	  {
 		ColorSelectedItems("blue");
-	    // ExitVisualMode();
 	  },
 	  'alt-6': t => 
 	  {
 		ColorSelectedItems("purple");
-	    // ExitVisualMode();
 	  },
 	  'alt-7': t => 
 	  {
 		ColorSelectedItems("gray");
-	    // ExitVisualMode();
 	  },
 	  'g': t => 
 	  {
@@ -613,8 +709,17 @@ const actionMap =
 	    yankSelectedItemsByDuplication();
 	    ExitVisualMode(t);
 	  },
+	  'alt-”': t => 
+	  {
+	    ExitVisualMode(t);
+	  },
 	  'alt-M': t => 
 	  {
+	    ExitVisualMode(t);
+	  },
+	  'alt-¬': t => 
+	  {
+	    MoveSelectionDown(t);
 	    ExitVisualMode(t);
 	  },
 	  'alt-J': t => 
@@ -622,14 +727,29 @@ const actionMap =
 	    MoveSelectionDown(t);
 	    ExitVisualMode(t);
 	  },
+	  'alt-º': t => 
+	  {
+	    MoveSelectionUp(t);
+	    ExitVisualMode(t);
+	  },
 	  'alt-K': t => 
 	  {
 	    MoveSelectionUp(t);
 	    ExitVisualMode(t);
 	  },
+	  'alt-√': t => 
+	  {
+	    MoveSelectionDown(t);
+	    ExitVisualMode(t);
+	  },
 	  'alt-j': t => 
 	  {
 	    MoveSelectionDown(t);
+	    ExitVisualMode(t);
+	  },
+	  'alt-ª': t => 
+	  {
+	    MoveSelectionUp(t);
 	    ExitVisualMode(t);
 	  },
 	  'alt-k': t => 
