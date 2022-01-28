@@ -1,7 +1,7 @@
 
 
 
-Vimflowy: Vim shortcuts for Workflowy
+Vimflowy: Vim shortcuts for Dynalist
 =====================================
 
 This extension adds (some) VIM keyboard shortcuts to Workflowy.com.
